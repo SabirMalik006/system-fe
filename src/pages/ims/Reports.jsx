@@ -1,68 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '../../components/common/fotter';
+import { reportsAPI } from '../../services/api';
+import toast from 'react-hot-toast';
 
 const Reports = () => {
     const [selectedLog, setSelectedLog] = useState(null);
+    const [logs, setLogs] = useState([]);
+    const [stats, setStats] = useState({
+        totalLogs: 0,
+        actionsToday: 0,
+        criticalActions: 0,
+        mostActiveModule: 'N/A',
+        mostActiveUser: 'N/A'
+    });
+    
+    // Pagination and filters
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalLogs, setTotalLogsCount] = useState(0);
+    const limit = 10;
+    
+    const [filters, setFilters] = useState({
+        module: '',
+        action: '',
+        user: ''
+    });
+
+    useEffect(() => {
+        fetchStats();
+        fetchLogs();
+    }, [page, filters]);
+
+    const fetchStats = async () => {
+        try {
+            const res = await reportsAPI.getStats();
+            if (res.data.success) {
+                setStats(res.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching stats", error);
+        }
+    };
+
+    const fetchLogs = async () => {
+        try {
+            const res = await reportsAPI.getLogs(page, limit, filters.module, filters.action, filters.user);
+            if (res.data.success) {
+                setLogs(res.data.data);
+                setTotalPages(res.data.pages);
+                setTotalLogsCount(res.data.total);
+            }
+        } catch (error) {
+            console.error("Error fetching logs", error);
+        }
+    };
 
     const statsData = [
-        { label: 'TOTAL LOG ENTRIES', value: '12,845', trend: '▲ 412% vs last month' },
-        { label: 'ACTIONS TODAY', value: '482', trend: '● Active now' },
-        { label: 'CRITICAL ACTIONS', value: '14', trend: '⚠ Needs review' },
-        { label: 'MOST ACTIVE MODULE', value: 'Stock In', trend: 'INVENTORY DEPT.' },
-        { label: 'MOST ACTIVE USER', value: 'Ahmed Riaz', trend: 'SYSTEM ADMIN' },
-    ];
-
-    const auditLogs = [
-        {
-            id: 1,
-            timestamp: 'Oct 24, 2023 - 14:32:01',
-            user: 'Mustafa',
-            action: 'CREATE',
-            module: 'Inventory',
-            resource: 'Product SKU PROD-9921',
-            status: 'SUCCESS',
-            details: 'BASIC INFO'
-        },
-        {
-            id: 2,
-            timestamp: 'Oct 24, 2023 - 14:15:22',
-            user: 'Ahmed',
-            action: 'UPDATE',
-            module: 'Sales',
-            resource: 'Order ORD-5542',
-            status: 'SUCCESS',
-            details: 'BASIC INFO'
-        },
-        {
-            id: 3,
-            timestamp: 'Oct 24, 2023 - 13:58:05',
-            user: 'Hassan',
-            action: 'DELETE',
-            module: 'Vendors',
-            resource: 'Contract CNT-102',
-            status: 'SUCCESS',
-            details: 'BASIC INFO'
-        },
-        {
-            id: 4,
-            timestamp: 'Oct 24, 2023 - 13:40:11',
-            user: 'Ameer',
-            action: 'REJECT',
-            module: 'Approvals',
-            resource: 'Purchase Req PROD-501',
-            status: 'SUCCESS',
-            details: 'BASIC INFO'
-        },
-        {
-            id: 5,
-            timestamp: 'Oct 24, 2023  - 12:55:40',
-            user: 'Usman',
-            action: 'READ',
-            module: 'System',
-            resource: 'Report View REP AUDIT-24',
-            status: 'FAILED',
-            details: 'DATA SNAPSHOT'
-        }
+        { label: 'TOTAL LOG ENTRIES', value: stats.totalLogs.toLocaleString(), trend: '▲ Tracking active' },
+        { label: 'ACTIONS TODAY', value: stats.actionsToday.toLocaleString(), trend: '● Active now' },
+        { label: 'CRITICAL ACTIONS', value: stats.criticalActions.toLocaleString(), trend: '⚠ Needs review' },
+        { label: 'MOST ACTIVE MODULE', value: stats.mostActiveModule, trend: 'SYSTEM METRIC' },
+        { label: 'MOST ACTIVE USER', value: stats.mostActiveUser, trend: 'SYSTEM USER' },
     ];
 
     const getActionBadgeColor = (action) => {
@@ -78,6 +76,25 @@ const Reports = () => {
 
     const handleViewDetails = (log) => {
         setSelectedLog(log);
+    };
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+        setPage(1); // Reset to first page on filter change
+    };
+
+    const clearFilters = () => {
+        setFilters({ module: '', action: '', user: '' });
+        setPage(1);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return {
+            date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            time: date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        };
     };
 
     return (
@@ -114,24 +131,51 @@ const Reports = () => {
                     {/* User */}
                     <div className="flex items-center gap-2 bg-[#EAF1F3] rounded-md px-3 py-2.5">
                         <img src="/Container.png" alt="user icon" className="w-4 h-4" />
-                        <select className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none">
-                            <option>User</option>
-                        </select>
+                        <input 
+                            type="text"
+                            name="user"
+                            value={filters.user}
+                            onChange={handleFilterChange}
+                            placeholder="User ID or Name"
+                            className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none w-24"
+                        />
                     </div>
 
                     {/* Action Type */}
                     <div className="flex items-center gap-2 bg-[#EAF1F3] rounded-md px-3 py-2.5">
                         <img src="/Icon (1).png" alt="action type icon" className="w-4 h-4" />
-                        <select className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none">
-                            <option>Action Type</option>
+                        <select 
+                            name="action"
+                            value={filters.action}
+                            onChange={handleFilterChange}
+                            className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none"
+                        >
+                            <option value="">All Actions</option>
+                            <option value="CREATE">CREATE</option>
+                            <option value="UPDATE">UPDATE</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="READ">READ</option>
+                            <option value="APPROVE">APPROVE</option>
+                            <option value="REJECT">REJECT</option>
+                            <option value="LOGIN">LOGIN</option>
                         </select>
                     </div>
 
                     {/* Module */}
                     <div className="flex items-center gap-2 bg-[#EAF1F3] rounded-md px-3 py-2.5">
                         <img src="/Container (1).png" alt="module icon" className="w-4 h-4" />
-                        <select className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none">
-                            <option>Module</option>
+                        <select 
+                            name="module"
+                            value={filters.module}
+                            onChange={handleFilterChange}
+                            className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none"
+                        >
+                            <option value="">All Modules</option>
+                            <option value="Inventory">Inventory</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Vendors">Vendors</option>
+                            <option value="System">System</option>
+                            <option value="Approvals">Approvals</option>
                         </select>
                     </div>
 
@@ -142,7 +186,10 @@ const Reports = () => {
                     </div>
                 </div>
 
-                <button className="text-sm text-[#1A8FA0] hover:text-blue-800 font-medium cursor-pointer whitespace-nowrap">
+                <button 
+                    onClick={clearFilters}
+                    className="text-sm text-[#1A8FA0] hover:text-blue-800 font-medium cursor-pointer whitespace-nowrap"
+                >
                     Clear all filters
                 </button>
             </div>
@@ -166,12 +213,14 @@ const Reports = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {auditLogs.map((log) => (
-                                    <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                                {logs.map((log) => {
+                                    const { date, time } = formatDate(log.createdAt);
+                                    return (
+                                    <tr key={log._id} className="border-b border-gray-200 hover:bg-gray-50">
                                         <td className="px-4 py-7 text-sm text-gray-900 leading-tight">
-                                            <div>{log.timestamp.split(' - ')[0]}</div>
+                                            <div>{date}</div>
                                             <div className="text-sm text-gray-900 mt-1">
-                                                {log.timestamp.split(' - ')[1]}
+                                                {time}
                                             </div>
                                         </td>
 
@@ -179,9 +228,9 @@ const Reports = () => {
                                             <div className="flex items-center gap-3">
                                                 <img src="/piccc.png" alt="user avatar" className="w-5 h-5 rounded-full" />
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm text-gray-900 font-bold">{log.user.split(' ')[0]}</span>
+                                                    <span className="text-sm text-gray-900 font-bold">{log.userName ? log.userName.split(' ')[0] : 'System'}</span>
                                                     <span className="text-sm font-bold text-gray-800">
-                                                        {log.user.split(' ').slice(1).join(' ')}
+                                                        {log.userName ? log.userName.split(' ').slice(1).join(' ') : 'User'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -194,7 +243,7 @@ const Reports = () => {
                                         <td className="px-4 py-3 text-sm text-gray-900">{log.module}</td>
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {(() => {
-                                                const parts = log.resource.split(' ');
+                                                const parts = (log.resource || '').split(' ');
                                                 const first = parts.shift();
                                                 const rest = parts.join(' ');
                                                 return (
@@ -218,38 +267,64 @@ const Reports = () => {
                                             </button>
                                         </td>
                                     </tr>
-                                ))}
+                                )})}
                             </tbody>
                         </table>
                     </div>
 
-                    {/* Pagination - Desktop jaisa hi rakha */}
+                    {/* Pagination */}
                     <div className="px-4 py-3 bg-white flex items-center justify-between border-t border-gray-200">
-                        <span className="text-sm text-gray-600">Showing 1 to 5 of 12,845 logs</span>
+                        <span className="text-sm text-gray-600">
+                            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalLogs)} of {totalLogs} logs
+                        </span>
 
                         <div className="flex items-center gap-2">
-                            <button className="text-sm text-gray-600 hover:bg-gray-100 rounded">
-                                <img src="/l.png" alt="" className="h-7 w-7 rounded-lg cursor-pointer" />
+                            <button 
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className={`text-sm text-gray-600 hover:bg-gray-100 rounded ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <img src="/l.png" alt="Previous" className="h-7 w-7 rounded-lg cursor-pointer" />
                             </button>
 
-                            <button className="px-3 py-1 text-sm text-white bg-[#1A8FA0] rounded-lg font-semibold">1</button>
-                            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-semibold">2</button>
-                            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-semibold">3</button>
-                            <span className="px-2 py-1 text-sm text-gray-600">...</span>
-                            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-semibold">2570</button>
+                            <button className="px-3 py-1 text-sm text-white bg-[#1A8FA0] rounded-lg font-semibold">{page}</button>
+                            {page < totalPages && (
+                                <button 
+                                    onClick={() => setPage(page + 1)}
+                                    className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-semibold"
+                                >
+                                    {page + 1}
+                                </button>
+                            )}
+                            {page + 1 < totalPages && (
+                                <span className="px-2 py-1 text-sm text-gray-600">...</span>
+                            )}
+                            {page + 1 < totalPages && (
+                                <button 
+                                    onClick={() => setPage(totalPages)}
+                                    className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-semibold"
+                                >
+                                    {totalPages}
+                                </button>
+                            )}
 
-                            <button className="text-sm text-gray-600 hover:bg-gray-100 rounded">
-                                <img src="/r.png" alt="" className="h-7 w-7 rounded-lg cursor-pointer" />
+                            <button 
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className={`text-sm text-gray-600 hover:bg-gray-100 rounded ${page === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <img src="/r.png" alt="Next" className="h-7 w-7 rounded-lg cursor-pointer" />
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Log Details Panel - Responsive */}
+                {selectedLog ? (
                 <div className="w-full xl:w-96 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col">
                     <div className="p-4 border-b border-gray-200">
                         <h3 className="text-lg font-semibold text-gray-700">Log Details</h3>
-                        <div className="text-xs text-[#64748B] font-medium mb-4">ID: LOG-82741</div>
+                        <div className="text-xs text-[#64748B] font-medium mb-4">ID: LOG-{selectedLog._id.toString().slice(-6).toUpperCase()}</div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4">
@@ -262,15 +337,17 @@ const Reports = () => {
                             <div className="space-y-3">
                                 <div>
                                     <div className="text-xs text-gray-400">ACTION PERFORMED</div>
-                                    <div className="text-md font-semibold text-gray-900 mt-0.5">New Product Created</div>
+                                    <div className="text-md font-semibold text-gray-900 mt-0.5">{selectedLog.action} - {selectedLog.status}</div>
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-400">DATE & TIME</div>
-                                    <div className="text-md font-semibold text-gray-900 mt-0.5">24 Oct 2023, 14:32:01</div>
+                                    <div className="text-md font-semibold text-gray-900 mt-0.5">
+                                        {formatDate(selectedLog.createdAt).date}, {formatDate(selectedLog.createdAt).time}
+                                    </div>
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-400">IP ADDRESS</div>
-                                    <div className="text-sm text-gray-900 mt-0.5">192.168.1.144</div>
+                                    <div className="text-sm text-gray-900 mt-0.5">{selectedLog.ipAddress || '127.0.0.1'}</div>
                                 </div>
                             </div>
                         </div>
@@ -284,11 +361,11 @@ const Reports = () => {
                             <div className="space-y-3">
                                 <div>
                                     <div className="text-xs text-gray-400">RESOURCE NAME</div>
-                                    <div className="text-sm text-[#1A8FA0] font-semibold mt-0.5">High-Traction Treadmills</div>
+                                    <div className="text-sm text-[#1A8FA0] font-semibold mt-0.5">{selectedLog.resource}</div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-gray-400">SYSTEM PATH</div>
-                                    <div className="text-sm text-gray-900 mt-0.5 break-all">/v1/inventory/products/create</div>
+                                    <div className="text-xs text-gray-400">MODULE</div>
+                                    <div className="text-sm text-gray-900 mt-0.5 break-all">{selectedLog.module}</div>
                                 </div>
                             </div>
                         </div>
@@ -301,18 +378,26 @@ const Reports = () => {
                                     <option value="">DATA SNAPSHOT</option>
                                 </select>
                             </div>
-                            <button className="text-sm border-2 border-dashed rounded-xl border-gray-200 py-4 px-12 text-[#94A3B8] hover:text-blue-800 w-full">
-                                Click to expand before/after changes
-                            </button>
+                            <div className="text-xs bg-gray-50 border-2 border-dashed rounded-xl border-gray-200 p-4 text-[#94A3B8] w-full break-all overflow-hidden">
+                                {selectedLog.details ? JSON.stringify(selectedLog.details, null, 2) : 'No details available.'}
+                            </div>
                         </div>
                     </div>
 
                     <div className="p-4 border-t border-gray-200">
-                        <button className="w-full text-center text-md text-white bg-[#1A8FA0] cursor-pointer rounded-2xl border border-gray-200 py-4">
+                        <button 
+                            onClick={() => setSelectedLog(null)}
+                            className="w-full text-center text-md text-white bg-[#1A8FA0] cursor-pointer rounded-2xl border border-gray-200 py-4"
+                        >
                             Close Panel
                         </button>
                     </div>
                 </div>
+                ) : (
+                    <div className="w-full xl:w-96 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-center items-center p-6">
+                        <p className="text-gray-500">Select a log from the table to view details</p>
+                    </div>
+                )}
             </div>
 
             <Footer />
