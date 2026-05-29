@@ -6,6 +6,9 @@ const alerts = [
   { type: 'success', title: 'Approval Required', desc: 'New Vendor Registration: ,M/S Three Star Ceramic', text:'Compliance check completed. Ready for final review.', action: 'Approve', actionColor: '#ffffff', actionBg: '#094440' },
 ];
 
+// helo
+
+
 export default function AlertCenter() {
   return (
     <div className="bg-white rounded-lg shadow-lg border border-[#E0E8EC] p-3 sm:p-3.5 mb-4 relative overflow-hidden">
