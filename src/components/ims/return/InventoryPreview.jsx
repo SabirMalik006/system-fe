@@ -1,10 +1,13 @@
-import React from 'react';
-import { TrendingUp, ArrowDown } from 'lucide-react';
+import React from "react";
+import { TrendingUp, ArrowDown } from "lucide-react";
 
-const InventoryPreview = () => {
+const InventoryPreview = ({ item }) => {
+  const currentStock = item?.currentStock || 0;
+  const returnQty = 0; // This could be passed as a prop too
+  const newStock = currentStock + returnQty;
+
   return (
     <div className="bg-white rounded-2xl border-2 border-[#1A8FA0] overflow-hidden shadow-sm w-full max-w-[400px]">
-
       {/* Top Section */}
       <div className="px-5 pt-5 pb-4">
         {/* Header row */}
@@ -21,13 +24,13 @@ const InventoryPreview = () => {
 
         {/* Current Stock label */}
         <div className="text-md text-[#94A3B8] font-normal  mb-1">
-          Current Stock
+          {item ? item.name : "No Item Selected"}
         </div>
 
         {/* Current Stock value */}
         <div className="flex items-baseline gap-1.5">
-        <span className="text-3xl font-bold text-[#334155] leading-tight">
-            1,250
+          <span className="text-3xl font-bold text-[#334155] leading-tight">
+            {currentStock.toLocaleString()}
           </span>
           <span className="text-sm text-[#334155] font-normal">units</span>
         </div>
@@ -44,18 +47,17 @@ const InventoryPreview = () => {
       <div className="bg-gradient-to-t from-[#2E5F8E] to-[#4A7FAE] px-5 pt-6 pb-5 rounded-2xl m-3 mt-2 border-2 border-[#0C626F]">
         {/* New Stock row */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-white/90">New Stock</span>
-          <span className="text-xs font-semibold text-white bg-[#1A8FA0] px-2.5 py-0.5 rounded-full">
-            +12 units
+          <span className="text-sm font-bold text-white/90">Category</span>
+          <span className="text-xs font-semibold text-white bg-[#1A8FA0] px-2.5 py-0.5 rounded-full uppercase">
+            {item?.category || "N/A"}
           </span>
         </div>
 
-        {/* New Stock value */}
-        <div className="text-4xl font-bold text-white/80 leading-tight">
-          1,262
+        {/* SKU value */}
+        <div className="text-xl font-bold text-white/80 leading-tight">
+          SKU: {item?.sku || "---"}
         </div>
       </div>
-
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ComposedChart } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 import { stockInAPI } from '../../../services/api';
+import GraphContainer from '../../common/GraphContainer';
 
 const CustomBarTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -17,6 +18,7 @@ export default function AnalyticsInsights() {
   const [trendData, setTrendData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [days, setDays] = useState(7);
 
   useEffect(() => {
@@ -25,6 +27,7 @@ export default function AnalyticsInsights() {
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const [trendRes, categoryRes] = await Promise.all([
         stockInAPI.getTrend(days),
@@ -32,56 +35,59 @@ export default function AnalyticsInsights() {
       ]);
       
       setTrendData(trendRes.data.data || []);
-      setCategoryData(categoryRes.data.categories || [
-        { label: 'Safety', pct: 35, color: '#0EA5E9' },
-        { label: 'Tools', pct: 45, color: '#0F63B7' },
-        { label: 'Others', pct: 20, color: '#0EA5E9' }
-      ]);
+      setCategoryData(categoryRes.data.categories || []);
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
+      setError("Unable to connect to inventory analytics service.");
     } finally {
       setLoading(false);
     }
   };
 
-  const weekData = trendData.length ? trendData : [
-    { day: 'MON', volume: 55 }, { day: 'TUE', volume: 42 }, { day: 'WED', volume: 72 },
-    { day: 'THU', volume: 80 }, { day: 'FRI', volume: 90 }, { day: 'SAT', volume: 38 }, { day: 'SUN', volume: 60 }
-  ];
+  const weekData = trendData;
 
   const CategoryDonut = () => {
+    if (categoryData.length === 0) return (
+      <div className="flex flex-col items-center justify-center h-[250px] text-gray-400 text-xs italic">
+        No category data found
+      </div>
+    );
+
     let startAngle = -90;
     const CX = 125, CY = 125, R_OUT = 105, R_IN = 70;
-    const total = categoryData.reduce((sum, c) => sum + (c.pct || 0), 0);
+    const total = categoryData.reduce((sum, c) => sum + parseFloat(c.pct || 0), 0);
+    const totalItems = categoryData.reduce((sum, c) => sum + (c.count || 0), 0);
     
-    const slices = categoryData.map((c, idx) => {
-      const sweep = ((c.pct || 0) / total) * 360;
-      const path = `M ${CX + (R_OUT + R_IN)/2 * Math.cos((startAngle - 90) * Math.PI/180)} ${CY + (R_OUT + R_IN)/2 * Math.sin((startAngle - 90) * Math.PI/180)} ...`;
-      const result = { ...c, startAngle, sweep };
-      startAngle += sweep;
-      return result;
-    });
-
     return (
       <div className="flex flex-col items-center">
         <svg width="250" height="250" viewBox="0 0 250 250">
-          {slices.map((s, i) => (
-            <circle key={i} cx={CX} cy={CY} r={90} fill="none" stroke={s.color} strokeWidth="30" 
-              strokeDasharray={`${(s.sweep / 360) * 565} 565`} strokeDashoffset={-((s.startAngle - 90) / 360) * 565} />
-          ))}
-          <text x={CX} y={CY + 2} textAnchor="middle" fontSize="32" fontWeight="800" fill="#0f172a">125</text>
+          {categoryData.map((s, i) => {
+            const sweep = (parseFloat(s.pct || 0) / total) * 360;
+            const res = (
+              <circle 
+                key={i} 
+                cx={CX} 
+                cy={CY} 
+                r={90} 
+                fill="none" 
+                stroke={s.color} 
+                strokeWidth="30" 
+                strokeDasharray={`${(sweep / 360) * 565} 565`} 
+                strokeDashoffset={-((startAngle - 90) / 360) * 565} 
+              />
+            );
+            startAngle += sweep;
+            return res;
+          })}
+          <text x={CX} y={CY + 2} textAnchor="middle" fontSize="32" fontWeight="800" fill="#0f172a">{totalItems}</text>
           <text x={CX} y={CY + 22} textAnchor="middle" fontSize="10" fill="#0F172A" fontWeight={600}>TOTAL ITEMS</text>
         </svg>
       </div>
     );
   };
 
-  if (loading) {
-    return <div className="bg-white rounded-2xl p-4 animate-pulse">Loading analytics...</div>;
-  }
-
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <GraphContainer loading={loading} error={error} className="p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 border-2 border-[#2B8CEE] rounded flex items-center justify-center">
@@ -107,16 +113,22 @@ export default function AnalyticsInsights() {
         <div className="border border-[#2B8CEE] rounded-xl p-4 lg:col-span-2">
           <h3 className="font-bold text-[#0F172A] text-base">Goods Receipt Trend</h3>
           <div className="h-[220px] mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={weekData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} />
-                <YAxis hide />
-                <Tooltip content={<CustomBarTooltip />} />
-                <Bar dataKey="volume" fill="#6B8CAE" radius={[6, 6, 0, 0]} barSize={34} />
-                <Line type="monotone" dataKey="volume" stroke="#1e3a5f" strokeWidth={2.5} dot={{ r: 4 }} />
-              </ComposedChart>
-            </ResponsiveContainer>
+            {weekData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={weekData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} />
+                  <YAxis hide />
+                  <Tooltip content={<CustomBarTooltip />} />
+                  <Bar dataKey="volume" fill="#6B8CAE" radius={[6, 6, 0, 0]} barSize={34} />
+                  <Line type="monotone" dataKey="volume" stroke="#1e3a5f" strokeWidth={2.5} dot={{ r: 4 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm italic">
+                No receipt data for this period
+              </div>
+            )}
           </div>
         </div>
 
@@ -136,6 +148,6 @@ export default function AnalyticsInsights() {
           </div>
         </div>
       </div>
-    </div>
+    </GraphContainer>
   );
 }

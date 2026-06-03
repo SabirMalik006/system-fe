@@ -83,8 +83,10 @@ export const dashboardAPI = {
   dismissAlert: (id) => api.put(`/dashboard/alerts/${id}/dismiss`),
   clearAlerts: () => api.delete('/dashboard/alerts/clear'),
   getInventoryStatus: () => api.get('/dashboard/inventory-status'),
+  getStats: () => api.get('/dashboard/stats'),
   getDepletion: () => api.get('/dashboard/depletion'),
   getHealth: () => api.get('/dashboard/health'),
+  getStockMovement: () => api.get('/dashboard/stock-movement'),
 };
 
 // ==================== STOCK IN API ====================

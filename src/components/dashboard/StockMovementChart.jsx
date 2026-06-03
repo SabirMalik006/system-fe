@@ -1,18 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { ChevronDown } from 'lucide-react';
-
-const barData = [
-  { month: 'Jan', in: 420, out: 310 }, { month: 'Feb', in: 380, out: 290 },
-  { month: 'Mar', in: 510, out: 400 }, { month: 'Apr', in: 460, out: 350 },
-  { month: 'May', in: 540, out: 420 }, { month: 'Jun', in: 490, out: 380 },
-  { month: 'Jul', in: 620, out: 510 }, { month: 'Aug', in: 580, out: 440 },
-  { month: 'Sep', in: 440, out: 360 }, { month: 'Oct', in: 500, out: 390 },
-  { month: 'Nov', in: 560, out: 430 }, { month: 'Dec', in: 640, out: 500 },
-];
+import { dashboardAPI } from '../../services/api';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -36,6 +28,36 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function StockMovementChart() {
   const [period, setPeriod] = useState('Monthly');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await dashboardAPI.getStockMovement();
+        if (response.data.success) {
+          setData(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching stock movement data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{
+        background: '#fff', borderRadius: 26, border: '1px solid #D7E6F8',
+        padding: '20px 24px 16px', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        Loading chart...
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -94,7 +116,7 @@ export default function StockMovementChart() {
       <div style={{ height: 240 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={barData}
+            data={data}
             barSize={14}
             barCategoryGap="30%"
             barGap={3}

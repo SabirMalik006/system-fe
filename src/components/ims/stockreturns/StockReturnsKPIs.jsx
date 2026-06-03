@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Clock, CheckSquare, XCircle, Zap } from 'lucide-react';
+import { RotateCcw, Clock, CheckSquare, XCircle, DollarSign } from 'lucide-react';
 import { stockReturnAPI } from '../../../services/api';
 
 export default function StockReturnsKPIs() {
-  const [kpis, setKpis] = useState([
-    { label: 'TOTAL RETURNS', value: '24', sub: '↗ 3 from last month', subColor: 'text-[#059669]', icon: RotateCcw },
-    { label: 'PENDING POSTING', value: '3', sub: 'Awaiting confirmation', subColor: 'text-[#0F172A]', icon: Clock },
-    { label: 'ITEMS RECOVERED', value: '142', sub: 'Units back in stock', subColor: 'text-[#1E4D7B]', icon: CheckSquare },
-    { label: 'DAMAGED / DISPOSAL', value: '11', sub: 'Flagged for disposal', subColor: 'text-[#510208]', icon: XCircle },
-    { label: 'AVG PROCESSING HRS', value: '142', sub: '↓ 0.3 hrs faster', subColor: 'text-[#1A6FC4]', icon: Zap },
-  ]);
+  const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,10 +16,10 @@ export default function StockReturnsKPIs() {
       const data = response.data.data;
       setKpis([
         { label: 'TOTAL RETURNS', value: data.totalReturns.value.toString(), sub: `${data.totalReturns.trend === 'up' ? '↗' : '↘'} ${Math.abs(data.totalReturns.change)} from last month`, subColor: 'text-[#059669]', icon: RotateCcw },
+        { label: 'RETURN VALUE', value: `$${data.totalValue.value.toLocaleString()}`, sub: data.totalValue.label, subColor: 'text-blue-600', icon: DollarSign },
         { label: 'PENDING POSTING', value: data.pendingPosting.value.toString(), sub: data.pendingPosting.label, subColor: 'text-[#0F172A]', icon: Clock },
         { label: 'ITEMS RECOVERED', value: data.itemsRecovered.value.toString(), sub: data.itemsRecovered.label, subColor: 'text-[#1E4D7B]', icon: CheckSquare },
         { label: 'DAMAGED / DISPOSAL', value: data.damagedDisposal.value.toString(), sub: data.damagedDisposal.label, subColor: 'text-[#510208]', icon: XCircle },
-        { label: 'AVG PROCESSING HRS', value: data.avgProcessingHours.value.toString(), sub: `${data.avgProcessingHours.trend === 'down' ? '↓' : '↑'} ${Math.abs(data.avgProcessingHours.change)} hrs faster`, subColor: 'text-[#1A6FC4]', icon: Zap },
       ]);
     } catch (error) {
       console.error('Failed to fetch KPIs:', error);

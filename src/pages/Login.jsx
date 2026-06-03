@@ -45,12 +45,9 @@ const Login = () => {
 
   // Demo login for quick testing
   const handleDemoLogin = async (role) => {
-    setLoading(true);
-    setError('');
-    
     let email = '';
     let password = '';
-    
+
     if (role === 'admin') {
       email = 'superadmin@system.com';
       password = 'Super@123';
@@ -61,17 +58,21 @@ const Login = () => {
       email = 'ims_manager@system.com';
       password = 'Manager@123';
     }
+
+    setFormData({ email, password });
     
+    // Pass credentials directly to login function to avoid race condition with state
+    setLoading(true);
+    setError('');
     try {
       const result = await login(email, password);
-      
       if (result.success) {
         navigate('/dashboard');
       } else {
-        setError(result.error || 'Demo login failed');
+        setError(result.error || 'Login failed. Please try again.');
       }
     } catch (err) {
-      setError(err.message || 'Demo login failed');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

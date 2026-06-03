@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, Clock, Calendar } from 'lucide-react';
+import { stockOutAPI } from '../../../services/api';
+import GraphContainer from '../../common/GraphContainer';
 
 export default function PendingVsApproved() {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await stockOutAPI.getPendingApproved();
+            if (response.data.success) {
+                setData(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching pending vs approved data:', error);
+            setError("Unable to connect to issuance status service.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const approved = data?.approved || { count: 0, percentage: 0, change: 0 };
+    const pending = data?.pending || { count: 0, percentage: 0, change: 0 };
+    const total = data?.total || 0;
+    const month = data?.month || 'Current Month';
+
     return (
-        <div className="bg-white  h-[396px] md:h-[360px] rounded-2xl border border-gray-100 shadow-sm p-5  relative">
+        <GraphContainer loading={loading} error={error} className="h-[396px] md:h-[360px] relative">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                 <div>
@@ -15,7 +46,7 @@ export default function PendingVsApproved() {
                 </div>
                 <div className="flex items-center justify-center  gap-1.5 bg-[#1A8FA0] text-white text-xs font-medium px-3 py-2 rounded-sm ">
                     <Calendar size={13} />
-                    Current Month: Feb 2026
+                    Current Month: {month}
                 </div>
             </div>
 
@@ -28,8 +59,10 @@ export default function PendingVsApproved() {
                     </div>
                     <div className="text-[12px] font-normal text-blue-200 tracking-widest uppercase mb-2">Approved</div>
                     <div className='flex gap-2 mt-4 mb-3' >
-                        <div className="text-3xl font-semibold text-white leading-none">1,240</div>
-                        <div className="text-xs text-white font-semibold mt-2">+12%</div>
+                        <div className="text-3xl font-semibold text-white leading-none">{approved.count.toLocaleString()}</div>
+                        <div className={`text-xs text-white font-semibold mt-2 ${approved.change >= 0 ? '' : 'text-red-200'}`}>
+                            {approved.change >= 0 ? '+' : ''}{approved.change}%
+                        </div>
                     </div>
                     <div className="text-xs text-blue-100 font-medium ">Successful deployments</div>
                     {/* Decorative circle */}
@@ -43,8 +76,10 @@ export default function PendingVsApproved() {
                     </div>
                     <div className="text-[12px] font-normal text-blue-200 tracking-widest uppercase mb-2">Pending</div>
                     <div className='flex gap-4 mt-4 mb-3'>
-                        <div className="text-3xl font-semibold text-white leading-none">1,210</div>
-                        <div className="text-xs text-white font-semibold mt-2">−5%</div>
+                        <div className="text-3xl font-semibold text-white leading-none">{pending.count.toLocaleString()}</div>
+                        <div className={`text-xs text-white font-semibold mt-2 ${pending.change <= 0 ? '' : 'text-yellow-200'}`}>
+                            {pending.change >= 0 ? '+' : ''}{pending.change}%
+                        </div>
                     </div>
                     <div className="text-xs text-white font-medium mt-0.5">Awaiting Verification</div>
                     <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full" />
@@ -57,25 +92,25 @@ export default function PendingVsApproved() {
                 {/* Approved bar */}
                 <div className="mb-3">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-[#1A8FA0]">APPROVED (50.6%)</span>
-                        <span className="text-[11px] font-semibold text-[#1A8FA0]">1,240 / 2,450</span>
+                        <span className="text-[11px] font-bold text-[#1A8FA0]">APPROVED ({approved.percentage}%)</span>
+                        <span className="text-[11px] font-semibold text-[#1A8FA0]">{approved.count.toLocaleString()} / {total.toLocaleString()}</span>
                     </div>
                     <div className="h-2.5 rounded-full bg-[#1E293B] overflow-hidden">
-                        <div className="h-full rounded-full bg-teal-500" style={{ width: '50.6%' }} />
+                        <div className="h-full rounded-full bg-teal-500 transition-all duration-1000" style={{ width: `${approved.percentage}%` }} />
                     </div>
                 </div>
 
                 {/* Pending bar */}
                 <div>
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-[#64748B]">PENDING (49.4%)</span>
-                        <span className="text-[11px] font-semibold text-[#64748B]">1,210 / 2,450</span>
+                        <span className="text-[11px] font-bold text-[#64748B]">PENDING ({pending.percentage}%)</span>
+                        <span className="text-[11px] font-semibold text-[#64748B]">{pending.count.toLocaleString()} / {total.toLocaleString()}</span>
                     </div>
                     <div className="h-2.5 rounded-full bg-[#1E293B] overflow-hidden">
-                        <div className="h-full rounded-full bg-gray-400" style={{ width: '49.4%' }} />
+                        <div className="h-full rounded-full bg-gray-400 transition-all duration-1000" style={{ width: `${pending.percentage}%` }} />
                     </div>
                 </div>
             </div>
-        </div>
+        </GraphContainer>
     );
 }

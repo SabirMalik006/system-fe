@@ -1,23 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, ReferenceLine,
-} from 'recharts';
-import { Calendar } from 'lucide-react';
-
-const trendData = [
-  { month: 'Jan', returns: 19, baseline: 20 },
-  { month: 'Feb', returns: 15, baseline: 20 },
-  { month: 'Mar', returns: 21, baseline: 20 },
-  { month: 'Apr', returns: 20, baseline: 20 },
-  { month: 'May', returns: 24, baseline: 20 },
-  { month: 'Jun', returns: 20, baseline: 20 },
-  { month: 'Jul', returns: 17, baseline: 20 },
-  { month: 'Aug', returns: 21, baseline: 20 },
-  { month: 'Sep', returns: 16, baseline: 20 },
-  { month: 'Oct', returns: 19, baseline: 20 },
-  { month: 'Nov', returns: 25, baseline: 20 },
-];
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
+import { Calendar } from "lucide-react";
+import { stockReturnAPI } from "../../../services/api";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -26,7 +19,10 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="font-semibold mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color }} />
+          <span
+            className="w-2 h-2 rounded-full inline-block"
+            style={{ background: p.color }}
+          />
           <span className="text-gray-500">{p.name}:</span>
           <span className="font-semibold">{p.value}</span>
         </div>
@@ -36,6 +32,34 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function MonthlyTrendChart() {
+  const [trendData, setTrendData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrend = async () => {
+      try {
+        const response = await stockReturnAPI.getMonthlyTrend(2025);
+        if (response.data.success) {
+          setTrendData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch monthly trend:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrend();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white mx-0 sm:mx-23 rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 h-[300px] flex items-center justify-center animate-pulse">
+        <div className="text-gray-400">Loading trend data...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white mx-0 sm:mx-23  rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 overflow-x-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
@@ -50,11 +74,23 @@ export default function MonthlyTrendChart() {
 
       <div className="h-[220px] sm:h-[260px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={trendData} margin={{ top: 10, right: 10, left: -35, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-            <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+          <LineChart
+            data={trendData}
+            margin={{ top: 10, right: 10, left: -35, bottom: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#f1f5f9"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 10, fill: "#94a3b8" }}
+              axisLine={false}
+              tickLine={false}
+            />
             <YAxis
-              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              tick={{ fontSize: 10, fill: "#94a3b8" }}
               axisLine={false}
               tickLine={false}
               domain={[6, 28]}
@@ -76,7 +112,7 @@ export default function MonthlyTrendChart() {
               name="Returns Volume"
               stroke="#2563eb"
               strokeWidth={2.5}
-              dot={{ r: 3, fill: '#fff', stroke: '#2563eb', strokeWidth: 2 }}
+              dot={{ r: 3, fill: "#fff", stroke: "#2563eb", strokeWidth: 2 }}
               activeDot={{ r: 5 }}
             />
           </LineChart>
@@ -86,12 +122,36 @@ export default function MonthlyTrendChart() {
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-3 pl-2">
         <div className="flex items-center gap-2">
-          <svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round"/></svg>
-          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">RETURNS VOLUME</span>
+          <svg width="24" height="8">
+            <line
+              x1="0"
+              y1="4"
+              x2="24"
+              y2="4"
+              stroke="#2563eb"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
+            RETURNS VOLUME
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <svg width="24" height="8"><line x1="0" y1="4" x2="24" y2="4" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="5 3"/></svg>
-          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">TARGET BASELINE</span>
+          <svg width="24" height="8">
+            <line
+              x1="0"
+              y1="4"
+              x2="24"
+              y2="4"
+              stroke="#94a3b8"
+              strokeWidth="1.5"
+              strokeDasharray="5 3"
+            />
+          </svg>
+          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
+            TARGET BASELINE
+          </span>
         </div>
       </div>
     </div>

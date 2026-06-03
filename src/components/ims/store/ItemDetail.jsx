@@ -1,12 +1,12 @@
 import React from 'react';
 
-const ItemDetail = () => {
+const ItemDetail = ({ selectedItem }) => {
     const details = [
-        { label: "Item Code:", value: "ITM-RC1-TM-001" },
-        { label: "Category:", value: "Power Tools" },
-        { label: "Recorder Level:", value: "208 Units" },
-        { label: "Location:", value: "Asia, A, Shelf S-12" },
-        { label: "Unit Value:", value: "Rs 24.00" }
+        { label: "Item Code:", value: selectedItem?.sku || "N/A" },
+        { label: "Category:", value: selectedItem?.category || "N/A" },
+        { label: "Reorder Level:", value: `${selectedItem?.minStock || 0} Units` },
+        { label: "Location:", value: selectedItem?.location || "N/A" },
+        { label: "Unit Value:", value: `Rs ${selectedItem?.unitPrice?.toLocaleString() || '0.00'}` }
     ];
 
     return (
