@@ -9,6 +9,7 @@ import ItemDetail from "./ItemDetail";
 import FinancialSummary from "./FinancialSummary";
 import Footer from "../../common/fotter";
 import { stockInAPI, itemsAPI } from "../../../services/api";
+import toast, { Toaster } from 'react-hot-toast';
 
 const StoreReceipt = () => {
   const navigate = useNavigate();
@@ -57,12 +58,12 @@ const StoreReceipt = () => {
       };
       const response = await stockInAPI.createTransaction(payload);
       if (response.data.success) {
-        alert("Stock In recorded successfully!");
+        toast.success("Stock In recorded successfully!");
         navigate("/stock-in");
       }
     } catch (error) {
       console.error("Error creating stock in transaction:", error);
-      alert(error.response?.data?.message || "Failed to record stock in.");
+      toast.error(error.response?.data?.message || "Failed to record stock in.");
     } finally {
       setLoading(false);
     }
@@ -70,6 +71,7 @@ const StoreReceipt = () => {
 
   return (
     <div className="max-w-7xl mx-auto bg-[#E8F4FF] min-h-screen">
+      <Toaster position="top-right" />
       <div className="p-4 sm:p-6">
         {/* Header */}
         <StoreHeader />

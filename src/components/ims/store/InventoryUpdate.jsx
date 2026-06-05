@@ -1,9 +1,10 @@
 import React from 'react';
 
 const InventoryUpdate = ({ selectedItem, quantity }) => {
-    const previousStock = selectedItem ? selectedItem.stock : 0;
+    // Use currentStock from backend, fall back to stock, then to 0
+    const previousStock = selectedItem ? (parseInt(selectedItem.currentStock) || parseInt(selectedItem.stock) || 0) : 0;
     const received = parseInt(quantity) || 0;
-    const afterReceipt = previousStock + received;
+    const afterReceipt = (previousStock || 0) + (received || 0);
 
     return (
         <div className="bg-gradient-to-b from-[#1E4D7B] to-[#1E4D7B] rounded-xl border border-gray-200 p-5 text-white">

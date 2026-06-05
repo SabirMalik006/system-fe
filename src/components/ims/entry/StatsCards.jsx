@@ -1,31 +1,37 @@
 import React from 'react';
 
-const StatsCards = ({ showLowStockAlert = true }) => {
+const StatsCards = ({ 
+    showLowStockAlert = true,
+    totalIssuances = 0,
+    pendingApprovals = 0,
+    approvedIssuances = 0,
+    lowStockAlerts = 0
+}) => {
     const stats = [
         { 
             label: "TOTAL ISSUANCES", 
-            value: "24", 
+            value: String(totalIssuances).padStart(2, '0'),
             icon: "/Overlay.png",
             bgGradient: "bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B]",
             alwaysShow: true
         },
         { 
             label: "PENDING APPROVALS", 
-            value: "05", 
+            value: String(pendingApprovals).padStart(2, '0'),
             icon: "/Overlay (1).png",
             bgGradient: "bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B]",
             alwaysShow: true
         },
         { 
-            label: "APPROVED TOOM", 
-            value: "12", 
+            label: "COMPLETED ISSUANCES", 
+            value: String(approvedIssuances).padStart(2, '0'),
             icon: "/Overlay (2).png",
             bgGradient: "bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B]",
             alwaysShow: true
         },
         { 
             label: "Low Stock Alerts", 
-            value: "03 Alerts", 
+            value: `${lowStockAlerts} Alerts`, 
             icon: "/Background (1).png",
             bgGradient: "from-[#640404] to-[#640404]",
             alwaysShow: false

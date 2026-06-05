@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ApprovalSection = ({ onConfirm }) => {
+const ApprovalSection = ({ onConfirm, loading = false }) => {
   const [approvingAuthority, setApprovingAuthority] = useState("");
   const [confirmPolicy, setConfirmPolicy] = useState(false);
 
@@ -15,11 +15,12 @@ const ApprovalSection = ({ onConfirm }) => {
     }
   };
 
+  const isFormValid = confirmPolicy;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <div className="flex gap-2 items-center">
-        <img src="tik.png" alt="" className="pb-3" />
-        <h2 className="text-xl font-semibold text-[#2B8CEE] mb-4">
+      <div className="flex gap-2 items-center mb-4">
+        <h2 className="text-xl font-semibold text-[#2B8CEE]">
           Approval & Verification
         </h2>
       </div>
@@ -32,6 +33,7 @@ const ApprovalSection = ({ onConfirm }) => {
           <input
             value={approvingAuthority}
             onChange={(e) => setApprovingAuthority(e.target.value)}
+            placeholder="Enter authority name..."
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white"
           />
         </div>
@@ -64,16 +66,17 @@ const ApprovalSection = ({ onConfirm }) => {
       <div className="flex items-center justify-end gap-3 mt-6">
         <button
           onClick={handleReset}
-          className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          disabled={loading}
+          className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           Reset Form
         </button>
         <button
           onClick={handleConfirm}
-          className="px-4 py-2 text-sm text-white bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B] rounded-lg hover:from-[#1D4ED8] hover:to-[#1976D2] transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-1"
+          disabled={!isFormValid || loading}
+          className="px-6 py-2 text-sm text-white bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B] rounded-lg hover:from-[#1D4ED8] hover:to-[#1976D2] transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <img src="pp.png" alt="" />
-          Confirm Issuance
+          {loading ? "Processing..." : "Confirm Issuance"}
         </button>
       </div>
     </div>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { stockInAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
+import toast, { Toaster } from 'react-hot-toast';
 
 const statusStyles = {
   POSTED: "bg-green-100 text-green-700",
@@ -72,19 +73,19 @@ export default function MasterSessionHistory() {
       try {
         const response = await stockInAPI.deleteTransaction(mongoId);
         if (response.data.success) {
-          alert("Transaction deleted successfully");
+          toast.success("Transaction deleted successfully");
           fetchTransactions();
         }
       } catch (error) {
         console.error("Failed to delete transaction:", error);
-        alert("Failed to delete transaction");
+        toast.error("Failed to delete transaction");
       }
     }
   };
 
   const handleExport = async () => {
     if (transactions.length === 0) {
-      alert("No data to export");
+      toast("No data to export");
       return;
     }
 
@@ -125,6 +126,7 @@ Generated on: ${new Date().toLocaleString()}
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 min-h-[400px]">
+      <Toaster position="top-right" />
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>

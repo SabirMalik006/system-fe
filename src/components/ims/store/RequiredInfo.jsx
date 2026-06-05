@@ -49,8 +49,8 @@ const RequiredInfo = ({ formData, setFormData }) => {
           >
             <option value="">Select an item...</option>
             {items.map(item => (
-              <option key={item._id} value={item._id}>
-                {item.name} ({item.sku})
+              <option key={item.id} value={item.id}>
+                {item.name} ({item.identifiers})
               </option>
             ))}
           </select>

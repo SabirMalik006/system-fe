@@ -1,6 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { itemsAPI } from "../../../services/api";
 
-const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
+const RequestInfo = ({ formData, setFormData, quantity, setQuantity, selectedItem }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      const response = await itemsAPI.getItems(1, 100);
+      if (response.data.success) {
+        setItems(response.data.items);
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const availableStock = selectedItem ? (selectedItem.currentStock || 0) : 0;
   const isExceeding = quantity > availableStock;
   const stockAfterIssue = availableStock - quantity;
 
@@ -16,7 +38,6 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       {/* Header with Icon */}
       <div className="flex items-center gap-2 mb-6">
-        <img src="11.png" alt="" className="w-6 h-6" />
         <h2 className="text-xl font-semibold text-[#2B8CEE]">
           Required Information
         </h2>
@@ -29,16 +50,18 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
           <label className="text-sm font-medium text-[#64748B] mb-2 block">
             ITEM ISSUED *
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search item name or SKU"
-              className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white"
-            />
-            <span className="absolute right-3 top-3 text-gray-400 text-sm">
-              🔍
-            </span>
-          </div>
+          <select
+            value={formData.itemId}
+            onChange={(e) => setFormData({ ...formData, itemId: e.target.value })}
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white"
+          >
+            <option value="">Select an item...</option>
+            {items.map(item => (
+              <option key={item.id} value={item.id}>
+                {item.name} ({item.identifiers})
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Quantity */}
@@ -50,7 +73,7 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
             {isExceeding && (
               <span className="text-xs text-red-500">
                 Stock after issue:{" "}
-                <span className="font-medium">{stockAfterIssue}</span>
+                <span className="font-medium">{Math.max(0, stockAfterIssue)}</span>
               </span>
             )}
           </div>
@@ -92,16 +115,26 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
           <label className="text-sm font-medium text-[#64748B] mb-2 block">
             PURPOSE OF ISSUANCE *
           </label>
-          <input className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white text-[#64748B]" />
+          <input
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="e.g., Daily repair work, Maintenance..."
+            className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white text-[#64748B]"
+          />
         </div>
         <div>
           <label className="text-sm font-medium text-[#64748B] mb-2 block">
             ISSUING UNIT/DEPARTMENT *
           </label>
-          <select className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white text-[#64748B]">
+          <select
+            value={formData.department}
+            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+            className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white text-[#64748B]"
+          >
             <option>Main Warehouse</option>
             <option>Secondary Warehouse</option>
             <option>Storage Unit A</option>
+            <option>Tools Store</option>
           </select>
         </div>
       </div>
@@ -114,7 +147,7 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
           </label>
           <input
             type="text"
-            value="Alex Richardson (Store Manager)"
+            value="Current User"
             className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 text-[#64748B]"
             readOnly
           />
@@ -125,7 +158,7 @@ const RequestInfo = ({ quantity, setQuantity, availableStock = 450 }) => {
           </label>
           <input
             type="text"
-            value="08/12/2024, 02:30 PM"
+            value={new Date().toLocaleString()}
             className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 text-[#64748B]"
             readOnly
           />
