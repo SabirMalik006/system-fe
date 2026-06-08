@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Anchor, ChevronDown, Bell, Search, Menu, X } from 'lucide-react';
+import { Anchor, ChevronDown, Bell, Search, Menu, X, LogOut } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const navLinks = [
   { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false },
@@ -23,8 +24,27 @@ export default function HrmNavbar() {
   const [isDevelopmentOpen, setIsDevelopmentOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileDevelopmentOpen, setIsMobileDevelopmentOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -167,18 +187,36 @@ export default function HrmNavbar() {
       </button>
 
       {/* User - Desktop (Hidden below 1024px) */}
-      <div 
-        onClick={() => handleNavigation('/personnel-profile')}
-        className="hidden lg:flex items-center gap-2 ml-1 cursor-pointer"
-      >
-        <div className="text-right">
-          <div className="text-white text-xs font-bold leading-none">DW &amp; CE</div>
-          <div className="text-blue-200 text-[14px]">Director</div>
+      <div className="relative hidden lg:block" ref={userMenuRef}>
+        <div
+          onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+          className="flex items-center gap-2 ml-1 cursor-pointer"
+        >
+          <div className="text-right">
+            <div className="text-white text-xs font-bold leading-none">{user?.name || 'User'}</div>
+            <div className="text-blue-200 text-[14px] uppercase">{user?.role?.replace('_', ' ') || ''}</div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-blue-300 flex items-center justify-center text-xs font-bold text-blue-900 relative">
+            {user?.name?.charAt(0) || 'U'}
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border border-[#0B4E89]" />
+          </div>
         </div>
-        <div className="w-8 h-8 rounded-full bg-blue-300 flex items-center justify-center text-xs font-bold text-blue-900 relative">
-          DW
-          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border border-[#0B4E89]" />
-        </div>
+
+        {isUserMenuOpen && (
+          <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+            <div className="px-4 py-2 border-b border-gray-100">
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Menu Button - Visible below 1024px */}
@@ -258,18 +296,25 @@ export default function HrmNavbar() {
 
             {/* Mobile User Info */}
             <div className="mt-3 pt-3 border-t border-white/20">
-              <div 
+              <div
                 onClick={() => handleNavigation('/personnel-profile')}
                 className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-white/10 rounded-lg"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-300 flex items-center justify-center text-xs font-bold text-blue-900">
-                  DW
+                  {user?.name?.charAt(0) || 'U'}
                 </div>
                 <div>
-                  <div className="text-white text-xs font-bold">DW &amp; CE</div>
-                  <div className="text-blue-200 text-xs">Director</div>
+                  <div className="text-white text-xs font-bold">{user?.name || 'User'}</div>
+                  <div className="text-blue-200 text-xs uppercase">{user?.role?.replace('_', ' ') || ''}</div>
                 </div>
               </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-sm text-red-300 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
             </div>
 
             {/* Mobile Bell */}

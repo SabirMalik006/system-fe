@@ -37,8 +37,9 @@ const StockReturnEntry = () => {
     setSelectedItem(item);
     setFormData((prev) => ({
       ...prev,
-      itemId: item._id,
+      itemId: item.id,
       itemName: item.name,
+      unitPrice: parseFloat(String(item.unitPrice).replace(/[^0-9.-]+/g, '')) || 0,
     }));
   };
 

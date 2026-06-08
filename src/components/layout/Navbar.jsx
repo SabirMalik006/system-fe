@@ -1,13 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Search, ChevronDown, Menu, X, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const dropdownTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard' },
@@ -139,21 +160,42 @@ const Navbar = () => {
               />
             </div>
 
-            {/* User Profile */}
-            <div className="flex items-center gap-2 cursor-pointer relative">
-              <div className="relative">
-                <img src="/SVG.png" alt="" className="w-5 h-5" />
-                <p className="h-2 w-2 absolute bg-red-500 rounded-full -top-1 -right-1"></p>
+            {/* User Profile Dropdown */}
+            <div className="relative" ref={userMenuRef}>
+              <div
+                className="flex items-center gap-2 cursor-pointer relative"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                <div className="relative">
+                  <img src="/SVG.png" alt="" className="w-5 h-5" />
+                  <p className="h-2 w-2 absolute bg-red-500 rounded-full -top-1 -right-1"></p>
+                </div>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <img src="/b.svg" alt="Border" className="w-5 h-5 sm:w-8 sm:h-8" />
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-[10px] sm:text-xs font-medium text-white leading-tight">
+                    {user?.name || 'User'} <br />
+                    <span className='text-[10px] sm:text-xs font-light text-[#1A8FA0] uppercase'>{user?.role?.replace('_', ' ') || ''}</span>
+                  </p>
+                </div>
               </div>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <img src="/b.svg" alt="Border" className="w-5 h-5 sm:w-8 sm:h-8" />
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-[10px] sm:text-xs font-medium text-white leading-tight">
-                  DW & CE <br /> 
-                  <span className='text-[10px] sm:text-xs font-light text-[#1A8FA0]'>DIRECTOR</span>
-                </p>
-              </div>
+
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button - Visible below 1024px */}
@@ -232,17 +274,24 @@ const Navbar = () => {
             
             {/* Mobile User Info */}
             <div className="mt-3 pt-3 border-t border-white/20">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                   <img src="/Border.png" alt="Border" className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white">
-                    DW & CE <br /> 
-                    <span className='text-xs font-light text-[#1A8FA0]'>DIRECTOR</span>
+                    {user?.name || 'User'} <br />
+                    <span className='text-xs font-light text-[#1A8FA0] uppercase'>{user?.role?.replace('_', ' ') || ''}</span>
                   </p>
                 </div>
               </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-300 hover:bg-[#2166A0] rounded-lg transition-colors"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
         )}

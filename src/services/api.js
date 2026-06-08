@@ -124,10 +124,12 @@ export const stockReturnAPI = {
   getMonthlyTrend: (year = 2025) => api.get(`/returns/monthly-trend?year=${year}`),
   getReasonCondition: () => api.get('/returns/reason-condition'),
   getVolumeRadar: () => api.get('/returns/volume-radar'),
-  getTransactions: (page = 1, limit = 10, search = '', reason = 'All Reasons', status = 'All Status') =>
-    api.get(`/returns/transactions?page=${page}&limit=${limit}&search=${search}&reason=${reason}&status=${status}`),
+  getTransactions: (page = 1, limit = 10, search = '', reason = 'All Reasons', status = 'All Status', dateRange = 'Last 30 Days') =>
+    api.get(`/returns/transactions?page=${page}&limit=${limit}&search=${search}&reason=${reason}&status=${status}&dateRange=${dateRange}`),
   createReturn: (data) => api.post('/returns/create', data),
   updateReturnStatus: (id, data) => api.put(`/returns/${id}`, data),
+  deleteReturn: (id) => api.delete(`/returns/${id}`),
+  getReturnById: (id) => api.get(`/returns/${id}`),
   exportReturns: (format = 'csv') => api.get(`/returns/export?format=${format}`, { responseType: 'blob' }),
   getSummary: () => api.get('/returns/summary'),
 };
@@ -159,6 +161,18 @@ export const vendorsAPI = {
   createVendor: (data) => api.post('/vendors', data),
   updateVendor: (id, data) => api.put(`/vendors/${id}`, data),
   deleteVendor: (id) => api.delete(`/vendors/${id}`),
+};
+
+// ==================== PURCHASE REQUEST API ====================
+export const purchaseRequestAPI = {
+  getAll: (page = 1, limit = 10, search = '', status = 'All', sort = '-createdAt') =>
+    api.get(`/purchase-requests?page=${page}&limit=${limit}&search=${search}&status=${status}&sort=${sort}`),
+  getById: (id) => api.get(`/purchase-requests/${id}`),
+  create: (data) => api.post('/purchase-requests', data),
+  update: (id, data) => api.put(`/purchase-requests/${id}`, data),
+  delete: (id) => api.delete(`/purchase-requests/${id}`),
+  getKPIs: () => api.get('/purchase-requests/kpis'),
+  getMonthlyTrend: (year = 2025) => api.get(`/purchase-requests/monthly-trend?year=${year}`),
 };
 
 // ==================== REPORTS API ====================

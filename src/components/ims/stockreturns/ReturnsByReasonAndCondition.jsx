@@ -45,9 +45,9 @@ export default function ReturnsByReasonAndCondition() {
       try {
         const response = await stockReturnAPI.getReasonCondition();
         if (response.data.success) {
-          setReasonData(response.data.reasonData);
-          setConditionData(response.data.conditionData);
-          setTotalReturns(response.data.totalReturns);
+          setReasonData(response.data.reasonData || []);
+          setConditionData(response.data.conditionData || []);
+          setTotalReturns(response.data.totalReturns || 0);
         }
       } catch (error) {
         console.error("Failed to fetch reason/condition data:", error);

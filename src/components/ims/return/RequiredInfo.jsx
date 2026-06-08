@@ -78,11 +78,11 @@ const RequiredInfo = ({ formData, onChange, onItemSelect }) => {
             )}
           </div>
 
-          {showResults && searchResults.length > 0 && (
+              {showResults && searchResults.length > 0 && (
             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
               {searchResults.map((item) => (
                 <div
-                  key={item._id}
+                  key={item.id}
                   className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm"
                   onClick={() => handleSelect(item)}
                 >

@@ -16,21 +16,21 @@ const ItemStockInfo = ({ item }) => {
             <div className="flex justify-between border-b border-white/10 pb-2">
               <span className="text-white/60 text-xs">MIN STOCK LEVEL</span>
               <span className="text-white font-bold">
-                {item.minStockLevel || 0}
+                {item.minStock || 0}
               </span>
             </div>
             <div className="flex justify-between border-b border-white/10 pb-2">
               <span className="text-white/60 text-xs">UNIT PRICE</span>
               <span className="text-white font-bold">
-                ${item.unitPrice || 0}
+                {item.unitPrice || 0}
               </span>
             </div>
             <div className="flex justify-between border-b border-white/10 pb-2">
               <span className="text-white/60 text-xs">STATUS</span>
               <span
-                className={`font-bold px-2 py-0.5 rounded text-[10px] ${item.status === "critical" ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
+                className={`font-bold px-2 py-0.5 rounded text-[10px] ${item.originalStatus === "critical" ? "bg-red-500 text-white" : item.originalStatus === "low_stock" ? "bg-yellow-500 text-white" : "bg-green-500 text-white"}`}
               >
-                {item.status?.toUpperCase() || "NORMAL"}
+                {(item.originalStatus || item.status)?.toUpperCase() || "NORMAL"}
               </span>
             </div>
           </div>
