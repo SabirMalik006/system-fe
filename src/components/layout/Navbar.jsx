@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Menu, X, LogOut } from 'lucide-react';
+import { Search, ChevronDown, Menu, X, LogOut, Home } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -87,6 +87,16 @@ const Navbar = () => {
             <Link to="/dashboard" className="flex items-center gap-2">
               <img src="/Background.png" alt="IMS logo" className="w-6 h-6 sm:w-8 sm:h-8 object-cover rounded-md cursor-pointer" />
               <span className="text-lg sm:text-xl font-bold text-white">IMS</span>
+            </Link>
+
+            {/* Home Button */}
+            <Link
+              to="/"
+              className="flex items-center gap-1.5 text-[10px] font-semibold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg transition-all ml-1"
+              title="Home"
+            >
+              <Home size={14} />
+              <span className="hidden lg:inline">Home</span>
             </Link>
 
             {/* Desktop Menu Items - Hidden below 1024px */}

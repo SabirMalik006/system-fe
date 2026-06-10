@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Anchor, ChevronDown, Bell, Search, Menu, X, LogOut } from 'lucide-react';
+import { Anchor, ChevronDown, Bell, Search, Menu, X, LogOut, Home } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -88,14 +88,26 @@ export default function HrmNavbar() {
   return (
     <nav className="bg-gradient-to-r from-[#0B4E89] to-[#0F5D98] px-4 sm:px-5 py-0 flex items-center justify-between h-[52px] shadow-md">
       {/* Logo */}
-      <div 
-        onClick={() => handleNavigation('/hrm-dashboard')}
-        className="flex items-center gap-2 flex-shrink-0 cursor-pointer"
-      >
-        <div className="w-8 h-8 bg-blue-400 rounded-md flex items-center justify-center">
-          <Anchor size={16} className="text-white" />
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <div
+          onClick={() => handleNavigation('/hrm-dashboard')}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <div className="w-8 h-8 bg-blue-400 rounded-md flex items-center justify-center">
+            <Anchor size={16} className="text-white" />
+          </div>
+          <span className="text-white font-bold text-base tracking-wide">HRMS</span>
         </div>
-        <span className="text-white font-bold text-base tracking-wide">HRMS</span>
+
+        {/* Home Button */}
+        <div
+          onClick={() => handleNavigation('/')}
+          className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-200 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg transition-all ml-1 cursor-pointer"
+          title="Home"
+        >
+          <Home size={14} />
+          <span className="hidden lg:inline">Home</span>
+        </div>
       </div>
 
       {/* Desktop Nav links - Hidden below 1024px */}

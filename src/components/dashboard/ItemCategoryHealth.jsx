@@ -1,11 +1,6 @@
-import React from 'react';
-
-const categories = [
-  { label: 'Tools',      value: 96, color: '#125964' },
-  { label: 'Electrical', value: 90, color: '#336AA1' },
-  { label: 'Sanitary',   value: 87, color: '#00478C' },
-  { label: 'Paints',     value: 98, color: '#58C3D2' },
-];
+import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { dashboardAPI } from '../../services/api';
 
 // SVG Parameters
 const CX = 80;
@@ -24,6 +19,43 @@ function arcPath(cx, cy, r, startAngle, endAngle) {
 }
 
 export default function ItemCategoryHealth() {
+  const [categories, setCategories] = useState([]);
+  const [ringData, setRingData] = useState([]);
+  const [centerPct, setCenterPct] = useState(0);
+  const [trend, setTrend] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await dashboardAPI.getCategoryHealth();
+      if (res.data.success) {
+        const d = res.data;
+        setCategories(d.categories);
+        setCenterPct(d.overallHealth);
+        setTrend(d.trend);
+
+        // Build ring data with fixed radii
+        const ringColors = ['#1a4fa0', '#2563eb', '#38bdf8', '#2ec4b6'];
+        const radii = [67, 56, 45, 34];
+        const rings = d.categories.map((cat, i) => ({
+          radius: radii[i] || 67 - i * 11,
+          pct: Math.max(0.01, cat.value / 300),
+          color: ringColors[i],
+          label: cat.label
+        }));
+        setRingData(rings);
+      }
+    } catch (err) {
+      toast.error('Failed to load category health');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 mb-6">
       
@@ -32,18 +64,18 @@ export default function ItemCategoryHealth() {
         Item Category Health
       </div>
 
-      {/* Body: donut + cards */}
+      {loading ? (
+        <div className="h-[170px] flex items-center justify-center text-gray-400 text-sm">Loading...</div>
+      ) : categories.length === 0 ? (
+        <div className="h-[170px] flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+      ) : (
+      /* Body: donut + cards */
       <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
 
         {/* ── Multi-ring Donut Chart ── */}
         <div className="relative flex-shrink-0 mx-auto lg:mx-0" style={{ width: 200, height: 170 }}>
           <svg width="160" height="160" viewBox="0 0 160 160" className="mx-auto lg:mx-0">
-            {[
-              { radius: 67, pct: 0.54, color: '#1a4fa0', label: 'Tools' },
-              { radius: 56, pct: 0.60, color: '#2563eb', label: 'Electrical' },
-              { radius: 45, pct: 0.67, color: '#38bdf8', label: 'Sanitary' },
-              { radius: 34, pct: 0.61, color: '#2ec4b6', label: 'Paints' },
-            ].map((ring, i) => {
+            {ringData.map((ring, i) => {
               const trackEnd = 300;
               const fillEnd = ring.pct * 300;
               return (
@@ -79,7 +111,7 @@ export default function ItemCategoryHealth() {
                 fontWeight="700" 
                 fill="#0f172a"
               >
-                92%
+                {centerPct}%
               </text>
               <text 
                 x={CX} 
@@ -99,26 +131,21 @@ export default function ItemCategoryHealth() {
                 fill="#16a34a" 
                 fontWeight="600"
               >
-                ↓4.2% today
+                {trend}
               </text>
             </g>
           </svg>
 
           {/* Ring Labels - Responsive positioning */}
           <div className="absolute top-4 right-0 lg:right-auto lg:left-[148px] flex flex-col gap-3 lg:gap-[13.5px]">
-            {[
-              { color: '#1a4fa0', label: 'Tools 96%' },
-              { color: '#2563eb', label: 'Electrical 90%' },
-              { color: '#38bdf8', label: 'Sanitary 87%' },
-              { color: '#2ec4b6', label: 'Paints 98%' },
-            ].map((ring, i) => (
+            {categories.map((cat, i) => (
               <div key={i} className="flex items-center gap-2 whitespace-nowrap">
                 <span 
                   className="ml-2 w-[6px] h-[6px] rounded-full flex-shrink-0"
-                  style={{ background: ring.color }}
+                  style={{ background: cat.color }}
                 />
                 <span className="text-[9.5px] text-gray-500 font-medium">
-                  {ring.label}
+                  {cat.label} {cat.value}%
                 </span>
               </div>
             ))}
@@ -154,6 +181,7 @@ export default function ItemCategoryHealth() {
         </div>
 
       </div>
+      )}
     </div>
   );
 }

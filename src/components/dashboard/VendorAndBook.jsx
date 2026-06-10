@@ -1,28 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { MoreHorizontal } from 'lucide-react';
-
-// Dec 01 - Dec 31 (weekly points)
-const vendorData = [
-  { date: 'Dec 01', performance: 50, rating: 48 },
-  { date: 'Dec 08', performance: 42, rating: 52 },
-  { date: 'Dec 15', performance: 72, rating: 50 },
-  { date: 'Dec 22', performance: 48, rating: 58 },
-  { date: 'Dec 31', performance: 78, rating: 55 },
-];
-
-// Stock Availability — alternating teal / navy / gray
-const stockData = [
-  { name: 'LED Bulb Lights', value: 76, color: '#1A8FA0' },
-  { name: 'Paint', value: 82, color: '#1E4D7B' },
-  { name: 'Muslim Shower', value: 65, color: '#163A50' },
-  { name: 'Faucet', value: 74, color: '#C9CECD' },
-  { name: 'Thermostat Geyser', value: 58, color: '#092745' },
-  { name: 'Door Locks', value: 77, color: '#0B4851' },
-];
+import toast from 'react-hot-toast';
+import { dashboardAPI } from '../../services/api';
 
 const VendorTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -53,12 +36,30 @@ const StockTooltip = ({ active, payload, label }) => {
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 12,
     }}>
       <div style={{ fontWeight: 600, marginBottom: 2 }}>{label}</div>
-      <div style={{ color: '#64748b' }}>Stock: <strong>{payload[0]?.value}</strong></div>
+      <div style={{ color: '#64748b' }}>Stock: <strong>{payload[0]?.value}%</strong></div>
     </div>
   );
 };
 
 export default function VendorAndBook() {
+  const [vendorData, setVendorData] = useState([]);
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      dashboardAPI.getVendorTrend(),
+      dashboardAPI.getStockAvailability(),
+    ]).then(([trendRes, stockRes]) => {
+      if (trendRes.data.success) setVendorData(trendRes.data.data);
+      if (stockRes.data.success) setStockData(stockRes.data.data);
+    }).catch(() => {
+      toast.error('Failed to load dashboard data');
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
 
@@ -134,7 +135,12 @@ export default function VendorAndBook() {
           </div>
         </div>
 
-        {/* Area Chart */}
+        {loading ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">Loading...</div>
+        ) : vendorData.length === 0 ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">No vendor data available</div>
+        ) : (
+        /* Area Chart */
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={vendorData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
@@ -190,6 +196,7 @@ export default function VendorAndBook() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        )}
       </div>
 
       {/* ── Card 2: Stock Availability ── */}
@@ -213,7 +220,12 @@ export default function VendorAndBook() {
           </button>
         </div>
 
-        {/* Bar Chart */}
+        {loading ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">Loading...</div>
+        ) : stockData.length === 0 ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">No stock data available</div>
+        ) : (
+        /* Bar Chart */
         <ResponsiveContainer width="100%" height={200}>
           <BarChart
             data={stockData}
@@ -257,6 +269,7 @@ export default function VendorAndBook() {
             />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
 
     </div>

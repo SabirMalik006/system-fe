@@ -87,6 +87,9 @@ export const dashboardAPI = {
   getDepletion: () => api.get('/dashboard/depletion'),
   getHealth: () => api.get('/dashboard/health'),
   getStockMovement: () => api.get('/dashboard/stock-movement'),
+  getCategoryHealth: () => api.get('/dashboard/category-health'),
+  getStockAvailability: () => api.get('/dashboard/stock-availability'),
+  getVendorTrend: () => api.get('/dashboard/vendor-trend'),
 };
 
 // ==================== STOCK IN API ====================
@@ -158,6 +161,7 @@ export const vendorsAPI = {
     api.get(`/vendors?page=${page}&limit=${limit}&search=${search}`),
   getVendorById: (id) => api.get(`/vendors/${id}`),
   getTopVendors: (limit = 5) => api.get(`/vendors/top?limit=${limit}`),
+  getPerformanceStats: () => api.get('/vendors/stats/performance'),
   createVendor: (data) => api.post('/vendors', data),
   updateVendor: (id, data) => api.put(`/vendors/${id}`, data),
   deleteVendor: (id) => api.delete(`/vendors/${id}`),

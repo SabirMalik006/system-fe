@@ -1,18 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const depletionItems = [
-  { name: 'Circuit Breaker 15 Amp for AC with Plug', tag: 'CMES COMPAK', days: '4 Days', pct: 72, color: '#1a6cb5' },
-  { name: 'Towel rail Plastic', tag: 'CMES COMPAK', days: '6 Days', pct: 45, color: '#0891B2' },
-  { name: 'Float Valve for Porta', tag: 'CMES COMLOG', days: '1 Day', pct: 20, color: '#F97316' },
-];
-
-const issuanceItems = [
-  { rank: '01', label: 'TOOLS', pct: '45%', color: '#1a3a5c', bg: '#1E4D7B' },
-  { rank: '02', label: 'CONSUMABLE', pct: '42%', color: '#2ec4b6', bg: '#1A8FA0' },
-  { rank: '03', label: 'SANITARY ITEMS', pct: '30%', color: '#4a5568', bg: '#163A50' },
-  { rank: '04', label: 'ELECTRICAL ITEMS', pct: '39%', color: '#a0aec0', bg: '#dddedf' },
-];
+import toast from 'react-hot-toast';
+import { dashboardAPI, stockOutAPI } from '../../services/api';
 
 const donutSegments = [
   { pct: 0.35, color: '#1A8FA0', offset: 0, path: '/items' },
@@ -41,7 +30,6 @@ function DonutChart() {
   });
 
   const handleCenterClick = () => {
-    // Smooth scroll to top first, then navigate
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       navigate('/dashboard');
@@ -52,7 +40,6 @@ function DonutChart() {
     navigate(path);
   };
 
-  // Images click handlers mapping
   const imageClickHandlers = {
     '/a4.svg': () => navigate('/stock-returns'),
     '/a3.svg': () => navigate('/reports'),
@@ -142,6 +129,39 @@ function DonutChart() {
 }
 
 export default function StockDashboard() {
+  const [depletionItems, setDepletionItems] = useState([]);
+  const [issuanceItems, setIssuanceItems] = useState([]);
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      dashboardAPI.getDepletion(),
+      dashboardAPI.getHealth(),
+      stockOutAPI.getIssuanceByUnit(),
+    ]).then(([depRes, healthRes, issuanceRes]) => {
+      if (depRes.data.success) setDepletionItems(depRes.data.depletion);
+      if (healthRes.data.success) setHealth(healthRes.data.health);
+      if (issuanceRes.data.success) {
+        setIssuanceItems(issuanceRes.data.units.map(u => ({
+          rank: u.rank,
+          label: u.label,
+          pct: `${u.percentage}%`,
+          color: u.color,
+          bg: u.color,
+        })));
+      }
+    }).catch(() => {
+      toast.error('Failed to load dashboard data');
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, []);
+
+  const dbLoad = health?.databaseLoad || '0%';
+  const syncStatus = health?.syncStatus || 'N/A';
+  const opHealth = health?.operationalHealth || { normal: '0%', returned: '0%', damaged: '0%', safePercentage: 0, risk: 'N/A' };
+
   return (
     <div className="flex flex-col xl:flex-row gap-5 md:gap-6 p-4 md:p-6 bg-[#f4f6fb] min-h-screen w-full">
 
@@ -157,6 +177,11 @@ export default function StockDashboard() {
           </span>
         </div>
 
+        {loading ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">Loading...</div>
+        ) : depletionItems.length === 0 ? (
+          <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">No depletion data</div>
+        ) : (
         <div className="flex flex-col gap-5">
           {depletionItems.map((item, i) => (
             <div key={i}>
@@ -176,6 +201,7 @@ export default function StockDashboard() {
             </div>
           ))}
         </div>
+        )}
 
         <div className="mt-4">
           <DonutChart />
@@ -189,12 +215,12 @@ export default function StockDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-[#1a3a5c] rounded-xl p-5 md:p-6 text-white">
             <div className="text-md text-[#fff] mb-2 font-light">Database Load</div>
-            <div className="text-3xl font-bold">12.4%</div>
+            <div className="text-3xl font-bold">{dbLoad}</div>
           </div>
 
           <div className="bg-[#2ec4b6] rounded-xl p-5 md:p-6 text-white">
             <div className="text-md text-white mb-2 font-light">Sync Status</div>
-            <div className="text-3xl font-bold">Healthy</div>
+            <div className="text-3xl font-bold">{syncStatus}</div>
           </div>
         </div>
 
@@ -214,7 +240,7 @@ export default function StockDashboard() {
                   fill="none"
                   stroke="#1A8FA0"
                   strokeWidth="8"
-                  strokeDasharray={`${2 * Math.PI * 32 * 0.94} ${2 * Math.PI * 32 * 0.06}`}
+                  strokeDasharray={`${2 * Math.PI * 32 * (opHealth.safePercentage / 100)} ${2 * Math.PI * 32 * ((100 - opHealth.safePercentage) / 100)}`}
                   strokeLinecap="round"
                   transform="rotate(-90 40 40)"
                 />
@@ -227,7 +253,7 @@ export default function StockDashboard() {
                   }}
                 />
 
-                <div className="text-base font-bold text-[#2d3748] relative z-10">94%</div>
+                <div className="text-base font-bold text-[#2d3748] relative z-10">{opHealth.safePercentage}%</div>
                 <div className="text-[9px] text-[#a0aec0] -mt-0.5">SAFE</div>
               </div>
             </div>
@@ -238,7 +264,7 @@ export default function StockDashboard() {
                 Operational Health
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                <span className="text-lg md:text-2xl font-bold text-[#2d3748]">Low Risk</span>
+                <span className="text-lg md:text-2xl font-bold text-[#2d3748]">{opHealth.risk}</span>
                 <span className="w-2 h-2 rounded-full bg-[#1A8FA0]" />
               </div>
               <div className="text-lg text-[#64748B]">System returns within optimal range</div>
@@ -247,9 +273,9 @@ export default function StockDashboard() {
             {/* Stats */}
             <div className="flex gap-6 md:gap-8 justify-center">
               {[
-                { label: 'NORMAL', val: '94%', color: '#1E4D7B', bar: '#1A8FA0' },
-                { label: 'RETURNED', val: '4%', color: '#1E4D7B', bar: '#1a6cb5' },
-                { label: 'DAMAGED', val: '2%', color: '#e53e3e', bar: '#e53e3e' },
+                { label: 'NORMAL', val: opHealth.normal, color: '#1E4D7B', bar: '#1A8FA0' },
+                { label: 'RETURNED', val: opHealth.returned, color: '#1E4D7B', bar: '#1a6cb5' },
+                { label: 'DAMAGED', val: opHealth.damaged, color: '#e53e3e', bar: '#e53e3e' },
               ].map((s, i) => (
                 <div key={i} className="text-center">
                   <div className="text-[10px] text-[#94A3B8] tracking-widest mb-1 font-bold">{s.label}</div>
@@ -263,6 +289,11 @@ export default function StockDashboard() {
 
         {/* Issuance Items */}
         <div className="bg-white rounded-2xl p-5 md:p-6 shadow-sm flex-1">
+          {loading ? (
+            <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">Loading...</div>
+          ) : issuanceItems.length === 0 ? (
+            <div className="h-[200px] flex items-center justify-center text-gray-400 text-sm">No issuance data</div>
+          ) : (
           <div className="flex flex-col gap-5">
             {issuanceItems.map((item, i) => (
               <div key={i} className="flex items-center gap-4">
@@ -287,6 +318,7 @@ export default function StockDashboard() {
               </div>
             ))}
           </div>
+          )}
         </div>
 
       </div>

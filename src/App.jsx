@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/layout/Navbar';
 import HrmNavbar from './components/layout/HrmNavbar';
 import Login from './pages/Login';
+import HomePage from './pages/HomePage';
 
 // IMS Pages
 import Dashboard from './pages/ims/Dashboard';
@@ -47,7 +48,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   
   // Role check if required
   if (requiredRoles.length > 0 && !requiredRoles.includes(user?.role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
   
   return children;
@@ -77,13 +78,14 @@ function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
-      
-      {/* IMS Routes (with Navbar) */}
+      {/* Home Page (no navbar) */}
       <Route path="/" element={
         <ProtectedRoute>
-          <IMSLayout><Dashboard /></IMSLayout>
+          <BlankLayout><HomePage /></BlankLayout>
         </ProtectedRoute>
       } />
+
+      {/* IMS Routes (with Navbar) */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <IMSLayout><Dashboard /></IMSLayout>
@@ -207,8 +209,8 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       
-      {/* Catch all - redirect to dashboard */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Catch all - redirect to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
