@@ -34,7 +34,7 @@ const attendanceDays = [
     { color: '#2ec4b6' }, { color: '#1a3a8f' },
 ];
 
-export default function ProfileCharts() {
+export default function ProfileCharts({ employee = {} }) {
     return (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -57,12 +57,8 @@ export default function ProfileCharts() {
                 </div>
 
                 {/* Work Orders by Type */}
-                <div
-                    className="rounded-xl p-3"
-                    style={{
-                        background: 'linear-gradient(135deg, #1A6FC4CC, #2478B5B2)'
-                    }}
-                >
+                <div className="rounded-xl p-3"
+                    style={{ background: 'linear-gradient(135deg, #1A6FC4CC, #2478B5B2)' }}>
                     <div className="text-xs font-bold text-white mb-2">Work Orders by Type</div>
                     <div className="flex items-center gap-3">
                         <div className="relative w-[80px] h-[80px] flex-shrink-0">
@@ -90,6 +86,7 @@ export default function ProfileCharts() {
                         </div>
                     </div>
                 </div>
+
                 {/* Tasks Completed / Overdue */}
                 <div className="border-2 border-[#1A6FC4] rounded-xl p-3">
                     <div className="text-xs font-bold text-gray-700 mb-2">Tasks Completed / Overdue</div>

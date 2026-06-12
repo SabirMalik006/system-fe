@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { employeeAPI } from '../../../services/api';
 
 function DonutChart({ segments, size = 120, thickness = 22, centerLabel, centerSub }) {
   const r = (size - thickness) / 2;
@@ -8,7 +9,7 @@ function DonutChart({ segments, size = 120, thickness = 22, centerLabel, centerS
   let offset = 0;
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   const paths = segments.map((seg, i) => {
-    const dash = (seg.value / total) * circumference;
+    const dash = total > 0 ? (seg.value / total) * circumference : 0;
     const gap = circumference - dash;
     const el = (
       <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={seg.color} strokeWidth={thickness}
@@ -33,11 +34,15 @@ function DonutChart({ segments, size = 120, thickness = 22, centerLabel, centerS
 }
 
 function TrendChart({ data, width = 420, height = 140 }) {
+  if (!data || data.length < 2) {
+    return <div className="flex items-center justify-center h-[140px] text-gray-400 text-xs">Insufficient data</div>;
+  }
   const padding = { top: 16, right: 16, bottom: 28, left: 36 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
-  const minVal = Math.min(...data.map(d => d.v));
-  const maxVal = Math.max(...data.map(d => d.v));
+  const vals = data.map(d => d.v);
+  const minVal = Math.min(...vals);
+  const maxVal = Math.max(...vals);
   const range = maxVal - minVal || 1;
   const pts = data.map((d, i) => ({
     x: padding.left + (i / (data.length - 1)) * chartW,
@@ -48,7 +53,7 @@ function TrendChart({ data, width = 420, height = 140 }) {
   const areaPath = `M${pts[0].x},${pts[0].y} ` +
     pts.slice(1).map(p => `L${p.x},${p.y}`).join(' ') +
     ` L${pts[pts.length - 1].x},${padding.top + chartH} L${pts[0].x},${padding.top + chartH} Z`;
-  const yTicks = [minVal, Math.round((minVal + maxVal) / 2), maxVal];
+  const yTicks = [...new Set([minVal, Math.round((minVal + maxVal) / 2), maxVal])];
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
       {yTicks.map((t, i) => {
@@ -61,12 +66,12 @@ function TrendChart({ data, width = 420, height = 140 }) {
         );
       })}
       <defs>
-        <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="trendGrad2" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.01" />
         </linearGradient>
       </defs>
-      <path d={areaPath} fill="url(#trendGrad)" />
+      <path d={areaPath} fill="url(#trendGrad2)" />
       <polyline points={polyline} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
       {pts.map((p, i) => (
         <g key={i}>
@@ -80,28 +85,23 @@ function TrendChart({ data, width = 420, height = 140 }) {
 }
 
 function SkillBars({ data }) {
-  const maxVal = Math.max(...data.map(d => d.expert + d.advanced + d.intermediate + d.beginner));
+  if (!data || data.length === 0) {
+    return <div className="flex items-center justify-center h-[130px] text-gray-400 text-xs">No skill data</div>;
+  }
+  const maxVal = Math.max(...data.map(d => d.expert + d.advanced + d.intermediate + d.beginner)) || 1;
   const barW = 10; const gap = 4; const groupGap = 20; const chartH = 130;
   const colors = { expert: '#1d4ed8', advanced: '#60a5fa', intermediate: '#bfdbfe', beginner: '#87cefa' };
   return (
     <div className="overflow-x-auto w-full flex justify-center">
-      <svg width={data.length * (4 * barW + 3 * gap + groupGap)} height={chartH + 60}>
-        {/* Y Axis Guides */}
+      <svg width={Math.max(600, data.length * (4 * barW + 3 * gap + groupGap) + 30)} height={chartH + 60}>
         {[0, 20, 40, 60, 80, 100, 120].map((v, i) => {
           const y = chartH - (v / 120) * chartH;
-          return (
-            <g key={i}>
-              <line x1="20" y1={y} x2="100%" y2={y} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2 2" />
-            </g>
-          )
+          return <line key={i} x1="20" y1={y} x2="100%" y2={y} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2 2" />;
         })}
         {[0, 20, 40, 60, 80, 100, 120].map((v, i) => {
           const y = chartH - (v / 120) * chartH;
-          return (
-            <text key={'t' + i} x="10" y={y + 3} textAnchor="end" fontSize="8" fill="#94a3b8">{v}</text>
-          )
+          return <text key={'t' + i} x="10" y={y + 3} textAnchor="end" fontSize="8" fill="#94a3b8">{v}</text>;
         })}
-
         {data.map((d, i) => {
           const groupW = 4 * barW + 3 * gap;
           const x = 30 + i * (groupW + groupGap);
@@ -123,50 +123,73 @@ function SkillBars({ data }) {
   );
 }
 
-const employmentSegments = [
+const fallbackEmpType = [
   { value: 40, color: '#1d4ed8', label: 'Permanent' },
   { value: 40, color: '#60a5fa', label: 'Contract' },
   { value: 20, color: '#87cefa', label: 'Temporary' },
 ];
-
-// Changed from Gender Distribution to Department Distribution
-const departmentSegments = [
+const fallbackDeptDist = [
   { value: 45, color: '#1d4ed8', label: 'Technical' },
   { value: 30, color: '#60a5fa', label: 'Admin' },
   { value: 25, color: '#87cefa', label: 'Support' },
 ];
 
-const trendData = [
-  { label: '2018', v: 820 }, { label: '2019', v: 890 }, { label: '2020', v: 810 },
-  { label: '2021', v: 950 }, { label: '2022', v: 1020 }, { label: '2023', v: 1100 },
-  { label: '2024', v: 1180 }, { label: '2025', v: 1240 },
-];
-const skillData = [
-  { label: 'Elec.', expert: 30, advanced: 25, intermediate: 20, beginner: 10 },
-  { label: 'Plumb.', expert: 20, advanced: 30, intermediate: 25, beginner: 15 },
-  { label: 'Civil', expert: 25, advanced: 20, intermediate: 30, beginner: 10 },
-  { label: 'Carp.', expert: 15, advanced: 25, intermediate: 20, beginner: 10 },
-  { label: 'Paint.', expert: 10, advanced: 15, intermediate: 25, beginner: 20 },
-  { label: 'HVAC', expert: 20, advanced: 20, intermediate: 15, beginner: 8 },
-  { label: 'Tools', expert: 12, advanced: 18, intermediate: 20, beginner: 10 },
-];
-
 export default function DepartmentCharts() {
-  // Calculate total employees for department chart
-  const totalEmployees = departmentSegments.reduce((sum, seg) => sum + seg.value, 0);
-  const technicalCount = Math.round((45 / 100) * 1240);
-  const adminCount = Math.round((30 / 100) * 1240);
-  const supportCount = Math.round((25 / 100) * 1240);
+  const [employmentSegments, setEmploymentSegments] = useState(fallbackEmpType);
+  const [departmentSegments, setDepartmentSegments] = useState(fallbackDeptDist);
+  const [trendData, setTrendData] = useState([]);
+  const [skillData, setSkillData] = useState([]);
+  const [total, setTotal] = useState(1240);
+  const [totalDept, setTotalDept] = useState(1240);
+
+  useEffect(() => {
+    employeeAPI.getEmploymentTypeDist().then(({ data }) => {
+      if (data.success) {
+        const d = data.data;
+        setTotal(data.total || 0);
+        const colors = ['#1d4ed8', '#60a5fa', '#87cefa'];
+        setEmploymentSegments(
+          ['Permanent', 'Contract', 'Temporary'].map((k, i) => ({
+            value: d[k] || 0, color: colors[i], label: k,
+          }))
+        );
+      }
+    }).catch(() => {});
+
+    employeeAPI.getDeptBreakdown().then(({ data }) => {
+      if (data.success) {
+        const d = data.data;
+        setTotalDept(data.total || 0);
+        const colors = ['#1d4ed8', '#60a5fa', '#87cefa'];
+        setDepartmentSegments(
+          ['Technical', 'Admin', 'Support'].map((k, i) => ({
+            value: d[k] || 0, color: colors[i], label: k,
+          }))
+        );
+      }
+    }).catch(() => {});
+
+    employeeAPI.getJoiningTrend().then(({ data }) => {
+      if (data.success) setTrendData(data.data);
+    }).catch(() => {});
+
+    employeeAPI.getSkillDist().then(({ data }) => {
+      if (data.success) setSkillData(data.data);
+    }).catch(() => {});
+  }, []);
+
+  const totalEmployees = total;
+  const deptCounts = {};
+  departmentSegments.forEach(s => { deptCounts[s.label] = s.value; });
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-      {/* Left Side: Donuts and Skill Bars */}
       <div className="flex flex-col gap-4 w-full lg:w-5/12">
-        {/* Top Row: Donuts */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white rounded-xl p-4 border border-[#bfdbfe] shadow-sm flex flex-col items-center">
             <p className="text-[11px] font-bold text-gray-800 uppercase tracking-wide mb-4 w-full text-left">Employment Type</p>
-            <DonutChart segments={employmentSegments} size={130} thickness={25} centerLabel="1,240" centerSub="Employees" />
+            <DonutChart segments={employmentSegments} size={130} thickness={25}
+              centerLabel={totalEmployees.toLocaleString()} centerSub="Employees" />
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               {employmentSegments.map((s, i) => (
                 <div key={i} className="flex items-center gap-1.5">
@@ -178,7 +201,8 @@ export default function DepartmentCharts() {
           </div>
           <div className="bg-white rounded-xl p-4 border border-[#bfdbfe] shadow-sm flex flex-col items-center">
             <p className="text-[11px] font-bold text-gray-800 tracking-wide mb-4 w-full text-left">Department Distribution</p>
-            <DonutChart segments={departmentSegments} size={130} thickness={25} centerLabel="1,240" centerSub="Total" />
+            <DonutChart segments={departmentSegments} size={130} thickness={25}
+              centerLabel={totalDept.toLocaleString()} centerSub="Total" />
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               {departmentSegments.map((s, i) => (
                 <div key={i} className="flex flex-col items-center gap-1">
@@ -186,16 +210,13 @@ export default function DepartmentCharts() {
                     <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: s.color }} />
                     <span className="text-[10px] text-gray-500 font-medium">{s.label}</span>
                   </div>
-                  <span className="text-[10px] text-gray-400 font-medium">
-                    {s.label === 'Technical' ? technicalCount : s.label === 'Admin' ? adminCount : supportCount}
-                  </span>
+                  <span className="text-[10px] text-gray-400 font-medium">{deptCounts[s.label] || 0}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Bottom Row: Skill Bars */}
         <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex-1 flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-bold text-gray-800 tracking-wide">Skill Proficiency Distribution</p>
@@ -203,7 +224,6 @@ export default function DepartmentCharts() {
           <div className="flex-1 flex flex-col mt-4">
             <SkillBars data={skillData} />
           </div>
-
           <div className="flex items-center justify-center gap-4 mt-4">
             {[
               { color: '#1d4ed8', label: 'Expert' },
@@ -220,7 +240,6 @@ export default function DepartmentCharts() {
         </div>
       </div>
 
-      {/* Right Side: Joining Trend */}
       <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm w-full lg:w-7/12 flex flex-col">
         <p className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-6">EMPLOYEE JOINING TREND</p>
         <div className="flex-1 w-full flex items-center justify-center min-h-[340px]">

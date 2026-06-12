@@ -1,22 +1,25 @@
 import React from 'react';
 import { Phone, MessageSquare, IdCard, CheckCircle, Building } from 'lucide-react';
 
-export default function ProfileHero() {
+export default function ProfileHero({ employee = {} }) {
+  const name = `${employee.firstName || 'Muhammad'} ${employee.lastName || 'Jameel'}`;
+  const id = employee.employeeId || 'EMP-8530879';
+  const status = employee.employmentStatus || 'Active';
+  const unit = employee.unit || 'CMES COMLOG';
+  const designation = employee.designation || 'Senior Lineman | Electrical Services';
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5">
       <div className="flex items-start gap-5">
-        {/* Avatar */}
         <div className="relative flex-shrink-0">
           <div className="w-20 h-20 sm:w-26 sm:h-28 rounded-2xl overflow-hidden border-2 border-gray-100">
-            <img 
-              src="/Background+Border.svg" 
-              alt="Profile Avatar" 
-              className="w-full h-full object-cover"
-            />
+            {employee.profilePhoto ? (
+              <img src={employee.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <img src="/Background+Border.svg" alt="Profile Avatar" className="w-full h-full object-cover" />
+            )}
           </div>
-          {/* Online dot */}
           <span className="absolute bottom-4 right-2 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" />
-          {/* Stars */}
           <div className="flex items-center gap-0.5 mt-2">
             {[1,2,3,4].map(s => (
               <svg key={s} width="12" height="12" viewBox="0 0 12 12" fill="#1a3a8f">
@@ -29,29 +32,27 @@ export default function ProfileHero() {
           </div>
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0 ">
-          <h1 className="text-xl font-medium text-gray-900 leading-tight">Muhammad Jameel</h1>
-          <p className="text-sm font-semibold text-[#137FEC] mt-0.5">Senior Lineman | Electrical Services</p>
-          <div className="flex items-center gap-4 mt-2 flex-wrap ">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl font-medium text-gray-900 leading-tight">{name}</h1>
+          <p className="text-sm font-semibold text-[#137FEC] mt-0.5">{designation}</p>
+          <div className="flex items-center gap-4 mt-2 flex-wrap">
            <div className='bg-[#DBEAFE] flex gap-3 py-2 px-2 rounded-sm' >
-             <div className="flex items-center gap-1.5 text-xs text-[#1A6FC4] bg-[#DBEAFE] ">
+             <div className="flex items-center gap-1.5 text-xs text-[#1A6FC4] bg-[#DBEAFE]">
               <IdCard size={12} className="text-[#1A6FC4]" />
-              <span>ID: EMP-8530879</span>
+              <span>ID: {id}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-[#1A6FC4] bg-[#DBEAFE]">
               <CheckCircle size={12} className="text-[#1A6FC4]" />
-              <span>Status: <span className="font-semibold text-[#1A6FC4]">Active</span></span>
+              <span>Status: <span className="font-semibold text-[#1A6FC4]">{status}</span></span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-[#1A6FC4] bg-[#DBEAFE]">
               <Building size={12} className="text-[#1A6FC4]" />
-              <span className="font-medium">CMES COMLOG</span>
+              <span className="font-medium">{unit}</span>
             </div>
            </div>
           </div>
         </div>
 
-        {/* Action icons */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <button className="w-9 h-9 bg-[#DBEAFE] hover:bg-blue-200 rounded-xl flex items-center justify-center transition-colors">
             <Phone size={16} className="text-blue-600" />

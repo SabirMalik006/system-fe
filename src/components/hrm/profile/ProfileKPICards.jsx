@@ -1,13 +1,17 @@
 import React from 'react';
 
-const stats = [
-  { value: '72',    label: 'Tasks Completed', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-  { value: '10',    label: 'Tasks Overdue',   bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-  { value: '78%',   label: 'Utilization',     bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-  { value: '4.2 yr',label: 'Tenure',          bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-];
+export default function ProfileKPICards({ employee = {} }) {
+  const tenure = employee.joiningDate
+    ? Math.floor((Date.now() - new Date(employee.joiningDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) + ' yr'
+    : 'N/A';
 
-export default function ProfileKPICards() {
+  const stats = [
+    { value: employee._id ? '72' : '0', label: 'Tasks Completed', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: '10', label: 'Tasks Overdue', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: '78%', label: 'Utilization', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: tenure, label: 'Tenure', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+  ];
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-12">
       {stats.map((s, i) => (

@@ -25,6 +25,7 @@ import ToolsInspection from './pages/ims/ToolsInspection';
 // HRM Pages
 import PersonnelProfile from './pages/hrm/PersonnelProfile';
 import Compliance from './pages/hrm/Compliance';
+import CreateIncidentPage from './pages/hrm/CreateIncidentPage';
 import LeaveManagement from './pages/hrm/LeaveManagement';
 import InterUnitTransfer from './pages/hrm/InterUnitTransfer';
 import TrainingManagement from './pages/hrm/TrainingManagement';
@@ -166,6 +167,11 @@ function AppRoutes() {
       <Route path="/compliance" element={
         <ProtectedRoute>
           <HRMLayout><Compliance /></HRMLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/compliance/new" element={
+        <ProtectedRoute>
+          <HRMLayout><CreateIncidentPage /></HRMLayout>
         </ProtectedRoute>
       } />
       <Route path="/leave-management" element={

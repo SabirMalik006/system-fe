@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import ComplianceHeader from "../../components/hrm/compliance/ComplianceHeader";
 import ComplianceFilters from "../../components/hrm/compliance/ComplianceFilters";
 import RecentIncidentsTable from "../../components/hrm/compliance/RecentIncidentsTable";
@@ -7,21 +7,49 @@ import IncidentCharts from "../../components/hrm/compliance/IncidentCharts";
 import IncidentRecordForm from "../../components/hrm/compliance/IncidentRecordForm";
 
 export default function Compliance() {
+  const [filterValues, setFilterValues] = useState({
+    search: '',
+    incidentType: '',
+    severity: '',
+    status: '',
+  });
+  const [editId, setEditId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleFilterChange = useCallback((filters) => {
+    setFilterValues(filters);
+  }, []);
+
+  const handleEditIncident = useCallback((id) => {
+    setEditId(id);
+  }, []);
+
+  const handleFormSuccess = useCallback(() => {
+    setEditId(null);
+    setRefreshKey(k => k + 1);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#EEF4FB] font-sans">
       <div className="max-w-[2560px] mx-auto px-5 py-5 flex flex-col gap-4">
         <ComplianceHeader />
-        <ComplianceFilters />
+        <ComplianceFilters onChange={handleFilterChange} />
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          {/* Left: Table + Stats + Charts */}
           <div className="xl:col-span-2 flex flex-col gap-4">
-            <RecentIncidentsTable />
-            <IncidentStatCards />
-            <IncidentCharts />
+            <RecentIncidentsTable
+              filters={filterValues}
+              onEdit={handleEditIncident}
+              refreshKey={refreshKey}
+            />
+            <IncidentStatCards refreshKey={refreshKey} />
+            <IncidentCharts refreshKey={refreshKey} />
           </div>
-          {/* Right: Incident Record Form */}
           <div className="xl:col-span-1">
-            <IncidentRecordForm />
+            <IncidentRecordForm
+              editId={editId}
+              onSuccess={handleFormSuccess}
+              onCancel={() => setEditId(null)}
+            />
           </div>
         </div>
       </div>

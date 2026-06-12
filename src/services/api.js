@@ -193,4 +193,50 @@ export const reportsAPI = {
   getStats: () => api.get('/reports/stats'),
 };
 
+// ==================== HRMS / EMPLOYEE API ====================
+export const employeeAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 100, status = '', department = '', type = '', search = '' } = params;
+    let url = `/employees?page=${page}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    if (department) url += `&department=${department}`;
+    if (type) url += `&type=${type}`;
+    if (search) url += `&search=${search}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/employees/${id}`),
+  create: (data) => api.post('/employees', data),
+  update: (id, data) => api.put(`/employees/${id}`, data),
+  delete: (id) => api.delete(`/employees/${id}`),
+  getKPIStats: () => api.get('/employees/stats/kpis'),
+  getEmploymentTypeDist: () => api.get('/employees/stats/employment-type'),
+  getJoiningTrend: () => api.get('/employees/stats/joining-trend'),
+  getDepartmentDist: () => api.get('/employees/stats/department-dist'),
+  getDeptBreakdown: () => api.get('/employees/stats/dept-breakdown'),
+  getSkillDist: () => api.get('/employees/stats/skill-dist'),
+};
+
+// ==================== INCIDENTS API ====================
+export const incidentAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', severity = '', incidentType = '', dateFrom = '', dateTo = '' } = params;
+    let url = `/incidents?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (severity) url += `&severity=${severity}`;
+    if (incidentType) url += `&incidentType=${incidentType}`;
+    if (dateFrom) url += `&dateFrom=${dateFrom}`;
+    if (dateTo) url += `&dateTo=${dateTo}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/incidents/${id}`),
+  create: (data) => api.post('/incidents', data),
+  update: (id, data) => api.put(`/incidents/${id}`, data),
+  delete: (id) => api.delete(`/incidents/${id}`),
+  getKPIStats: () => api.get('/incidents/stats/kpis'),
+  getMonthlyTrend: (year) => api.get(`/incidents/stats/monthly-trend?year=${year || new Date().getFullYear()}`),
+  getSeverityDist: () => api.get('/incidents/stats/severity-dist'),
+  getTypeDist: () => api.get('/incidents/stats/type-dist'),
+};
+
 export default api;

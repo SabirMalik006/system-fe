@@ -1,7 +1,7 @@
 import React from 'react';
 import { TrendingUp } from 'lucide-react';
 
-export default function AccountOverview() {
+export default function AccountOverview({ employee = {} }) {
   return (
     <div className="bg-[#1A6FC433] rounded-2xl border border-gray-100 shadow-sm p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -17,7 +17,6 @@ export default function AccountOverview() {
           <span className="text-white text-sm">Healthcare</span>
           <span className="font-bold text-black text-sm">100%</span>
         </div>
-        
       </div>
     </div>
   );
