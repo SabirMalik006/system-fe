@@ -86,9 +86,11 @@ const Login = () => {
           loop 
           muted 
           playsInline 
+          preload="auto"
+          poster="/navy-poster.jpg"
           className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover"
         >
-          <source src="/navy.mp4" type="video/mp4" />
+          <source src="/navy-optimized.mp4" type="video/mp4" />
         </video>
 
         {/* Light Gradient Overlay */}
