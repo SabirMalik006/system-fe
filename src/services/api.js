@@ -214,6 +214,9 @@ export const employeeAPI = {
   getDepartmentDist: () => api.get('/employees/stats/department-dist'),
   getDeptBreakdown: () => api.get('/employees/stats/dept-breakdown'),
   getSkillDist: () => api.get('/employees/stats/skill-dist'),
+  deactivateAccount: (id) => api.put(`/employees/${id}/deactivate-account`),
+  deleteWithAccount: (id) => api.delete(`/employees/${id}/with-account`),
+  exportEmployees: () => api.get('/employees/export', { responseType: 'blob' }),
 };
 
 // ==================== INCIDENTS API ====================
@@ -237,6 +240,156 @@ export const incidentAPI = {
   getMonthlyTrend: (year) => api.get(`/incidents/stats/monthly-trend?year=${year || new Date().getFullYear()}`),
   getSeverityDist: () => api.get('/incidents/stats/severity-dist'),
   getTypeDist: () => api.get('/incidents/stats/type-dist'),
+  exportIncidents: () => api.get('/incidents/export', { responseType: 'blob' }),
+};
+
+// ==================== TRANSFERS API ====================
+export const transferAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', sourceUnit = '', destinationUnit = '' } = params;
+    let url = `/transfers?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (sourceUnit) url += `&sourceUnit=${sourceUnit}`;
+    if (destinationUnit) url += `&destinationUnit=${destinationUnit}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/transfers/${id}`),
+  create: (data) => api.post('/transfers', data),
+  update: (id, data) => api.put(`/transfers/${id}`, data),
+  delete: (id) => api.delete(`/transfers/${id}`),
+  getKPIStats: () => api.get('/transfers/stats/kpis'),
+  getTimelineByUnit: () => api.get('/transfers/stats/timeline-by-unit'),
+  getInOutSummary: () => api.get('/transfers/stats/in-out-summary'),
+  getQuickHistory: (limit = 10) => api.get(`/transfers/stats/quick-history?limit=${limit}`),
+  exportTransfers: () => api.get('/transfers/export', { responseType: 'blob' }),
+};
+
+// ==================== TRAINING API ====================
+export const trainingAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', type = '', category = '' } = params;
+    let url = `/training?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (type) url += `&type=${type}`;
+    if (category) url += `&category=${category}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/training/${id}`),
+  create: (data) => api.post('/training', data),
+  update: (id, data) => api.put(`/training/${id}`, data),
+  delete: (id) => api.delete(`/training/${id}`),
+  getKPIStats: () => api.get('/training/stats/kpis'),
+  getMonthlyTrend: (year) => api.get(`/training/stats/monthly-trend?year=${year || new Date().getFullYear()}`),
+  getCategoryDist: () => api.get('/training/stats/category-dist'),
+  getEnrollmentStatus: () => api.get('/training/stats/enrollment-status'),
+  getScoreDist: () => api.get('/training/stats/score-dist'),
+  getUpcoming: () => api.get('/training/stats/upcoming'),
+  getTopInstructors: () => api.get('/training/stats/top-instructors'),
+  getParticipants: (params = {}) => {
+    const { page = 1, limit = 10, search = '' } = params;
+    return api.get(`/training/stats/participants?page=${page}&limit=${limit}&search=${search}`);
+  },
+  addParticipant: (id, data) => api.post(`/training/${id}/participants`, data),
+  updateParticipant: (id, participantId, data) => api.put(`/training/${id}/participants/${participantId}`, data),
+  deleteParticipant: (id, participantId) => api.delete(`/training/${id}/participants/${participantId}`),
+  exportTrainings: () => api.get('/training/export', { responseType: 'blob' }),
+  exportParticipants: () => api.get('/training/stats/participants/export', { responseType: 'blob' }),
+};
+
+// ==================== ATTENDANCE API ====================
+export const attendanceAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', shift = '', department = '', date = '' } = params;
+    let url = `/attendance?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (shift) url += `&shift=${shift}`;
+    if (department) url += `&department=${department}`;
+    if (date) url += `&date=${date}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/attendance/${id}`),
+  create: (data) => api.post('/attendance', data),
+  update: (id, data) => api.put(`/attendance/${id}`, data),
+  delete: (id) => api.delete(`/attendance/${id}`),
+  bulkCreate: (records) => api.post('/attendance/bulk', { records }),
+  getKPIStats: () => api.get('/attendance/stats/kpis'),
+  getMonthlyTrend: (month, year) => {
+    let url = '/attendance/stats/monthly-trend';
+    const params = [];
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (params.length) url += '?' + params.join('&');
+    return api.get(url);
+  },
+  getTodayStatus: () => api.get('/attendance/stats/today-status'),
+  getShiftOverview: () => api.get('/attendance/stats/shift-overview'),
+  getClockInDistribution: () => api.get('/attendance/stats/clock-in-distribution'),
+  getHeatmap: (month, year) => {
+    let url = '/attendance/stats/heatmap';
+    const params = [];
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (params.length) url += '?' + params.join('&');
+    return api.get(url);
+  },
+  getRecentActivity: () => api.get('/attendance/stats/recent-activity'),
+  getDeptAttendanceRate: () => api.get('/attendance/stats/dept-rate'),
+  getWorkingHoursAnalysis: () => api.get('/attendance/stats/working-hours'),
+  getPendingApprovals: () => api.get('/attendance/stats/pending-approvals'),
+  exportAttendance: () => api.get('/attendance/export', { responseType: 'blob' }),
+};
+
+// ==================== LEAVE API ====================
+export const leaveAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', type = '' } = params;
+    let url = `/leaves?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (type) url += `&type=${type}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/leaves/${id}`),
+  create: (data) => api.post('/leaves', data),
+  update: (id, data) => api.put(`/leaves/${id}`, data),
+  delete: (id) => api.delete(`/leaves/${id}`),
+  getKPIStats: () => api.get('/leaves/stats/kpis'),
+  getChartData: () => api.get('/leaves/stats/charts'),
+  getLeaveBalances: () => api.get('/leaves/stats/balances'),
+  getApprovalQueue: () => api.get('/leaves/stats/approval-queue'),
+  approveLeave: (id, data) => api.put(`/leaves/${id}/approve`, data || {}),
+  rejectLeave: (id, data) => api.put(`/leaves/${id}/reject`, data || {}),
+  exportLeaves: () => api.get('/leaves/export', { responseType: 'blob' }),
+};
+
+// ==================== TOOL KIT / INSPECTION API ====================
+export const toolKitAPI = {
+  getAll: (params = {}) => {
+    const { page = 1, limit = 10, search = '', status = '', department = '', condition = '' } = params;
+    let url = `/toolkits?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (status) url += `&status=${status}`;
+    if (department) url += `&department=${department}`;
+    if (condition) url += `&condition=${condition}`;
+    return api.get(url);
+  },
+  getById: (id) => api.get(`/toolkits/${id}`),
+  create: (data) => api.post('/toolkits', data),
+  update: (id, data) => api.put(`/toolkits/${id}`, data),
+  delete: (id) => api.delete(`/toolkits/${id}`),
+  getKPIStats: () => api.get('/toolkits/stats/kpis'),
+  getByDepartment: () => api.get('/toolkits/stats/by-department'),
+  getConditionSummary: () => api.get('/toolkits/stats/condition-summary'),
+  getRecentActivity: () => api.get('/toolkits/stats/recent-activity'),
+  exportToolKits: () => api.get('/toolkits/export', { responseType: 'blob' }),
+};
+
+// ==================== HRM DASHBOARD API ====================
+export const hrmDashboardAPI = {
+  getStats: () => api.get('/hrm-dashboard/stats'),
 };
 
 export default api;

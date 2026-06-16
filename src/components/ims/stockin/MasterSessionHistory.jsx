@@ -15,6 +15,7 @@ import {
 import { stockInAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
 import toast, { Toaster } from 'react-hot-toast';
+import ConfirmModal from '../../common/ConfirmModal';
 
 const statusStyles = {
   POSTED: "bg-green-100 text-green-700",
@@ -40,6 +41,7 @@ export default function MasterSessionHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -64,22 +66,18 @@ export default function MasterSessionHistory() {
     }
   };
 
-  const handleDelete = async (id, mongoId) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete transaction ${id}? This will also reverse the stock change.`,
-      )
-    ) {
-      try {
-        const response = await stockInAPI.deleteTransaction(mongoId);
-        if (response.data.success) {
-          toast.success("Transaction deleted successfully");
-          fetchTransactions();
-        }
-      } catch (error) {
-        console.error("Failed to delete transaction:", error);
-        toast.error("Failed to delete transaction");
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const response = await stockInAPI.deleteTransaction(deleteTarget.mongoId);
+      if (response.data.success) {
+        toast.success("Transaction deleted successfully");
+        setDeleteTarget(null);
+        fetchTransactions();
       }
+    } catch (error) {
+      console.error("Failed to delete transaction:", error);
+      toast.error("Failed to delete transaction");
     }
   };
 
@@ -271,7 +269,7 @@ Generated on: ${new Date().toLocaleString()}
                             <Download size={14} />
                           </button>
                           <button
-                            onClick={() => handleDelete(row.id, row._mongoId)}
+                            onClick={() => setDeleteTarget({ id: row.id, mongoId: row._mongoId })}
                             title="Delete"
                             className="p-1 hover:bg-red-50 text-red-600 rounded transition-colors"
                           >
@@ -316,6 +314,13 @@ Generated on: ${new Date().toLocaleString()}
           </div>
         </>
       )}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete transaction ${deleteTarget?.id}? This will also reverse the stock change.`}
+      />
     </div>
   );
 }

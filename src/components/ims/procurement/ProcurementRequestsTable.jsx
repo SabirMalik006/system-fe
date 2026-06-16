@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Eye, Edit, Trash2, ChevronLeft, ChevronRight, CheckCircle, Printer, Download } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { purchaseRequestAPI } from '../../../services/api';
+import ConfirmModal from '../../common/ConfirmModal';
 
 const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
 
@@ -32,6 +33,7 @@ export default function ProcurementRequestsTable() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const limit = 8;
 
   useEffect(() => {
@@ -59,11 +61,12 @@ export default function ProcurementRequestsTable() {
     setPage(1);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this request?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await purchaseRequestAPI.delete(id);
+      await purchaseRequestAPI.delete(deleteTarget);
       toast.success('Request deleted');
+      setDeleteTarget(null);
       fetchRequests();
     } catch (err) {
       toast.error('Failed to delete');
@@ -181,7 +184,7 @@ export default function ProcurementRequestsTable() {
                     <td className="py-3 px-2">
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => handleView(row._id)} className="p-1 hover:bg-gray-100 rounded"><Eye size={12} className="text-black" /></button>
-                        <button onClick={() => handleDelete(row._id)} className="p-1 hover:bg-red-100 rounded"><Trash2 size={12} className="text-red-500" /></button>
+                        <button onClick={() => setDeleteTarget(row._id)} className="p-1 hover:bg-red-100 rounded"><Trash2 size={12} className="text-red-500" /></button>
                         <button onClick={() => handlePrintReceipt(row)} className="p-1 hover:bg-blue-100 rounded"><Printer size={12} className="text-blue-600" /></button>
                       </div>
                     </td>
@@ -258,6 +261,13 @@ export default function ProcurementRequestsTable() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Request"
+        message="Delete this request?"
+      />
     </div>
   );
 }

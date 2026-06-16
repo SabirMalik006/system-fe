@@ -6,6 +6,8 @@ import ItemsPagination from './ItemsPagination';
 import StatsCircles from './StatsCircles';
 import Footer from '../../common/fotter';
 import { itemsAPI } from '../../../services/api';
+import { exportToCSV } from '../../../utils/exportUtils';
+import { Download } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const ItemMasterList = () => {
@@ -197,6 +199,23 @@ const ItemMasterList = () => {
         setShowBarcodeModal(true);
     };
 
+    const handleExport = async () => {
+        try {
+            const res = await itemsAPI.exportItems();
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `items_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            toast.success('Items exported successfully');
+        } catch (err) {
+            toast.error('Failed to export items');
+        }
+    };
+
     // Reset form
     const resetForm = () => {
         setFormData({
@@ -284,6 +303,10 @@ const ItemMasterList = () => {
                                     Discontinued
                                 </button>
                             </div>
+                            <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 bg-[#1A8FA0] text-white text-xs font-semibold rounded-lg hover:bg-[#157a8a] transition-colors cursor-pointer">
+                                <Download size={13} />
+                                Export
+                            </button>
                         </div>
                     </div>
 
@@ -304,7 +327,6 @@ const ItemMasterList = () => {
                         onPageChange={setCurrentPage}
                     />
                 </div>
-            </div>
 
             <StatsCircles />
             <Footer />
@@ -747,6 +769,7 @@ const ItemMasterList = () => {
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 };

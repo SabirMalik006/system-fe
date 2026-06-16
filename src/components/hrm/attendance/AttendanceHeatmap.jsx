@@ -1,20 +1,16 @@
 import React from "react";
 
-const weeks = [
-  [0, 1, 1, 1, 1, 2, 2],
-  [2, 1, 2, 2, 2, 1, 0],
-  [1, 2, 1, 2, 1, 2, 0],
-  [1, 1, 2, 1, 0, 0, 0],
-];
-
 const days = ["S", "M", "T", "W", "T", "F", "S"];
-
 const colorMap = { 0: "bg-gray-300", 1: "bg-blue-800", 2: "bg-blue-400" };
 
-export default function AttendanceHeatmap() {
+export default function AttendanceHeatmap({ data }) {
+  const weeks = data?.weeks || [];
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 h-full">
-      <h3 className="text-[13px] font-bold text-gray-900 mb-3">Attendance Heatmap – Feb 2026</h3>
+      <h3 className="text-[13px] font-bold text-gray-900 mb-3">
+        Attendance Heatmap – {data?.month ? new Date(data.year || new Date().getFullYear(), data.month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+      </h3>
 
       <div className="grid grid-cols-7 gap-1.5 mb-1.5">
         {days.map((d, i) => (
@@ -26,10 +22,13 @@ export default function AttendanceHeatmap() {
         {weeks.map((week, wi) => (
           <div key={wi} className="grid grid-cols-7 gap-1.5">
             {week.map((val, di) => (
-              <div key={di} className={`h-8 rounded-lg ${colorMap[val]}`} />
+              <div key={di} className={`h-8 rounded-lg ${colorMap[val] || "bg-gray-100"}`} />
             ))}
           </div>
         ))}
+        {weeks.length === 0 && (
+          <div className="text-center text-[11px] text-gray-400 py-6">No data available</div>
+        )}
       </div>
 
       <div className="flex items-center gap-3 mt-3">

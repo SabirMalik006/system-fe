@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Calendar, Edit3, Clock, History } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function ProfileMetaBar({ employee = {} }) {
   const created = employee.createdAt ? new Date(employee.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A';
@@ -27,7 +28,10 @@ export default function ProfileMetaBar({ employee = {} }) {
         <span>Last Updated:</span>
         <span className="font-semibold text-[#1A6FC4]">{updated}</span>
       </div>
-      <button className="ml-auto flex items-center gap-1.5 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+      <button
+        onClick={() => toast.success('Change log feature coming soon')}
+        className="ml-auto flex items-center gap-1.5 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+      >
         <History size={12} />
         View Change Log
       </button>

@@ -59,6 +59,20 @@
     @apply bg-[#f0f2f5];
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  label:has(input[type="checkbox"]):not(:disabled),
+  label:has(input[type="radio"]):not(:disabled) {
+    cursor: pointer;
+  }
+
+  [tabindex]:not([tabindex="-1"]):not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer components {

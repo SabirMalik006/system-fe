@@ -1,23 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Cell,
+  Tooltip, ResponsiveContainer,
 } from 'recharts';
-
-const unitData = [
-  { unit: 'Headquarters',   transfers: 245, pct: 100 },
-  { unit: 'North Regional', transfers: 112, pct: 45  },
-  { unit: 'South Regional', transfers: 98,  pct: 40  },
-  { unit: 'West Hub',       transfers: 156, pct: 63  },
-];
-
-const inOutData = [
-  { unit: 'HQ',    incoming: 60, outgoing: 60 },
-  { unit: 'North', incoming: 70, outgoing: 70 },
-  { unit: 'South', incoming: 46, outgoing: 46 },
-  { unit: 'East',  incoming: 78, outgoing: 78 },
-  { unit: 'West',  incoming: 65, outgoing: 65 },
-];
+import { transferAPI } from '../../../services/api';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -35,32 +21,56 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function TransferAnalytics() {
+export default function TransferAnalytics({ refreshKey }) {
+  const [unitData, setUnitData] = useState([]);
+  const [inOutData, setInOutData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    Promise.all([
+      transferAPI.getTimelineByUnit(),
+      transferAPI.getInOutSummary(),
+    ])
+      .then(([timelineRes, inOutRes]) => {
+        if (!mounted) return;
+        setUnitData(timelineRes.data.data || []);
+        setInOutData(inOutRes.data.data || []);
+      })
+      .catch(() => {})
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [refreshKey]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-      {/* Transfer Timeline by Unit */}
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h3 className="text-base font-bold text-gray-900 mb-8 mt-2">Transfer Timeline by Unit</h3>
-        <div className="flex flex-col gap-6">
-          {unitData.map((u, i) => (
-            <div key={i}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-bold text-gray-900">{u.unit}</span>
-                <span className="text-xs text-[#274c77] font-bold">{u.transfers} Transfers</span>
+        {loading ? (
+          <div className="text-center text-sm text-gray-400 py-12">Loading...</div>
+        ) : unitData.length === 0 ? (
+          <div className="text-center text-sm text-gray-400 py-12">No data yet</div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {unitData.map((u, i) => (
+              <div key={i}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold text-gray-900">{u.unit}</span>
+                  <span className="text-xs text-[#274c77] font-bold">{u.transfers} Transfers</span>
+                </div>
+                <div className="h-3.5 bg-[#0f172a] rounded-full overflow-hidden flex">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${i === 3 || i === 1 ? 'bg-[#1a73e8]' : 'bg-[#274c77]'}`}
+                    style={{ width: `${u.pct}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-3.5 bg-[#0f172a] rounded-full overflow-hidden flex">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${i === 3 || i === 1 ? 'bg-[#1a73e8]' : 'bg-[#274c77]'}`}
-                  style={{ width: `${u.pct}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Unit-wise In vs Out Summary */}
       <div className="bg-[#f8fafc] rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-8 mt-2">
           <h3 className="text-base font-bold text-gray-900">Unit-wise In vs Out Summary</h3>
@@ -77,24 +87,30 @@ export default function TransferAnalytics() {
           </div>
         </div>
 
-        <div className="h-[220px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={inOutData}
-              barSize={12}
-              barGap={4}
-              margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
-            >
-              <XAxis dataKey="unit" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{stroke: '#cbd5e1'}} tickLine={false} tickMargin={10} />
-              
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-              <Bar dataKey="incoming" name="Incoming" fill="#274c77" />
-              <Bar dataKey="outgoing" name="Outgoing" fill="#1a73e8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {loading ? (
+          <div className="text-center text-sm text-gray-400 py-12">Loading...</div>
+        ) : inOutData.length === 0 ? (
+          <div className="text-center text-sm text-gray-400 py-12">No data yet</div>
+        ) : (
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={inOutData}
+                barSize={12}
+                barGap={4}
+                margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis dataKey="unit" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{stroke: '#cbd5e1'}} tickLine={false} tickMargin={10} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="incoming" name="Incoming" fill="#274c77" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="outgoing" name="Outgoing" fill="#1a73e8" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

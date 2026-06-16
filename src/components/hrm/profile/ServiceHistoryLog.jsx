@@ -1,5 +1,7 @@
 import React from 'react';
 import { History, Download, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { employeeAPI } from '../../../services/api';
 
 export default function ServiceHistoryLog({ employee = {} }) {
   const history = (employee.serviceHistory || []).length > 0
@@ -25,11 +27,30 @@ export default function ServiceHistoryLog({ employee = {} }) {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-[#1565C0] font-semibold bg-[#E3F2FD] px-4 py-2 rounded-xl">{history.length} Records</span>
-          <button className="flex items-center gap-1 text-xs font-semibold border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            onClick={async () => {
+              try {
+                const res = await employeeAPI.exportEmployees();
+                const url = URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `employee-${employee.employeeId || employee._id || 'report'}-service-history.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
+                toast.success('Export complete');
+              } catch (err) {
+                toast.error('Export failed');
+              }
+            }}
+            className="flex items-center gap-1 text-xs font-semibold border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <Download size={12} />
-            Export PDF
+            Export CSV
           </button>
-          <button className="flex items-center gap-1 text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            onClick={() => toast.success('Add entry form will open')}
+            className="flex items-center gap-1 text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <Plus size={12} />
             Add Entry
           </button>

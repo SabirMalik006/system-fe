@@ -1,16 +1,26 @@
 import React from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
-const kpis = [
-  { label: "TOTAL EMPLOYEES", value: "1,240", sub: "Active workforce", badge: null },
-  { label: "PRESENT TODAY",   value: "1,058", sub: null, badge: { text: "85.3%", up: true  } },
-  { label: "LATE ARRIVALS",   value: "47",    sub: null, badge: { text: "3.8%",  up: false } },
-  { label: "ABSENT",          value: "89",    sub: null, badge: { text: "7.2%",  up: false } },
-  { label: "ON LEAVE",        value: "36",    sub: "Approved leaves", badge: null },
-  { label: "AVG. WORK HRS",   value: "7.8h",  sub: null, badge: { text: "OT: 1.2h", up: true } },
-];
+export default function KPIStrip({ data }) {
+  if (!data) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="rounded-xl p-4 min-h-[90px] animate-pulse" style={{ background: "linear-gradient(135deg,#1a3a8f 0%,#1565c0 100%)" }} />
+        ))}
+      </div>
+    );
+  }
 
-export default function KPIStrip() {
+  const kpis = [
+    { label: "TOTAL EMPLOYEES", value: data.totalEmployees?.toLocaleString() || "0", sub: "Active workforce", badge: null },
+    { label: "PRESENT TODAY", value: data.presentToday?.toLocaleString() || "0", sub: null, badge: { text: `${data.attendanceRate || 0}%`, up: true } },
+    { label: "LATE ARRIVALS", value: data.lateToday?.toLocaleString() || "0", sub: null, badge: { text: `${data.lateToday && data.totalEmployees ? Math.round(data.lateToday / data.totalEmployees * 100) : 0}%`, up: false } },
+    { label: "ABSENT", value: data.absentToday?.toLocaleString() || "0", sub: null, badge: { text: `${data.absentToday && data.totalEmployees ? Math.round(data.absentToday / data.totalEmployees * 100) : 0}%`, up: false } },
+    { label: "ON LEAVE", value: data.onLeaveToday?.toLocaleString() || "0", sub: "Approved leaves", badge: null },
+    { label: "AVG. WORK HRS", value: `${data.avgWorkHrs || "0"}h`, sub: null, badge: { text: `OT: ${data.overtimeHrs || "0"}h`, up: true } },
+  ];
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       {kpis.map((k, i) => (

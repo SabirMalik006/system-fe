@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { stockReturnAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
+import ConfirmModal from '../../common/ConfirmModal';
 
 const headers = [
   { label: "RETURN ID", key: "id" },
@@ -31,6 +32,7 @@ export default function StockReturnsTable() {
   const [reason, setReason] = useState("All Reasons");
   const [status, setStatus] = useState("All Status");
   const [dateRange, setDateRange] = useState("Last 30 Days");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => { fetchTransactions(); }, [page, search, reason, status, dateRange]);
 
@@ -59,12 +61,13 @@ export default function StockReturnsTable() {
     toast.success("Exported to CSV");
   };
 
-  const handleDelete = async (row) => {
-    if (!window.confirm(`Delete return ${row.id}? This will reverse stock changes.`)) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      const response = await stockReturnAPI.deleteReturn(row._id);
+      const response = await stockReturnAPI.deleteReturn(deleteTarget._id);
       if (response.data.success) {
         toast.success("Return deleted");
+        setDeleteTarget(null);
         fetchTransactions();
       }
     } catch (error) {
@@ -165,7 +168,7 @@ export default function StockReturnsTable() {
                 <td className="py-3 sm:py-3.5 px-2 sm:px-3">
                   <div className="flex items-center gap-2">
                     <button onClick={() => handlePrintReceipt(row)} title="Print Receipt" className="p-1 hover:bg-blue-50 text-blue-600 rounded transition-colors"><Printer size={14} /></button>
-                    <button onClick={() => handleDelete(row)} title="Delete" className="p-1 hover:bg-red-50 text-red-600 rounded transition-colors"><Trash2 size={14} /></button>
+                    <button onClick={() => setDeleteTarget(row)} title="Delete" className="p-1 hover:bg-red-50 text-red-600 rounded transition-colors"><Trash2 size={14} /></button>
                   </div>
                 </td>
               </tr>
@@ -185,6 +188,13 @@ export default function StockReturnsTable() {
           <button disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} className="w-6 h-6 sm:w-7 sm:h-7 border border-gray-200 rounded flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={13} className="text-gray-400" /></button>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Return"
+        message={`Delete return ${deleteTarget?.id}? This will reverse stock changes.`}
+      />
     </div>
   );
 }

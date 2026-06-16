@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { employeeAPI } from "../../services/api";
 import DepartmentKPICards from "../../components/hrm/department/DepartmentKPICards";
 import DepartmentCharts from "../../components/hrm/department/DepartmentCharts";
 import DepartmentBarChart from "../../components/hrm/department/DepartmentBarChart";
@@ -12,23 +14,31 @@ export default function Department() {
     navigate("/personnel-profile");
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const res = await employeeAPI.exportEmployees();
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `employees-${Date.now()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Export complete");
+    } catch (err) {
+      toast.error("Export failed");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#e8f2fb] font-sans">
       <div className="w-full max-w-[2560px] mx-auto px-4 sm:px-5 py-4 flex flex-col gap-4">
         <div className="flex justify-end gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             Export CSV
           </button>
@@ -36,18 +46,8 @@ export default function Department() {
             onClick={handleAddEmployee}
             className="flex items-center gap-2 px-4 py-2 bg-[#1e6fbe] text-white rounded-lg text-sm font-medium hover:bg-[#175fa5] transition-colors cursor-pointer"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Add Employee
           </button>

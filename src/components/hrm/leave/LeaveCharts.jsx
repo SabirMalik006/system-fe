@@ -1,24 +1,9 @@
 import React from 'react';
 import {
-  ComposedChart, Bar, Line, XAxis, YAxis,
+  ComposedChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie,
 } from 'recharts';
-
-const barData = [
-  { month: 'Feb', requested: 48, approved: 32 },
-  { month: 'Mar', requested: 62, approved: 50 },
-  { month: 'Apr', requested: 55, approved: 42 },
-  { month: 'May', requested: 65, approved: 55 },
-  { month: 'Jun', requested: 42, approved: 35 },
-  { month: 'Jul', requested: 38, approved: 28 },
-];
-
-const pieData = [
-  { name: 'Annual Leave', value: 65, color: '#1a3a8f' },
-  { name: 'Sick Leave',   value: 25, color: '#3b82f6' },
-  { name: 'Casual Leave', value: 10, color: '#93c5fd' },
-];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -36,11 +21,16 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function LeaveCharts() {
+export default function LeaveCharts({ data }) {
+  const barData = data?.barData || [];
+  const pieData = data?.pieData || [
+    { name: 'Annual Leave', value: 0, color: '#1a3a8f' },
+    { name: 'Sick Leave',   value: 0, color: '#3b82f6' },
+    { name: 'Casual Leave', value: 0, color: '#93c5fd' },
+  ];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-      {/* Leave Request vs Approval — Bar Chart */}
       <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-gray-900">Leave Request vs Approval</h3>
@@ -56,18 +46,15 @@ export default function LeaveCharts() {
                 </div>
               ))}
             </div>
-            <button className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg">
-              6 Months
-            </button>
+            <button className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg">6 Months</button>
           </div>
         </div>
-
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={barData} barGap={3} barCategoryGap="30%" margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+            <ComposedChart data={barData.length > 0 ? barData : [{ month: 'No data', requested: 0, approved: 0 }]} barGap={3} barCategoryGap="30%" margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} ticks={[0,10,20,30,40,50,60,70]} />
+              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
               <Bar dataKey="requested" name="Requested" fill="#1a3a8f" radius={[3,3,0,0]} barSize={18} />
               <Bar dataKey="approved"  name="Approved"  fill="#60a5fa" radius={[3,3,0,0]} barSize={18} />
@@ -76,28 +63,15 @@ export default function LeaveCharts() {
         </div>
       </div>
 
-      {/* Leave Type Distribution — Donut */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <h3 className="text-sm font-bold text-gray-900 mb-4">Leave Type Distribution</h3>
-
         <div className="flex justify-center mb-3">
           <PieChart width={170} height={170}>
-            <Pie
-              data={pieData}
-              cx={80} cy={80}
-              innerRadius={50} outerRadius={80}
-              paddingAngle={3}
-              dataKey="value"
-              startAngle={90} endAngle={-270}
-            >
-              {pieData.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
-              ))}
+            <Pie data={pieData} cx={80} cy={80} innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
+              {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
             </Pie>
           </PieChart>
         </div>
-
-        {/* Legend */}
         <div className="flex flex-col gap-2.5 mt-1">
           {pieData.map((d, i) => (
             <div key={i} className="flex items-center justify-between">
@@ -110,7 +84,6 @@ export default function LeaveCharts() {
           ))}
         </div>
       </div>
-
     </div>
   );
 }

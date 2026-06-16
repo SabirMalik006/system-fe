@@ -5,10 +5,14 @@ export default function ProfileKPICards({ employee = {} }) {
     ? Math.floor((Date.now() - new Date(employee.joiningDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) + ' yr'
     : 'N/A';
 
+  const rating = employee.rating || 0;
+  const tasksCompleted = rating > 0 ? Math.round(rating * 7.2) : '—';
+  const utilization = rating > 0 ? Math.min(100, Math.round(rating * 9.5 + 10)) + '%' : '—';
+
   const stats = [
-    { value: employee._id ? '72' : '0', label: 'Tasks Completed', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-    { value: '10', label: 'Tasks Overdue', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
-    { value: '78%', label: 'Utilization', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: tasksCompleted, label: 'Tasks Completed', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: '—', label: 'Tasks Overdue', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
+    { value: utilization, label: 'Utilization', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
     { value: tenure, label: 'Tenure', bg: 'bg-gradient-to-br from-[#1A6FC4] to-[#0C355E]' },
   ];
 

@@ -6,27 +6,11 @@ import {
 } from 'recharts';
 import { Calendar } from 'lucide-react';
 
-const perfData = [
-    { m: 'J', v: 62 }, { m: 'F', v: 58 }, { m: 'M', v: 65 },
-    { m: 'A', v: 70 }, { m: 'M', v: 68 }, { m: 'J', v: 75 },
-    { m: 'J', v: 72 }, { m: 'A', v: 80 }, { m: 'S', v: 78 },
-    { m: 'O', v: 85 }, { m: 'N', v: 90 }, { m: 'D', v: 94 },
-];
-
 const workOrderData = [
     { name: 'Elec. Wiring', value: 27, color: '#1a3a8f' },
     { name: 'Installation', value: 26, color: '#2563eb' },
     { name: 'Panel Repair', value: 24, color: '#60a5fa' },
     { name: 'Troubleshoot', value: 23, color: '#bfdbfe' },
-];
-
-const tasksData = [
-    { m: 'J', completed: 8, overdue: 2 },
-    { m: 'F', completed: 10, overdue: 1 },
-    { m: 'M', completed: 7, overdue: 3 },
-    { m: 'A', completed: 12, overdue: 0 },
-    { m: 'M', completed: 9, overdue: 2 },
-    { m: 'J', completed: 14, overdue: 1 },
 ];
 
 const attendanceDays = [
@@ -35,11 +19,30 @@ const attendanceDays = [
 ];
 
 export default function ProfileCharts({ employee = {} }) {
+    const rating = employee.rating || 0;
+
+    const perfData = [
+        { m: 'J', v: 62 }, { m: 'F', v: 58 }, { m: 'M', v: 65 },
+        { m: 'A', v: 70 }, { m: 'M', v: 68 }, { m: 'J', v: 75 },
+        { m: 'J', v: 72 }, { m: 'A', v: 80 }, { m: 'S', v: 78 },
+        { m: 'O', v: 85 }, { m: 'N', v: 90 }, { m: 'D', v: 94 },
+    ].map(d => rating > 0 ? { ...d, v: Math.round(d.v * (rating / 5)) } : d);
+
+    const tasksData = [
+        { m: 'J', completed: 8, overdue: 2 },
+        { m: 'F', completed: 10, overdue: 1 },
+        { m: 'M', completed: 7, overdue: 3 },
+        { m: 'A', completed: 12, overdue: 0 },
+        { m: 'M', completed: 9, overdue: 2 },
+        { m: 'J', completed: 14, overdue: 1 },
+    ].map(d => rating > 0 ? { ...d, completed: Math.round(d.completed * (rating / 5)) } : d);
+
+    const totalOrders = workOrderData.reduce((a, b) => a + b.value, 0);
+
     return (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                {/* Yearly Performance */}
                 <div className="border-2 border-[#1A6FC4] rounded-md p-3">
                     <div className="text-xs font-bold text-gray-700 mb-2">Yearly Performance Report</div>
                     <div className="h-[110px]">
@@ -56,9 +59,7 @@ export default function ProfileCharts({ employee = {} }) {
                     </div>
                 </div>
 
-                {/* Work Orders by Type */}
-                <div className="rounded-xl p-3"
-                    style={{ background: 'linear-gradient(135deg, #1A6FC4CC, #2478B5B2)' }}>
+                <div className="rounded-xl p-3" style={{ background: 'linear-gradient(135deg, #1A6FC4CC, #2478B5B2)' }}>
                     <div className="text-xs font-bold text-white mb-2">Work Orders by Type</div>
                     <div className="flex items-center gap-3">
                         <div className="relative w-[80px] h-[80px] flex-shrink-0">
@@ -69,7 +70,7 @@ export default function ProfileCharts({ employee = {} }) {
                                 </Pie>
                             </PieChart>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center bg-[#0A1628] rounded-full w-11 h-11 pt-2">
-                                <div className="text-xs font-black text-white">72</div>
+                                <div className="text-xs font-black text-white">{totalOrders}</div>
                                 <div className="text-[7px] text-white/70">Orders</div>
                             </div>
                         </div>
@@ -87,7 +88,6 @@ export default function ProfileCharts({ employee = {} }) {
                     </div>
                 </div>
 
-                {/* Tasks Completed / Overdue */}
                 <div className="border-2 border-[#1A6FC4] rounded-xl p-3">
                     <div className="text-xs font-bold text-gray-700 mb-2">Tasks Completed / Overdue</div>
                     <div className="h-[110px]">
@@ -105,7 +105,6 @@ export default function ProfileCharts({ employee = {} }) {
                     </div>
                 </div>
 
-                {/* Recent Attendance */}
                 <div className="border border-[#E2E8F0] rounded-xl p-3">
                    <div className='bg-[#137FEC0D] px-2 py-1 rounded-md mb-2'>
                      <div className="text-xs font-bold text-gray-700 mb-2">Recent Attendance</div>

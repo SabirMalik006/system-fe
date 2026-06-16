@@ -1,5 +1,6 @@
 import React from 'react';
 import { Award, Plus, AlertTriangle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const levelColors = {
     'Expert': '#3B82F6',
@@ -30,7 +31,10 @@ export default function SkillsCertifications({ employee = {} }) {
           </div>
           <h2 className="text-sm font-bold text-gray-800">Skills & Certifications</h2>
         </div>
-        <button className="flex items-center gap-1 text-xs font-bold bg-[#1A6FC4] text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors">
+        <button
+          onClick={() => toast.success('Add skill form will open')}
+          className="flex items-center gap-1 text-xs font-bold bg-[#1A6FC4] text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
+        >
           <Plus size={12} />
           Add
         </button>

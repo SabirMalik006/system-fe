@@ -1,14 +1,10 @@
 import React from "react";
 import { Check, X } from "lucide-react";
+import toast from "react-hot-toast";
 
-const approvals = [
-  { initials: "SM", name: "Subhan Mehmood", meta: "OT Request · Feb 27 · +2.5h · Plumber"               },
-  { initials: "SK", name: "Salar Khan",     meta: "Leave Request · Feb 27 – Mar 5 · Sr. Electrician"     },
-  { initials: "AB", name: "Adnan Bashir",   meta: "Late Mark · Feb 27 · 12 min · Carpenter"              },
-  { initials: "FI", name: "Faisal Iqbal",   meta: "Late Mark · Feb 27 · 8 min · Pipefitter"              },
-];
+export default function PendingApprovals({ data }) {
+  const approvals = data && data.length > 0 ? data : [];
 
-export default function PendingApprovals() {
   return (
     <div className="rounded-2xl p-4 h-full flex flex-col"
       style={{ background: "linear-gradient(135deg,#1a3a8f,#1565c0)" }}>
@@ -20,11 +16,11 @@ export default function PendingApprovals() {
       </div>
 
       <div className="flex flex-col gap-2 flex-1">
-        {approvals.map((a, i) => (
+        {approvals.length > 0 ? approvals.map((a, i) => (
           <div key={i} className="flex items-center justify-between bg-white/10 rounded-xl px-3 py-2.5">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-[10px] font-bold text-white">{a.initials}</span>
+                <span className="text-[10px] font-bold text-white">{a.initials || '?'}</span>
               </div>
               <div>
                 <p className="text-[12px] font-semibold text-white leading-tight">{a.name}</p>
@@ -40,7 +36,11 @@ export default function PendingApprovals() {
               </button>
             </div>
           </div>
-        ))}
+        )) : (
+          <div className="flex items-center justify-center flex-1">
+            <p className="text-[11px] text-blue-200">No pending approvals</p>
+          </div>
+        )}
       </div>
     </div>
   );

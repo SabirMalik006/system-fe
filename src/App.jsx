@@ -28,6 +28,9 @@ import Compliance from './pages/hrm/Compliance';
 import CreateIncidentPage from './pages/hrm/CreateIncidentPage';
 import LeaveManagement from './pages/hrm/LeaveManagement';
 import InterUnitTransfer from './pages/hrm/InterUnitTransfer';
+import CreateTransferPage from './pages/hrm/CreateTransferPage';
+import TransferDetailPage from './pages/hrm/TransferDetailPage';
+import EditTransferPage from './pages/hrm/EditTransferPage';
 import TrainingManagement from './pages/hrm/TrainingManagement';
 import PerformanceEvaluation from './pages/hrm/PerformanceEvaluation';
 import AttendancePage from './pages/hrm/AttendancePage';
@@ -182,6 +185,21 @@ function AppRoutes() {
       <Route path="/inter-unit-transfer" element={
         <ProtectedRoute>
           <HRMLayout><InterUnitTransfer /></HRMLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/inter-unit-transfer/new" element={
+        <ProtectedRoute>
+          <HRMLayout><CreateTransferPage /></HRMLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/inter-unit-transfer/:id" element={
+        <ProtectedRoute>
+          <HRMLayout><TransferDetailPage /></HRMLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/inter-unit-transfer/:id/edit" element={
+        <ProtectedRoute>
+          <HRMLayout><EditTransferPage /></HRMLayout>
         </ProtectedRoute>
       } />
       <Route path="/training-management" element={

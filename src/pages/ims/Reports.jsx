@@ -3,7 +3,7 @@ import Footer from "../../components/common/fotter";
 import { reportsAPI } from "../../services/api";
 import toast from "react-hot-toast";
 import { exportToCSV } from "../../utils/exportUtils";
-import { Download } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 
 const Reports = () => {
   const [selectedLog, setSelectedLog] = useState(null);
@@ -134,6 +134,10 @@ const Reports = () => {
     ];
 
     exportToCSV(logs, exportHeaders, "audit_logs");
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const formatDate = (dateString) => {
@@ -273,6 +277,13 @@ const Reports = () => {
           >
             <Download size={16} />
             Export Logs
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
+          >
+            <Printer size={16} />
+            Print
           </button>
           <button
             onClick={clearFilters}

@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { dashboardAPI } from '../../services/api';
 
 export default function KPIStats() {
-  const [stats, setStats] = useState([
-    { label: 'Total Items', sub: "Stable", value: '...', image: '/Background (6).svg', bg: '#dbeafe', trend: '+12', up: true },
-    { label: 'Stock Value', value: '...', sub: 'Stable', image: '/Background (7).svg', bg: '#cffafe', trend: '+5.2%', up: true, prefix: 'PKR ' },
-    { label: 'Low Stock Items', sub: "Stable", value: '...', image: '/Background (8).svg', bg: '#fef3c7', trend: '-3', up: false },
-    { label: 'Pending Orders', value: '...', sub: 'Average 4h Delay', image: '/Background (9).svg', bg: '#ede9fe', trend: '+2', up: false },
-    { label: 'New Vendor Registration', value: '...', sub: 'Stable', image: '/Overlay+OverlayBlur.svg', bg: '#d1fae5', trend: '+2', isStatus: true },
-  ]);
+  const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,9 +31,19 @@ export default function KPIStats() {
     fetchStats();
   }, []);
 
+  const handleRefresh = () => {
+    setLoading(true);
+    fetchStats();
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4 pt-3 px-3 sm:px-4 md:px-5 pb-8">
+    <div className="relative">
+      <button onClick={handleRefresh} className="absolute top-3 right-3 sm:right-5 z-10 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors cursor-pointer" title="Refresh stats">
+        <RefreshCw size={14} className={`text-white ${loading ? 'animate-spin' : ''}`} />
+      </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4 pt-3 px-3 sm:px-4 md:px-5 pb-8">
       {stats.map((s, i) => <StatCard key={i} stat={s} i={i} loading={loading} />)}
+      </div>
     </div>
   );
 }

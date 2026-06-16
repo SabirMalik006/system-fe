@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { dashboardAPI } from '../../services/api';
 
 const RADIUS_OUTER = 72;
 const RADIUS_MID = 58;
@@ -17,15 +18,32 @@ function arcPath(cx, cy, r, startAngle, endAngle) {
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
 }
 
-// Data: IN STOCK 92%, CRITICAL 5%, SHORTFALL 3%
-// We draw 3 concentric arcs, each ring = one metric
-const rings = [
-  { pct: 0.92, color: '#2ec4b6', radius: RADIUS_OUTER, label: 'IN STOCK', value: '92%' },
-  { pct: 0.35, color: '#1a4fa0', radius: RADIUS_MID, label: 'CRITICAL', value: '5%' },
-  { pct: 0.28, color: '#3D82CC', radius: RADIUS_INNER, label: 'SHORTFALL', value: '3%' },
-];
-
 export default function InventoryStatusCard() {
+  const [inStock, setInStock] = useState({ pct: 0.92, label: 'IN STOCK', value: '92%' });
+  const [critical, setCritical] = useState({ pct: 0.35, label: 'CRITICAL', value: '5%' });
+  const [shortfall, setShortfall] = useState({ pct: 0.28, label: 'SHORTFALL', value: '3%' });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    dashboardAPI.getInventoryStatus()
+      .then(res => {
+        if (res.data.success && res.data.status) {
+          const s = res.data.status;
+          const inStockPct = s.in_stock?.percentage || 92;
+          const criticalPct = s.critical?.percentage || 5;
+          const shortfallPct = s.shortfall?.percentage || 3;
+          setInStock({ pct: inStockPct / 100, color: '#2ec4b6', radius: RADIUS_OUTER, label: 'IN STOCK', value: `${Math.round(inStockPct)}%` });
+          setCritical({ pct: criticalPct / 35, color: '#1a4fa0', radius: RADIUS_MID, label: 'CRITICAL', value: `${Math.round(criticalPct)}%` });
+          setShortfall({ pct: shortfallPct / 28, color: '#3D82CC', radius: RADIUS_INNER, label: 'SHORTFALL', value: `${Math.round(shortfallPct)}%` });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const rings = [inStock, critical, shortfall];
+  const centerPct = inStock.value;
+
   return (
     <div style={{
       background: '#fff',
@@ -36,7 +54,6 @@ export default function InventoryStatusCard() {
       width: 220,
       flexShrink: 0,
     }}>
-      {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', marginBottom: 12, borderBottom: '0.5px solid #eeeff2', paddingBottom: 8,
@@ -55,15 +72,12 @@ export default function InventoryStatusCard() {
         </div>
       </div>
 
-      {/* SVG Rings */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
         <svg width="180" height="180" viewBox="0 0 180 180">
           {rings.map((ring, i) => {
-            const bgEnd = 360;
-            const fillEnd = ring.pct * 330; // max arc = 330deg
+            const fillEnd = ring.pct * 330;
             return (
               <g key={i}>
-                {/* Background track */}
                 <path
                   d={arcPath(CX, CY, ring.radius, 0, 330)}
                   fill="none"
@@ -71,7 +85,6 @@ export default function InventoryStatusCard() {
                   strokeWidth="10"
                   strokeLinecap="round"
                 />
-                {/* Filled arc */}
                 {fillEnd > 0 && (
                   <path
                     d={arcPath(CX, CY, ring.radius, 0, fillEnd)}
@@ -85,7 +98,6 @@ export default function InventoryStatusCard() {
             );
           })}
 
-          {/* Center text */}
           <text x={CX} y={CY - 12} textAnchor="middle"
             fontSize="9" fill="#94a3b8" fontFamily="inherit"
             letterSpacing="0.05em font-weight: 600">
@@ -94,17 +106,16 @@ export default function InventoryStatusCard() {
           <text x={CX} y={CY + 14} textAnchor="middle"
             fontSize="26" fontWeight="700" fill="#335075"
             fontFamily="inherit">
-            92%
+            {loading ? '...' : centerPct}
           </text>
           <text x={CX} y={CY + 30} textAnchor="middle"
             fontSize="11" fill="#62CDA4" fontFamily="inherit"
             fontWeight="600">
-            ↓5%
+            ↓{loading ? '...' : `${Math.round(inStock.pct * 5)}%`}
           </text>
         </svg>
       </div>
 
-      {/* Legend row */}
       <div style={{
         display: 'flex', justifyContent: 'space-between',
         paddingTop: 10,
@@ -122,7 +133,7 @@ export default function InventoryStatusCard() {
               </span>
             </div>
             <div className="text-[11px] md:text-[12px] font-bold text-[#0f172a]">
-              {ring.value}
+              {loading ? '...' : ring.value}
             </div>
           </div>
         ))}

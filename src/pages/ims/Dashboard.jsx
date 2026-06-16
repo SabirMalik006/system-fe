@@ -2,6 +2,7 @@ import React from 'react';
 // import Topbar from '../components/dashboard/Topbar';
 import KPIStats from '../../components/dashboard/KPIStats';
 import AlertCenter from '../../components/dashboard/AlertCenter';
+import InspectionAlert from '../../components/dashboard/InspectionAlert';
 import StockMovement from '../../components/dashboard/StockMovement';
 import VendorAndBook from '../../components/dashboard/VendorAndBook';
 import ItemCategoryHealth from '../../components/dashboard/ItemCategoryHealth';
@@ -26,7 +27,10 @@ export default function Dashboard() {
         <div className="mb-4 m-4">
           <AlertCenter />
         </div>
-        
+
+        {/* Inspection Alert */}
+        <InspectionAlert />
+
         {/* Stock Movement - Full Width on Mobile, Flexible on Desktop */}
         <div className="mb-4">
           <StockMovement />

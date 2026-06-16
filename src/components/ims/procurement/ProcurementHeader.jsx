@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, X } from 'lucide-react';
+import { ShoppingCart, Download, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { purchaseRequestAPI } from '../../../services/api';
+import toast from 'react-hot-toast';
 import RequestPage from '../../../pages/ims/PurchaseRequest';
 
 export default function ProcurementHeader() {
@@ -31,6 +33,26 @@ export default function ProcurementHeader() {
         navigate('/purchase-request');
     };
 
+    const handleExport = async () => {
+        try {
+            const res = await purchaseRequestAPI.getAll(1, 1000, '', '', '');
+            if (res.data.success) {
+                const { exportToCSV } = await import('../../../utils/exportUtils');
+                exportToCSV(res.data.data, [
+                    { label: 'ID', key: 'requestId' },
+                    { label: 'Title', key: 'title' },
+                    { label: 'Department', key: 'department' },
+                    { label: 'Total', key: 'totalAmount' },
+                    { label: 'Status', key: 'status' },
+                    { label: 'Date', key: 'createdAt' },
+                ], 'purchase_requests');
+                toast.success('Data exported successfully');
+            }
+        } catch (err) {
+            toast.error('Failed to export');
+        }
+    };
+
     return (
         <>
             <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 bg-[#E8F4FF]">
@@ -42,13 +64,22 @@ export default function ProcurementHeader() {
                         Manage and monitor organization-wide purchase requests.
                     </p>
                 </div>
-                <button 
-                    onClick={handleCreatePurchaseRequest}
-                    className="flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#3B82F6] to-[#1E4D7B] hover:from-[#2563EB] hover:to-[#1A3A6B] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-3 sm:py-2 md:py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-center leading-tight whitespace-nowrap cursor-pointer"
-                >
-                    <ShoppingCart size={14} className="sm:w-4 sm:h-4" />
-                    <span>Create Purchase Request</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center justify-center gap-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2 md:py-3 rounded-xl transition-all shadow-sm cursor-pointer"
+                    >
+                        <Download size={14} />
+                        Export
+                    </button>
+                    <button 
+                        onClick={handleCreatePurchaseRequest}
+                        className="flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#3B82F6] to-[#1E4D7B] hover:from-[#2563EB] hover:to-[#1A3A6B] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-3 sm:py-2 md:py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-center leading-tight whitespace-nowrap cursor-pointer"
+                    >
+                        <ShoppingCart size={14} className="sm:w-4 sm:h-4" />
+                        <span>Create Purchase Request</span>
+                    </button>
+                </div>
             </div>
 
             {/* ====================== REVIEW & APPROVE REQUEST MODAL (Small) ====================== */}

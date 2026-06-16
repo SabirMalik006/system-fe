@@ -1,11 +1,35 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
+import { Download } from 'lucide-react';
+import { stockOutAPI } from '../../../services/api';
+import toast from 'react-hot-toast';
 
 export default function Topbar() {
     const navigate = useNavigate();
 
     const handleStockOutEntry = () => {
         navigate('/entry');
+    };
+
+    const handleExport = async () => {
+        try {
+            const res = await stockOutAPI.getTransactions(1, 1000);
+            if (res.data.success) {
+                const { exportToCSV } = await import('../../../utils/exportUtils');
+                exportToCSV(res.data.data, [
+                    { label: 'ID', key: 'issuanceId' },
+                    { label: 'Item', key: 'itemName' },
+                    { label: 'Quantity', key: 'quantity' },
+                    { label: 'Unit', key: 'unit' },
+                    { label: 'Department', key: 'department' },
+                    { label: 'Status', key: 'status' },
+                    { label: 'Date', key: 'createdAt' },
+                ], 'stock_issuance');
+                toast.success('Data exported successfully');
+            }
+        } catch (err) {
+            toast.error('Failed to export');
+        }
     };
 
     return (
@@ -38,13 +62,22 @@ export default function Topbar() {
                     </p>
                 </div>
 
-                <button 
-                    onClick={handleStockOutEntry}
-                    className="flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#3B82F6] to-[#1E4D7B] hover:from-[#2563EB] hover:to-[#1A3A6B] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-center leading-tight whitespace-nowrap cursor-pointer"
-                >
-                    <img src="/a.png" alt="" className="filter brightness-0 invert w-3 h-3 sm:w-4 sm:h-4" />
-                    Stock Out Entry
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 rounded-xl transition-all duration-300 shadow-sm cursor-pointer"
+                    >
+                        <Download size={14} />
+                        Export
+                    </button>
+                    <button 
+                        onClick={handleStockOutEntry}
+                        className="flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#3B82F6] to-[#1E4D7B] hover:from-[#2563EB] hover:to-[#1A3A6B] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-center leading-tight whitespace-nowrap cursor-pointer"
+                    >
+                        <img src="/a.png" alt="" className="filter brightness-0 invert w-3 h-3 sm:w-4 sm:h-4" />
+                        Stock Out Entry
+                    </button>
+                </div>
             </div>
         </div>
     );
