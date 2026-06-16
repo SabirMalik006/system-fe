@@ -743,7 +743,7 @@ const ItemMasterList = () => {
                             </button>
                         </div>
 
-                        <div className="p-6 text-center bg-white flex flex-col items-center">
+                        <div id="barcode-print-area" className="p-6 text-center bg-white flex flex-col items-center">
                             <div className="mb-4">
                                 <h3 className="text-md font-semibold text-gray-800">{selectedBarcodeItem.name}</h3>
                                 <p className="text-xs text-gray-500">SKU: {selectedBarcodeItem.sku}</p>
@@ -758,7 +758,42 @@ const ItemMasterList = () => {
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-end">
+                        <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 flex gap-2 justify-end">
+                            <button
+                                onClick={() => {
+                                    const printWin = window.open('', '_blank');
+                                    printWin.document.write(`
+                                        <html>
+                                            <head>
+                                                <title>Print Barcode</title>
+                                                <style>
+                                                    @media print {
+                                                        @page { margin: 0; }
+                                                        body { margin: 0; padding: 0; }
+                                                    }
+                                                    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: white; font-family: sans-serif; }
+                                                    .barcode-wrap { text-align: center; padding: 20px; }
+                                                    .barcode-wrap img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+                                                </style>
+                                            </head>
+                                            <body>
+                                                <div class="barcode-wrap">
+                                                    <img src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${selectedBarcodeItem.barcode}&scale=5&includetext" />
+                                                </div>
+                                            </body>
+                                        </html>
+                                    `);
+                                    printWin.document.close();
+                                    printWin.focus();
+                                    setTimeout(() => { printWin.print(); printWin.close(); }, 300);
+                                }}
+                                className="px-4 py-2 bg-[#1E4D7B] text-white rounded-lg text-sm font-medium hover:bg-[#163a5e] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                </svg>
+                                Print
+                            </button>
                             <button 
                                 onClick={() => setShowBarcodeModal(false)} 
                                 className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"

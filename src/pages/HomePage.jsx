@@ -204,11 +204,10 @@ export default function HomePage() {
         </div>
 
         {/* Pie Chart */}
-        <div className="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px] lg:w-[480px] lg:h-[480px]">
+        <div className="relative w-full max-w-[min(85vw,280px)] sm:max-w-[min(75vw,380px)] lg:max-w-[min(60vw,480px)] aspect-square flex-shrink-0">
           {/* SVG Pie with 3D effect */}
           <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-2xl" style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))' }}>
             <defs>
-              {/* IMS gradient - 3D lighting from top-left */}
               <linearGradient id="imsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#296FA8" />
                 <stop offset="40%" stopColor="#1E4D7B" />
@@ -219,8 +218,6 @@ export default function HomePage() {
                 <stop offset="40%" stopColor="#296FA8" />
                 <stop offset="100%" stopColor="#1E4D7B" />
               </linearGradient>
-
-              {/* HRMS gradient - 3D lighting from top-left */}
               <linearGradient id="hrmsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#1A7FC4" />
                 <stop offset="40%" stopColor="#0B4E89" />
@@ -231,108 +228,53 @@ export default function HomePage() {
                 <stop offset="40%" stopColor="#1A7FC4" />
                 <stop offset="100%" stopColor="#0B4E89" />
               </linearGradient>
-
-              {/* Highlight shimmer */}
               <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
                 <stop offset="50%" stopColor="#ffffff" stopOpacity="0" />
                 <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
               </linearGradient>
-
-              {/* Drop shadow for 3D depth */}
               <filter id="pieShadow">
                 <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#000000" floodOpacity="0.4" />
               </filter>
             </defs>
 
-            {/* 3D extrusion layer (offset) */}
-            <path
-              d="M 50 50 L 50 4 A 50 50 0 0 0 50 96 Z"
-              fill="#031525"
-              opacity="0.3"
-              transform="translate(0, 3)"
-            />
-            <path
-              d="M 50 50 L 50 4 A 50 50 0 0 1 50 96 Z"
-              fill="#031525"
-              opacity="0.3"
-              transform="translate(0, 3)"
-            />
+            <path d="M 50 50 L 50 4 A 50 50 0 0 0 50 96 Z" fill="#031525" opacity="0.3" transform="translate(0, 3)" />
+            <path d="M 50 50 L 50 4 A 50 50 0 0 1 50 96 Z" fill="#031525" opacity="0.3" transform="translate(0, 3)" />
 
-            {/* Left half - HRMS */}
             <g filter="url(#pieShadow)">
               <path
                 d="M 50 50 L 50 0 A 50 50 0 0 0 50 100 Z"
                 fill={hovered === 'hrms' ? 'url(#hrmsGradHover)' : 'url(#hrmsGrad)'}
-                stroke="#ffffff15"
-                strokeWidth="0.3"
+                stroke="#ffffff15" strokeWidth="0.3"
                 className="transition-all duration-300 cursor-pointer"
                 onClick={() => navigate('/hrm-dashboard')}
                 onMouseEnter={() => setHovered('hrms')}
                 onMouseLeave={() => setHovered(null)}
-                style={{
-                  filter: hovered === 'hrms' ? 'brightness(1.15)' : hovered === 'ims' ? 'brightness(0.5) saturate(0.3)' : 'brightness(1)',
-                }}
+                style={{ filter: hovered === 'hrms' ? 'brightness(1.15)' : hovered === 'ims' ? 'brightness(0.5) saturate(0.3)' : 'brightness(1)' }}
               />
-              {/* Shimmer overlay */}
-              <path
-                d="M 50 50 L 50 0 A 50 50 0 0 0 50 100 Z"
-                fill="url(#shimmer)"
-                className="pointer-events-none"
-                opacity={hovered === 'hrms' ? 0.3 : 0.15}
-              />
-              {/* Inner edge highlight */}
-              <path
-                d="M 50 4 A 46 46 0 0 0 50 96"
-                fill="none"
-                stroke="#ffffff"
-                strokeOpacity="0.08"
-                strokeWidth="0.5"
-                className="pointer-events-none"
-              />
+              <path d="M 50 50 L 50 0 A 50 50 0 0 0 50 100 Z" fill="url(#shimmer)" className="pointer-events-none" opacity={hovered === 'hrms' ? 0.3 : 0.15} />
+              <path d="M 50 4 A 46 46 0 0 0 50 96" fill="none" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" className="pointer-events-none" />
             </g>
 
-            {/* Right half - IMS */}
             <g filter="url(#pieShadow)">
               <path
                 d="M 50 50 L 50 0 A 50 50 0 0 1 50 100 Z"
                 fill={hovered === 'ims' ? 'url(#imsGradHover)' : 'url(#imsGrad)'}
-                stroke="#ffffff15"
-                strokeWidth="0.3"
+                stroke="#ffffff15" strokeWidth="0.3"
                 className="transition-all duration-300 cursor-pointer"
                 onClick={() => navigate('/dashboard')}
                 onMouseEnter={() => setHovered('ims')}
                 onMouseLeave={() => setHovered(null)}
-                style={{
-                  filter: hovered === 'ims' ? 'brightness(1.15)' : hovered === 'hrms' ? 'brightness(0.5) saturate(0.3)' : 'brightness(1)',
-                }}
+                style={{ filter: hovered === 'ims' ? 'brightness(1.15)' : hovered === 'hrms' ? 'brightness(0.5) saturate(0.3)' : 'brightness(1)' }}
               />
-              {/* Shimmer overlay */}
-              <path
-                d="M 50 50 L 50 0 A 50 50 0 0 1 50 100 Z"
-                fill="url(#shimmer)"
-                className="pointer-events-none"
-                opacity={hovered === 'ims' ? 0.3 : 0.15}
-              />
-              {/* Inner edge highlight */}
-              <path
-                d="M 50 4 A 46 46 0 0 1 50 96"
-                fill="none"
-                stroke="#ffffff"
-                strokeOpacity="0.08"
-                strokeWidth="0.5"
-                className="pointer-events-none"
-              />
+              <path d="M 50 50 L 50 0 A 50 50 0 0 1 50 100 Z" fill="url(#shimmer)" className="pointer-events-none" opacity={hovered === 'ims' ? 0.3 : 0.15} />
+              <path d="M 50 4 A 46 46 0 0 1 50 96" fill="none" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" className="pointer-events-none" />
             </g>
 
-            {/* Center dividing line with glow */}
             <line x1="50" y1="0" x2="50" y2="100" stroke="#ffffff" strokeOpacity="0.06" strokeWidth="0.5" />
-
-            {/* Outer ring highlight (3D rim) */}
             <circle cx="50" cy="50" r="49.5" fill="none" stroke="#ffffff20" strokeWidth="0.5" />
 
-            {/* Labels inside the pie */}
-            {/* HRMS label (left half) */}
+            {/* HRMS label (left half - aligned to exact half center) */}
             <g
               className="cursor-pointer"
               onClick={() => navigate('/hrm-dashboard')}
@@ -340,18 +282,17 @@ export default function HomePage() {
               onMouseLeave={() => setHovered(null)}
               opacity={hovered === 'ims' ? 0.3 : 1}
             >
-              {/* Icon background circle */}
-              <circle cx="28" cy="42" r="7" fill="#ffffff10" stroke="#ffffff20" strokeWidth="0.3" />
-              <foreignObject x="22" y="36" width="12" height="12">
+              <circle cx="25" cy="42" r="7" fill="#ffffff10" stroke="#ffffff20" strokeWidth="0.3" />
+              <foreignObject x="19" y="36" width="12" height="12">
                 <div className="w-full h-full flex items-center justify-center">
                   <Users size={8} className="text-white" />
                 </div>
               </foreignObject>
-              <text x="28" y="57" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="inherit" letterSpacing="1">HRMS</text>
-              <text x="28" y="63" textAnchor="middle" fill="#ffffff60" fontSize="3.5" fontFamily="inherit">Personnel</text>
+              <text x="25" y="57" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="inherit" letterSpacing="1">HRMS</text>
+              <text x="25" y="63" textAnchor="middle" fill="#ffffff60" fontSize="3.5" fontFamily="inherit">Personnel</text>
             </g>
 
-            {/* IMS label (right half) */}
+            {/* IMS label (right half - aligned to exact half center) */}
             <g
               className="cursor-pointer"
               onClick={() => navigate('/dashboard')}
@@ -359,70 +300,73 @@ export default function HomePage() {
               onMouseLeave={() => setHovered(null)}
               opacity={hovered === 'hrms' ? 0.3 : 1}
             >
-              <circle cx="72" cy="42" r="7" fill="#ffffff10" stroke="#ffffff20" strokeWidth="0.3" />
-              <foreignObject x="66" y="36" width="12" height="12">
+              <circle cx="75" cy="42" r="7" fill="#ffffff10" stroke="#ffffff20" strokeWidth="0.3" />
+              <foreignObject x="69" y="36" width="12" height="12">
                 <div className="w-full h-full flex items-center justify-center">
                   <Package size={8} className="text-white" />
                 </div>
               </foreignObject>
-              <text x="72" y="57" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="inherit" letterSpacing="1">IMS</text>
-              <text x="72" y="63" textAnchor="middle" fill="#ffffff60" fontSize="3.5" fontFamily="inherit">Inventory</text>
+              <text x="75" y="57" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="inherit" letterSpacing="1">IMS</text>
+              <text x="75" y="63" textAnchor="middle" fill="#ffffff60" fontSize="3.5" fontFamily="inherit">Inventory</text>
             </g>
           </svg>
 
-          {/* Center hub */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-full bg-[#0A1628] border border-white/10 flex flex-col items-center justify-center z-10 shadow-2xl shadow-black/50">
-            {/* Inner ring decoration */}
-            <div className="absolute inset-1 rounded-full border border-white/5" />
+          {/* Center hub (responsive sizing via aspect-based classes) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28%] rounded-full bg-[#0A1628] border border-white/10 flex flex-col items-center justify-center z-10 shadow-2xl shadow-black/50" style={{ aspectRatio: '1/1' }}>
+            <div className="absolute inset-[8%] rounded-full border border-white/5" />
 
             {hovered === null ? (
               <>
-                <div className="text-gray-500 text-[8px] font-bold uppercase tracking-widest mb-0.5">Select</div>
-                <div className="text-white/60 text-sm sm:text-base font-bold">Module</div>
+                <div className="text-gray-500 text-[clamp(6px,1.8vw,10px)] font-bold uppercase tracking-widest mb-0.5">Select</div>
+                <div className="text-white/60 text-[clamp(10px,3vw,18px)] font-bold">Module</div>
               </>
             ) : (
               <>
-                <div className="text-gray-500 text-[8px] font-bold uppercase tracking-widest mb-1">Selected</div>
-                <div className="flex items-center gap-1.5">
+                <div className="text-gray-500 text-[clamp(6px,1.8vw,10px)] font-bold uppercase tracking-widest mb-1">Selected</div>
+                <div className="flex items-center gap-[clamp(2px,0.5vw,6px)]">
                   {hovered === 'ims' ? (
-                    <Package size={16} className="text-[#296FA8]" />
+                    <Package size={16} className="text-[#296FA8] w-[clamp(10px,3vw,18px)] h-[clamp(10px,3vw,18px)]" />
                   ) : (
-                    <Users size={16} className="text-[#1A7FC4]" />
+                    <Users size={16} className="text-[#1A7FC4] w-[clamp(10px,3vw,18px)] h-[clamp(10px,3vw,18px)]" />
                   )}
-                  <span className={`text-lg sm:text-xl font-bold ${hovered === 'ims' ? 'text-[#296FA8]' : 'text-[#1A7FC4]'}`}>
+                  <span className={`text-[clamp(12px,4vw,24px)] font-bold ${hovered === 'ims' ? 'text-[#296FA8]' : 'text-[#1A7FC4]'}`}>
                     {hovered === 'ims' ? 'IMS' : 'HRMS'}
                   </span>
                 </div>
-                <div className="text-gray-600 text-[8px] font-medium uppercase tracking-wider mt-1">
+                <div className="text-gray-600 text-[clamp(5px,1.5vw,8px)] font-medium uppercase tracking-wider mt-1">
                   Click to enter
                 </div>
               </>
             )}
           </div>
 
-          {/* Side arrows + labels */}
-          {/* IMS label (right side) */}
-          <div className="absolute top-1/2 -translate-y-1/2 -right-20 sm:-right-24 lg:-right-28 z-20 pointer-events-none">
+          {/* Side arrows + labels (proportionally positioned) */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+            style={{ right: 'clamp(-60px,-15vw,-20px)' }}
+          >
             <div className="flex items-center gap-2">
               <div className={`transition-all duration-300 ${hovered === 'ims' ? 'opacity-100 -translate-x-1' : 'opacity-40'}`}>
-                <ArrowLeft size={18} className="text-[#296FA8]" />
+                <ArrowLeft size={18} className="text-[#296FA8] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
               </div>
               <div className={`transition-all duration-300 ${hovered === 'ims' ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`text-xs lg:text-sm font-bold uppercase tracking-wider ${hovered === 'ims' ? 'text-[#296FA8]' : 'text-gray-500'}`}>
+                <div className={`text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider ${hovered === 'ims' ? 'text-[#296FA8]' : 'text-gray-500'}`}>
                   IMS
                 </div>
               </div>
             </div>
           </div>
 
-          {/* HRMS label (left side) */}
-          <div className="absolute top-1/2 -translate-y-1/2 -left-20 sm:-left-24 lg:-left-28 z-20 pointer-events-none">
+          <div
+            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+            style={{ left: 'clamp(-60px,-15vw,-20px)' }}
+          >
             <div className="flex items-center gap-2 flex-row-reverse">
               <div className={`transition-all duration-300 ${hovered === 'hrms' ? 'opacity-100 translate-x-1' : 'opacity-40'}`}>
-                <ArrowRight size={18} className="text-[#1A7FC4]" />
+                <ArrowRight size={18} className="text-[#1A7FC4] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
               </div>
               <div className={`transition-all duration-300 ${hovered === 'hrms' ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`text-xs lg:text-sm font-bold uppercase tracking-wider ${hovered === 'hrms' ? 'text-[#1A7FC4]' : 'text-gray-500'}`}>
+                <div className={`text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider ${hovered === 'hrms' ? 'text-[#1A7FC4]' : 'text-gray-500'}`}>
                   HRMS
                 </div>
               </div>
