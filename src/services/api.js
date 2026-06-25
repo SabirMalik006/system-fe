@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -22,6 +23,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const method = (originalRequest?.method || '').toLowerCase();
+    const isWriteRequest = ['post', 'put', 'patch', 'delete'].includes(method);
     
     // If 401 error and not already retrying, and NOT a login request
     if (
@@ -56,6 +59,16 @@ api.interceptors.response.use(
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
+    }
+
+    if (
+      error.response?.status === 403 &&
+      isWriteRequest &&
+      !originalRequest._permissionToastShown
+    ) {
+      originalRequest._permissionToastShown = true;
+      const message = error.response?.data?.message || 'Ye allow nahi hai';
+      toast.error(message);
     }
     
     return Promise.reject(error);

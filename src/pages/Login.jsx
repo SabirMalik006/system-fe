@@ -49,13 +49,19 @@ const Login = () => {
 
     if (role === 'admin') {
       email = 'superadmin@system.com';
-      password = 'Super@123';
+      password = 'SuperAdmin@123';
     } else if (role === 'viewer') {
       email = 'ims_viewer@system.com';
       password = 'Viewer@123';
     } else if (role === 'manager') {
       email = 'ims_manager@system.com';
       password = 'Manager@123';
+    } else if (role === 'cmes') {
+      email = 'cmes@system.com';
+      password = 'Cmes@123';
+    } else if (role === 'agesges') {
+      email = 'agesges@system.com';
+      password = 'AgesGes@123';
     }
 
     setFormData({ email, password });
@@ -349,22 +355,54 @@ const Login = () => {
               </div>
               <div className="text-right shrink-0 ml-2">
                 <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Super@123</div>
+                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">SuperAdmin@123</div>
+              </div>
+            </button>
+
+            {/*
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('viewer')}
+                className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-2"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Viewer Access</span>
+                  <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">ims_viewer@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Viewer@123</div>
+                </div>
+              </button>
+            */}
+
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('cmes')}
+              className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-2"
+            >
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">CMES Access</span>
+                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">cmes@system.com</span>
+              </div>
+              <div className="text-right shrink-0 ml-2">
+                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Cmes@123</div>
               </div>
             </button>
 
             <button
               type="button"
-              onClick={() => handleDemoLogin('viewer')}
+              onClick={() => handleDemoLogin('agesges')}
               className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Viewer Access</span>
-                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">ims_viewer@system.com</span>
+                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">AGE'S/GE'S Access</span>
+                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">agesges@system.com</span>
               </div>
               <div className="text-right shrink-0 ml-2">
                 <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Viewer@123</div>
+                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">AgesGes@123</div>
               </div>
             </button>
           </div>

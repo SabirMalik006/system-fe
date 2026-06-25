@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (module, action) => {
     if (!user) return false;
-    if (user.role === 'super_admin' || user.role === 'admin') return true;
+    if (user.role === 'super_admin' || user.role === 'admin' || user.role === 'cmes' || user.role === 'ages_ges') return true;
     
     const permissions = user.permissions || [];
     const modulePerm = permissions.find(p => p.module === module || p.module === 'all');
