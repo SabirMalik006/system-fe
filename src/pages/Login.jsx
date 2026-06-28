@@ -47,9 +47,9 @@ const Login = () => {
     let email = '';
     let password = '';
 
-    if (role === 'admin') {
-      email = 'superadmin@system.com';
-      password = 'SuperAdmin@123';
+    if (role === 'dwece') {
+      email = 'dwece@system.com';
+      password = 'Dwece@123';
     } else if (role === 'viewer') {
       email = 'ims_viewer@system.com';
       password = 'Viewer@123';
@@ -85,7 +85,7 @@ const Login = () => {
   return (
     <div className="flex w-screen h-screen overflow-hidden font-sans bg-[#E8F4FF]">
       {/* ==================== LEFT: VIDEO + COMMAND CENTER ==================== */}
-      <div className="flex-[1.4] relative overflow-hidden hidden lg:block">
+      <div className="flex-[1.2] relative overflow-hidden hidden lg:block">
         <video
           autoPlay
           loop
@@ -214,7 +214,7 @@ const Login = () => {
       </div>
 
       {/* ==================== RIGHT: LIGHT LOGIN FORM WITH PATTERN ==================== */}
-      <div className="flex-1 lg:flex-[0.6] flex items-center justify-center p-5 sm:p-6 md:p-8 relative bg-[#F5FAFF]">
+      <div className="flex-1 lg:flex-[0.55] flex items-center justify-center p-3 sm:p-4 relative bg-[#F5FAFF]">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]">
             <svg className="w-full h-full" viewBox="0 0 500 800" preserveAspectRatio="xMidYMid slice">
@@ -240,12 +240,12 @@ const Login = () => {
 
         <div className="w-full max-w-xs sm:max-w-sm relative z-10">
 
-          <div className="flex flex-col items-center mb-8 sm:mb-10 text-center">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#1A8FA0] to-[#1E4D7B] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1A8FA0]/15 mb-4 sm:mb-5">
-              <LogIn size={18} className="text-white sm:w-5 sm:h-5" />
+          <div className="flex flex-col items-center mb-4 sm:mb-5 text-center">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-[#1A8FA0] to-[#1E4D7B] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1A8FA0]/15 mb-2 sm:mb-3">
+              <LogIn size={16} className="text-white" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1E4D7B] mb-1 tracking-tight">Welcome Back</h2>
-            <p className="text-gray-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em]">Secure Enterprise Access</p>
+            <h2 className="text-lg sm:text-xl font-bold text-[#1E4D7B] mb-0.5 tracking-tight">Welcome Back</h2>
+            <p className="text-gray-400 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.25em]">Secure Enterprise Access</p>
           </div>
 
           {error && (
@@ -257,14 +257,14 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div className="space-y-1.5">
-              <label className="block text-gray-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ml-1">
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
+            <div className="space-y-1">
+              <label className="block text-gray-400 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest ml-1">
                 Email Address
               </label>
               <div className="relative group">
                 <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#1A8FA0] transition-colors">
-                  <svg width="14" height="14" className="sm:w-[15px] sm:h-[15px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </span>
@@ -274,19 +274,19 @@ const Login = () => {
                   placeholder="admin@system.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full py-2.5 sm:py-3 px-3 sm:px-4 pl-9 sm:pl-11 bg-white border border-gray-200 rounded-xl text-gray-800 text-[13px] sm:text-sm focus:outline-none focus:border-[#1A8FA0]/50 focus:ring-2 focus:ring-[#1A8FA0]/8 transition-all placeholder:text-gray-300 shadow-sm"
+                  className="w-full py-2 px-3 sm:px-4 pl-9 sm:pl-11 bg-white border border-gray-200 rounded-xl text-gray-800 text-[12px] sm:text-sm focus:outline-none focus:border-[#1A8FA0]/50 focus:ring-2 focus:ring-[#1A8FA0]/8 transition-all placeholder:text-gray-300 shadow-sm"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-gray-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ml-1">
+            <div className="space-y-1">
+              <label className="block text-gray-400 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest ml-1">
                 Password
               </label>
               <div className="relative group">
                 <span className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#1A8FA0] transition-colors">
-                  <svg width="14" height="14" className="sm:w-[15px] sm:h-[15px]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </span>
@@ -296,7 +296,7 @@ const Login = () => {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full py-2.5 sm:py-3 px-3 sm:px-4 pl-9 sm:pl-11 bg-white border border-gray-200 rounded-xl text-gray-800 text-[13px] sm:text-sm focus:outline-none focus:border-[#1A8FA0]/50 focus:ring-2 focus:ring-[#1A8FA0]/8 transition-all placeholder:text-gray-300 shadow-sm"
+                  className="w-full py-2 px-3 sm:px-4 pl-9 sm:pl-11 bg-white border border-gray-200 rounded-xl text-gray-800 text-[12px] sm:text-sm focus:outline-none focus:border-[#1A8FA0]/50 focus:ring-2 focus:ring-[#1A8FA0]/8 transition-all placeholder:text-gray-300 shadow-sm"
                   required
                 />
                 <button
@@ -309,12 +309,12 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center text-[10px] sm:text-[11px] px-1">
+            <div className="flex justify-between items-center text-[9px] sm:text-[10px] px-1">
               <label className="flex items-center gap-2 text-gray-400 hover:text-[#1E4D7B] cursor-pointer transition-colors">
                 <input type="checkbox" className="w-3 h-3 rounded border-gray-300 text-[#1A8FA0] focus:ring-[#1A8FA0]" />
                 Remember
               </label>
-              <a href="/forgot-password" className="text-[#1A8FA0] font-semibold hover:text-[#1E4D7B] transition-colors text-[9px] sm:text-[10px]">
+              <a href="/forgot-password" className="text-[#1A8FA0] font-semibold hover:text-[#1E4D7B] transition-colors text-[8px] sm:text-[9px]">
                 Recover Password
               </a>
             </div>
@@ -322,7 +322,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="relative w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1A8FA0] to-[#1E4D7B] text-white font-bold rounded-xl shadow-md shadow-[#1A8FA0]/20 hover:shadow-lg hover:shadow-[#1A8FA0]/30 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 overflow-hidden"
+              className="relative w-full py-2 sm:py-2.5 bg-gradient-to-r from-[#1A8FA0] to-[#1E4D7B] text-white font-bold rounded-xl shadow-md shadow-[#1A8FA0]/20 hover:shadow-lg hover:shadow-[#1A8FA0]/30 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               <span className="relative flex items-center justify-center gap-2 text-xs sm:text-sm">
@@ -338,24 +338,24 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
-              <span className="text-gray-400 text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em]">Quick Demo Access</span>
+          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-gray-400 text-[6px] sm:text-[7px] font-black uppercase tracking-[0.2em]">Quick Demo Access</span>
               <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
             </div>
 
             <button
               type="button"
-              onClick={() => handleDemoLogin('admin')}
-              className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-2"
+              onClick={() => handleDemoLogin('dwece')}
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Admin Access</span>
-                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">superadmin@system.com</span>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">DWECE Access</span>
+                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">dwece@system.com</span>
               </div>
               <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">SuperAdmin@123</div>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Dwece@123</div>
               </div>
             </button>
 
@@ -379,37 +379,52 @@ const Login = () => {
             <button
               type="button"
               onClick={() => handleDemoLogin('cmes')}
-              className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-2"
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">CMES Access</span>
-                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">cmes@system.com</span>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">CMES Access</span>
+                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">cmes@system.com</span>
               </div>
               <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Cmes@123</div>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Cmes@123</div>
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => handleDemoLogin('agesges')}
-              className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">AGE'S/GE'S Access</span>
-                <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">agesges@system.com</span>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">AGE'S/GE'S Access</span>
+                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">agesges@system.com</span>
               </div>
               <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">AgesGes@123</div>
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">AgesGes@123</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('manager')}
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+            >
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">IMS Manager Access</span>
+                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">ims_manager@system.com</span>
+              </div>
+              <div className="text-right shrink-0 ml-2">
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Manager@123</div>
               </div>
             </button>
           </div>
         </div>
 
-        <div className="absolute bottom-4 sm:bottom-6 left-0 right-0 text-center px-4">
-          <p className="text-gray-300 text-[8px] sm:text-[9px] font-medium tracking-tight">
+        <div className="absolute bottom-2 left-0 right-0 text-center px-4">
+          <p className="text-gray-300 text-[7px] sm:text-[8px] font-medium tracking-tight">
             System IMS/HRMS Enterprise v4.2 • SSL Secured • SOC 2 Compliant
           </p>
         </div>
