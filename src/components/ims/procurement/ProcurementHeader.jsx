@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { purchaseRequestAPI } from '../../../services/api';
 import toast from 'react-hot-toast';
 import RequestPage from '../../../pages/ims/PurchaseRequest';
+import { exportToCSV } from '../../../utils/exportUtils';
 
 export default function ProcurementHeader() {
     const [showReviewModal, setShowReviewModal] = useState(false);
@@ -37,7 +38,6 @@ export default function ProcurementHeader() {
         try {
             const res = await purchaseRequestAPI.getAll(1, 1000, '', '', '');
             if (res.data.success) {
-                const { exportToCSV } = await import('../../../utils/exportUtils');
                 exportToCSV(res.data.data, [
                     { label: 'ID', key: 'requestId' },
                     { label: 'Title', key: 'title' },

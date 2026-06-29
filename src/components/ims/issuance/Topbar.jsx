@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Download } from 'lucide-react';
 import { stockOutAPI } from '../../../services/api';
 import toast from 'react-hot-toast';
+import { exportToCSV } from '../../../utils/exportUtils';
 
 export default function Topbar() {
     const navigate = useNavigate();
@@ -15,7 +16,6 @@ export default function Topbar() {
         try {
             const res = await stockOutAPI.getTransactions(1, 1000);
             if (res.data.success) {
-                const { exportToCSV } = await import('../../../utils/exportUtils');
                 exportToCSV(res.data.data, [
                     { label: 'ID', key: 'issuanceId' },
                     { label: 'Item', key: 'itemName' },

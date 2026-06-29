@@ -9,9 +9,10 @@ export default defineConfig({
   ],
   build: {
     outDir: 'dist',
-    rollupOptions: {
+    chunkSizeWarningLimit: 1500,
+    rolldownOptions: {
       output: {
-        manualChunks: undefined
+        codeSplitting: true,
       }
     }
   }

@@ -3,6 +3,7 @@ import { Plus, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { stockInAPI } from '../../../services/api';
 import toast from 'react-hot-toast';
+import { exportToCSV } from '../../../utils/exportUtils';
 
 export default function GoodsReceiptHeader() {
     const navigate = useNavigate();
@@ -15,7 +16,6 @@ export default function GoodsReceiptHeader() {
         try {
             const res = await stockInAPI.getTransactions(1, 1000, '');
             if (res.data.success) {
-                const { exportToCSV } = await import('../../../utils/exportUtils');
                 exportToCSV(res.data.data, [
                     { label: 'Receipt ID', key: 'receiptId' },
                     { label: 'Item', key: 'itemName' },
