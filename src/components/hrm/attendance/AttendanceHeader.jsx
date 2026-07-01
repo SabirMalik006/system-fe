@@ -1,18 +1,33 @@
 import React, { useState } from "react";
-import { Upload, Calendar, Plus, X } from "lucide-react";
+import { Upload, Calendar, Plus, X, Database } from "lucide-react";
 import { attendanceAPI } from "../../../services/api";
 import toast from "react-hot-toast";
 
 const today = new Date();
 const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-export default function AttendanceHeader({ kpiData }) {
+export default function AttendanceHeader({ kpiData, onDataChange }) {
   const [showMarkModal, setShowMarkModal] = useState(false);
   const [markData, setMarkData] = useState({
     employeeName: '', employeeId: '', shift: 'Morning', clockIn: '', clockOut: '',
     date: new Date().toISOString().split('T')[0], status: 'Present', workHours: '',
   });
   const [marking, setMarking] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      await attendanceAPI.seedAttendance();
+      await attendanceAPI.seedLeaves();
+      toast.success('Demo data seeded successfully');
+      if (onDataChange) setTimeout(() => onDataChange(), 500);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Seeding failed');
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const handleExport = async () => {
     try {
@@ -37,7 +52,7 @@ export default function AttendanceHeader({ kpiData }) {
       toast.success('Attendance marked');
       setShowMarkModal(false);
       setMarkData({ employeeName: '', employeeId: '', shift: 'Morning', clockIn: '', clockOut: '', date: new Date().toISOString().split('T')[0], status: 'Present', workHours: '' });
-      window.location.reload();
+      if (onDataChange) onDataChange();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to mark attendance');
     } finally {
@@ -62,6 +77,10 @@ export default function AttendanceHeader({ kpiData }) {
           <button className="flex items-center gap-1.5 border border-gray-200 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-50 transition">
             <Calendar size={13} />
             {dateStr}
+          </button>
+          <button onClick={handleSeed} disabled={seeding} className="flex items-center gap-1.5 border border-amber-300 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-amber-50 transition disabled:opacity-50">
+            <Database size={13} />
+            {seeding ? 'Seeding...' : 'Reseed'}
           </button>
           <button onClick={() => setShowMarkModal(true)} className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
             <Plus size={13} />

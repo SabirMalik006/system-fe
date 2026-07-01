@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, ChevronLeft, ChevronRight, AlertTriangle, Trash2, Printer } from 'lucide-react';
-import toast from 'react-hot-toast';
+import ConfirmModal from '../../common/ConfirmModal';
 
 const tabs = ['All', 'Pending', 'Passed', 'Failed', 'Overdue'];
 
@@ -8,6 +8,8 @@ export default function AssignedKitsTable({
   kits, pagination, loading, search, onSearchChange,
   activeTab, onTabChange, onPageChange, onDelete,
 }) {
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, kitId: null });
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 border-b border-gray-100">
@@ -125,12 +127,7 @@ export default function AssignedKitsTable({
                           <Printer size={13} />
                         </button>
                         <button
-                          onClick={() => {
-                            if (window.confirm('Delete this tool kit?')) {
-                              onDelete(kit._id);
-                              toast.success('Tool kit deleted');
-                            }
-                          }}
+                          onClick={() => setDeleteConfirm({ isOpen: true, kitId: kit._id })}
                           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-red-600"
                           title="Delete"
                         >
@@ -177,6 +174,18 @@ export default function AssignedKitsTable({
           </button>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, kitId: null })}
+        onConfirm={() => {
+          onDelete(deleteConfirm.kitId);
+          setDeleteConfirm({ isOpen: false, kitId: null });
+        }}
+        title="Delete Tool Kit"
+        message="Are you sure you want to delete this tool kit? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

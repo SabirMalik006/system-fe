@@ -3,13 +3,19 @@ import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor } from 'lucide
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const navLinks = [
+const allNavLinks = [
   { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false },
   { label: 'Personnel', path: '/department', hasDropdown: false },
   { label: 'Attendance', path: '/attendance', hasDropdown: false },
   { label: 'Leave', path: '/leave-management', hasDropdown: false },
   { label: 'Transfer and Training', path: null, hasDropdown: true },
   { label: 'Compliance', path: '/compliance', hasDropdown: false },
+];
+
+const tradesmanLinks = [
+  { label: 'My Profile', path: '/employee-profile', hasDropdown: false },
+  { label: 'Attendance', path: '/attendance', hasDropdown: false },
+  { label: 'Leave', path: '/leave-management', hasDropdown: false },
 ];
 
 const developmentDropdownItems = [
@@ -43,10 +49,12 @@ export default function HrmNavbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const navLinks = user?.role === 'tradesman' ? tradesmanLinks : allNavLinks;
+
   const isActive = (path) => location.pathname === path;
 
   const isDevelopmentActive = () =>
-    developmentDropdownItems.some(item => location.pathname === item.path);
+    user?.role !== 'tradesman' && developmentDropdownItems.some(item => location.pathname === item.path);
 
   const handleNavigation = (path) => {
     navigate(path);

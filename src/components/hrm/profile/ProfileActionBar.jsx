@@ -1,12 +1,12 @@
 import React from 'react';
 import { FileText, Target, ClipboardList, Mail, Edit, Trash2, UserX } from 'lucide-react';
 
-export default function ProfileActionBar({ onEdit, onDeactivate, onDelete, onViewReport }) {
+export default function ProfileActionBar({ onEdit, onDeactivate, onDelete, onViewReport, onAssignTask, onTaskSummary, onSendMessage }) {
   const actions = [
     { icon: FileText, label: 'View Report', onClick: onViewReport },
-    { icon: Target, label: 'Assign Tasks' },
-    { icon: ClipboardList, label: 'Task Summary' },
-    { icon: Mail, label: 'Send Message' },
+    { icon: Target, label: 'Assign Tasks', onClick: onAssignTask },
+    { icon: ClipboardList, label: 'Task Summary', onClick: onTaskSummary },
+    { icon: Mail, label: 'Send Message', onClick: onSendMessage },
     { icon: Edit, label: 'Edit Profile', onClick: onEdit },
   ];
 

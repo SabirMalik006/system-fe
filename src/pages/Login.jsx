@@ -65,6 +65,9 @@ const Login = () => {
     } else if (role === 'chargehead') {
       email = 'chargehead@system.com';
       password = 'Charge@123';
+    } else if (role === 'tradesman') {
+      email = 'tradesman@system.com';
+      password = 'Tradesman@123';
     }
 
     setFormData({ email, password });
@@ -74,7 +77,11 @@ const Login = () => {
     try {
       const result = await login(email, password);
       if (result.success) {
-        navigate('/');
+        if (role === 'tradesman') {
+          navigate('/employee-profile');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(result.error || 'Login failed. Please try again.');
       }
@@ -343,101 +350,101 @@ const Login = () => {
 
           <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between mb-2 px-1">
-              <span className="text-gray-400 text-[6px] sm:text-[7px] font-black uppercase tracking-[0.2em]">Quick Demo Access</span>
-              <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.15em]">Quick Demo Access</span>
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('dwece')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
-            >
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">DWECE Access</span>
-                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">dwece@system.com</span>
-              </div>
-              <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Dwece@123</div>
-              </div>
-            </button>
-
-            {/*
+            <div className="max-h-[260px] overflow-y-auto space-y-1.5 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gradient-to-b [&::-webkit-scrollbar-thumb]:from-[#1A8FA0] [&::-webkit-scrollbar-thumb]:to-[#1E4D7B] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-0">
               <button
                 type="button"
-                onClick={() => handleDemoLogin('viewer')}
-                className="w-full bg-gray-50 border border-gray-100 p-2.5 sm:p-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-2"
+                onClick={() => handleDemoLogin('dwece')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
               >
                 <div className="flex flex-col text-left min-w-0">
-                  <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Viewer Access</span>
-                  <span className="text-[#1E4D7B] text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5 truncate">ims_viewer@system.com</span>
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">DWECE Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">dwece@system.com</span>
                 </div>
                 <div className="text-right shrink-0 ml-2">
-                  <span className="text-gray-400 text-[6px] sm:text-[7px] font-bold uppercase tracking-wider">Pass</span>
-                  <div className="text-emerald-600 text-[9px] sm:text-[10px] font-mono font-semibold mt-0.5">Viewer@123</div>
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">Dwece@123</div>
                 </div>
               </button>
-            */}
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('cmes')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
-            >
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">CMES Access</span>
-                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">cmes@system.com</span>
-              </div>
-              <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Cmes@123</div>
-              </div>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('cmes')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">CMES Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">cmes@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">Cmes@123</div>
+                </div>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('agesges')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
-            >
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">AGE'S/GE'S Access</span>
-                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">agesges@system.com</span>
-              </div>
-              <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">AgesGes@123</div>
-              </div>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('agesges')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">AGE'S/GE'S Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">agesges@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">AgesGes@123</div>
+                </div>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('manager')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
-            >
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">IMS Manager Access</span>
-                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">ims_manager@system.com</span>
-              </div>
-              <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Manager@123</div>
-              </div>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('manager')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">IMS Manager Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">ims_manager@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">Manager@123</div>
+                </div>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('chargehead')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
-            >
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Charge Head Access</span>
-                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">chargehead@system.com</span>
-              </div>
-              <div className="text-right shrink-0 ml-2">
-                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
-                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Charge@123</div>
-              </div>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('chargehead')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">Charge Head Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">chargehead@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">Charge@123</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('tradesman')}
+                className="w-full bg-gray-50 border border-gray-100 py-2 px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-gray-400 text-[9px] font-bold uppercase tracking-wider">Tradesman Access</span>
+                  <span className="text-[#1E4D7B] text-[12px] font-mono font-semibold mt-0.5 truncate">tradesman@system.com</span>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <span className="text-gray-400 text-[8px] font-bold uppercase tracking-wider">Pass</span>
+                  <div className="text-emerald-600 text-[11px] font-mono font-semibold mt-0.5">Tradesman@123</div>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 

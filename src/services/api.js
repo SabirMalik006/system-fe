@@ -353,6 +353,8 @@ export const attendanceAPI = {
   getWorkingHoursAnalysis: () => api.get('/attendance/stats/working-hours'),
   getPendingApprovals: () => api.get('/attendance/stats/pending-approvals'),
   exportAttendance: () => api.get('/attendance/export', { responseType: 'blob' }),
+  seedAttendance: () => api.post('/seed/attendance'),
+  seedLeaves: () => api.post('/seed/leaves'),
 };
 
 // ==================== LEAVE API ====================

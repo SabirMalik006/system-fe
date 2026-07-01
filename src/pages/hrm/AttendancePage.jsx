@@ -27,6 +27,9 @@ export default function AttendancePage() {
   const [deptRateData, setDeptRateData] = useState([]);
   const [workingHoursData, setWorkingHoursData] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleDataChange = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -67,12 +70,12 @@ export default function AttendancePage() {
       }
     };
     fetchAll();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[2560px] mx-auto space-y-5 p-5">
-        <AttendanceHeader kpiData={kpiData} />
+        <AttendanceHeader kpiData={kpiData} onDataChange={handleDataChange} />
         <KPIStrip data={kpiData} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -111,7 +114,7 @@ export default function AttendancePage() {
           </div>
         </div>
 
-        <DailyAttendanceTable />
+        <DailyAttendanceTable onDataChange={handleDataChange} />
         <BottomInfoStrip pendingCount={pendingCount} />
       </div>
       <Footer />

@@ -5,6 +5,7 @@ import AssignedKitsTable from '../../components/ims/toolsinspection/AssignedKits
 import InspectionForm from '../../components/ims/toolsinspection/InspectionForm';
 import InspectionBottomStats from '../../components/ims/toolsinspection/InspectionBottomStats';
 import { toolKitAPI } from '../../services/api';
+import toast from 'react-hot-toast';
 
 export default function ToolsInspection() {
   const [kpiData, setKpiData] = useState(null);
@@ -48,9 +49,10 @@ export default function ToolsInspection() {
   const handleDelete = async (id) => {
     try {
       await toolKitAPI.delete(id);
+      toast.success('Tool kit deleted');
       fetchAll(pagination.page);
     } catch (err) {
-      console.error('Failed to delete:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete tool kit');
     }
   };
 

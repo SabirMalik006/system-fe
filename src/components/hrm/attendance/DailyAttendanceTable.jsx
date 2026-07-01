@@ -19,7 +19,7 @@ const typeStyle = {
 
 const HEADERS = ["Employee","ID","Designation","Department","Unit","Shift","Clock In","Clock Out","Work Hrs","Status","Type","Joined","Actions"];
 
-export default function DailyAttendanceTable() {
+export default function DailyAttendanceTable({ onDataChange }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -28,6 +28,7 @@ export default function DailyAttendanceTable() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [shiftFilter, setShiftFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -47,6 +48,7 @@ export default function DailyAttendanceTable() {
         page, limit, search: search || undefined,
         status: statusFilter !== 'All' ? statusFilter : undefined,
         shift: shiftFilter !== 'All' ? shiftFilter : undefined,
+        date: dateFilter || undefined,
       });
       setRecords(res.data.data || []);
       setTotalPages(res.data.pagination?.pages || 1);
@@ -63,8 +65,8 @@ export default function DailyAttendanceTable() {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
-  useEffect(() => { setPage(1); }, [debouncedSearch, statusFilter, shiftFilter]);
-  useEffect(() => { fetchRecords(); }, [page, debouncedSearch, statusFilter, shiftFilter]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, statusFilter, shiftFilter, dateFilter]);
+  useEffect(() => { fetchRecords(); }, [page, debouncedSearch, statusFilter, shiftFilter, dateFilter]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,6 +82,7 @@ export default function DailyAttendanceTable() {
       setEditing(null);
       setFormData({ employeeName: '', employeeId: '', designation: '', department: '', unit: '', shift: 'Morning', clockIn: '', clockOut: '', workHours: '', date: new Date().toISOString().split('T')[0], status: 'Present', type: 'Full-time', email: '', joinedDate: '', initials: '' });
       fetchRecords();
+      if (onDataChange) onDataChange();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to save');
     }
@@ -114,6 +117,7 @@ export default function DailyAttendanceTable() {
       toast.success('Record deleted');
       setDeleteTarget(null);
       fetchRecords();
+      if (onDataChange) onDataChange();
     } catch (err) {
       toast.error('Failed to delete');
     }
@@ -135,9 +139,8 @@ export default function DailyAttendanceTable() {
   };
 
   const filters = [
-    { label: "All Departments", key: "dept", options: [] },
     { label: "All Shifts", key: "shift", value: shiftFilter, set: setShiftFilter, options: ["All", "Morning", "General", "Night"] },
-    { label: "All Status", key: "status", value: statusFilter, set: setStatusFilter, options: ["All", "Present", "Late", "Absent", "On Leave", "Holiday"] },
+    { label: "All Status", key: "status", value: statusFilter, set: setStatusFilter, options: ["All", "Present", "Late", "Absent", "On Leave", "Holiday" ] },
   ];
 
   return (
@@ -145,7 +148,7 @@ export default function DailyAttendanceTable() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 px-5 pt-5 pb-4">
         <div>
           <h2 className="text-[15px] font-extrabold text-gray-900">Daily Attendance Records</h2>
-          <p className="text-[11px] text-gray-400 mt-0.5">Showing {total} employees · {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">{total} records · {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={handleExport} className="flex items-center gap-1.5 border border-gray-200 text-gray-700 text-[11px] font-medium px-3 py-1.5 rounded-lg hover:bg-gray-50">
@@ -172,11 +175,18 @@ export default function DailyAttendanceTable() {
             )
           ))}
         </div>
-        <div className="relative">
-          <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search name or ID..."
-            className="pl-8 pr-3 py-1.5 text-[11px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400 w-52" />
+        <div className="flex items-center gap-2">
+          <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
+            className="text-[11px] border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400" />
+          {dateFilter && (
+            <button onClick={() => setDateFilter('')} className="text-[10px] text-blue-600 hover:underline whitespace-nowrap">Clear</button>
+          )}
+          <div className="relative">
+            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search name or ID..."
+              className="pl-8 pr-3 py-1.5 text-[11px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400 w-52" />
+          </div>
         </div>
       </div>
 

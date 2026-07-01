@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/layout/Navbar';
@@ -42,6 +42,7 @@ import EmployeeProfile from './pages/hrm/EmployeeProfile';
 // Protected Route Component
 const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
   
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -54,6 +55,14 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   // Role check if required
   if (requiredRoles.length > 0 && !requiredRoles.includes(user?.role)) {
     return <Navigate to="/" replace />;
+  }
+
+  // Tradesman can only access attendance, leave and profile pages
+  if (user?.role === 'tradesman') {
+    const allowedPaths = ['/attendance', '/leave-management', '/employee-profile'];
+    if (!allowedPaths.includes(location.pathname)) {
+      return <Navigate to="/attendance" replace />;
+    }
   }
   
   return children;
