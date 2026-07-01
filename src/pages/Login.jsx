@@ -62,6 +62,9 @@ const Login = () => {
     } else if (role === 'agesges') {
       email = 'agesges@system.com';
       password = 'AgesGes@123';
+    } else if (role === 'chargehead') {
+      email = 'chargehead@system.com';
+      password = 'Charge@123';
     }
 
     setFormData({ email, password });
@@ -409,7 +412,7 @@ const Login = () => {
             <button
               type="button"
               onClick={() => handleDemoLogin('manager')}
-              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer mb-1.5"
             >
               <div className="flex flex-col text-left min-w-0">
                 <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">IMS Manager Access</span>
@@ -418,6 +421,21 @@ const Login = () => {
               <div className="text-right shrink-0 ml-2">
                 <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
                 <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Manager@123</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('chargehead')}
+              className="w-full bg-gray-50 border border-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl flex justify-between items-center group hover:bg-white hover:border-[#1A8FA0]/20 hover:shadow-sm transition-all cursor-pointer"
+            >
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Charge Head Access</span>
+                <span className="text-[#1E4D7B] text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5 truncate">chargehead@system.com</span>
+              </div>
+              <div className="text-right shrink-0 ml-2">
+                <span className="text-gray-400 text-[5px] sm:text-[6px] font-bold uppercase tracking-wider">Pass</span>
+                <div className="text-emerald-600 text-[8px] sm:text-[9px] font-mono font-semibold mt-0.5">Charge@123</div>
               </div>
             </button>
           </div>
