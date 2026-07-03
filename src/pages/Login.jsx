@@ -122,49 +122,49 @@ const Login = () => {
           </svg>
         </div>
 
-        <div className="absolute top-0 left-0 right-0 p-6 xl:p-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center shrink-0">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+        <div className="absolute top-0 left-0 right-0 px-4 sm:px-6 xl:px-10 flex items-center justify-between py-4 sm:py-5 xl:py-6">
+          <div className="flex items-center gap-2 sm:gap-3 xl:gap-4">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <svg width="16" height="16" className="sm:w-[18px] sm:h-[18px] xl:w-5 xl:h-5" viewBox="0 0 40 40" fill="none">
                 <path d="M20 12L28 17V23L20 28L12 23V17L20 12Z" stroke="white" strokeWidth="2.5" fill="none"/>
                 <path d="M20 20L28 15.5M20 20L12 15.5M20 20V28" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <div className="min-w-0">
-              <span className="text-white font-bold text-xs xl:text-sm block truncate">System IMS/HRMS</span>
-              <span className="text-white/40 text-[8px] xl:text-[9px] font-medium">Enterprise v4.2</span>
+            <div className="flex flex-col items-center justify-center min-w-0 self-center">
+              <span className="text-white font-bold text-xs sm:text-sm xl:text-base leading-tight truncate">System IMS/HRMS</span>
+              <span className="text-white/40 text-[9px] sm:text-[10px] xl:text-[11px] font-medium leading-tight">Enterprise v4.2</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 xl:gap-4">
-            <span className="text-emerald-300 text-[7px] xl:text-[8px] font-mono tracking-wider flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shrink-0"></span>
-              <span className="hidden xl:inline">ALL SYSTEMS OPERATIONAL</span>
+          <div className="flex items-center gap-2 sm:gap-3 xl:gap-5">
+            <span className="text-emerald-300 text-[8px] sm:text-[9px] xl:text-[10px] font-mono tracking-wider flex items-center justify-center gap-1 sm:gap-1.5">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full animate-pulse shrink-0"></span>
+              <span className="hidden xl:inline text-center">ALL SYSTEMS OPERATIONAL</span>
             </span>
-            <span className="text-white/30 text-[7px] xl:text-[8px] font-mono hidden sm:inline">12:24:06 UTC</span>
+            <span className="text-white/30 text-[8px] sm:text-[9px] xl:text-[10px] font-mono text-center hidden sm:inline">12:24:06 UTC</span>
           </div>
         </div>
 
-        <div className="absolute left-6 xl:left-8 top-1/4 xl:top-1/3 max-w-[220px] xl:max-w-sm">
-          <h1 className="text-[1.6rem] xl:text-[2.4rem] font-bold text-white leading-tight tracking-tight drop-shadow-lg">
+        <div className="absolute left-6 xl:left-10 top-1/4 xl:top-1/3 max-w-[260px] xl:max-w-md">
+          <h1 className="text-[1.8rem] xl:text-[2.8rem] font-bold text-white leading-tight tracking-tight drop-shadow-lg">
             Enterprise Command<br />
             <span className="bg-gradient-to-r from-[#81D4FA] to-[#4FC3F7] bg-clip-text text-transparent">Control Center</span>
           </h1>
-          <p className="text-white/60 text-[11px] xl:text-sm mt-2 xl:mt-3 leading-relaxed drop-shadow">
+          <p className="text-white/60 text-sm xl:text-base mt-2 xl:mt-3 leading-relaxed drop-shadow">
             Real-time inventory and workforce intelligence platform powering data-driven decisions across your entire organization.
           </p>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 xl:p-8">
           <div className="flex gap-3 xl:gap-5 flex-wrap">
-            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-3 xl:p-4 min-w-0 shadow-lg shadow-black/10">
+            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-4 xl:p-5 min-w-0 shadow-lg shadow-black/10">
               <div className="flex items-center justify-between mb-2 xl:mb-3">
                 <div className="flex items-center gap-1.5 xl:gap-2 min-w-0">
-                  <Users size={10} className="text-[#81D4FA] shrink-0" />
-                  <span className="text-white/60 text-[7px] xl:text-[9px] font-bold uppercase tracking-wider truncate">Active Sessions</span>
+                  <Users size={14} className="text-[#81D4FA] shrink-0" />
+                  <span className="text-white/60 text-[9px] xl:text-[11px] font-bold uppercase tracking-wider truncate">Active Sessions</span>
                 </div>
-                <span className="text-white text-[11px] xl:text-xs font-bold shrink-0">847</span>
+                <span className="text-white text-sm xl:text-base font-bold shrink-0">847</span>
               </div>
-              <svg width="100%" height="28" viewBox="0 0 200 28" className="overflow-visible">
+              <svg width="100%" height="32" viewBox="0 0 200 28" className="overflow-visible">
                 <path d="M0 24 Q 20 22, 40 14 T 80 18 T 120 6 T 160 10 T 200 4" fill="none" stroke="#81D4FA" strokeWidth="1.5" strokeLinecap="round" opacity="0.9"/>
                 <path d="M0 24 Q 20 22, 40 14 T 80 18 T 120 6 T 160 10 T 200 4" fill="none" stroke="#81D4FA" strokeWidth="4" strokeLinecap="round" opacity="0.15"/>
                 <circle cx="200" cy="4" r="2.5" fill="#81D4FA" opacity="0.7"/>
@@ -178,15 +178,15 @@ const Login = () => {
               </svg>
             </div>
 
-            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-3 xl:p-4 min-w-0 shadow-lg shadow-black/10">
+            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-4 xl:p-5 min-w-0 shadow-lg shadow-black/10">
               <div className="flex items-center justify-between mb-2 xl:mb-3">
                 <div className="flex items-center gap-1.5 xl:gap-2 min-w-0">
-                  <Package size={10} className="text-[#4FC3F7] shrink-0" />
-                  <span className="text-white/60 text-[7px] xl:text-[9px] font-bold uppercase tracking-wider truncate">Inventory Flow</span>
+                  <Package size={14} className="text-[#4FC3F7] shrink-0" />
+                  <span className="text-white/60 text-[9px] xl:text-[11px] font-bold uppercase tracking-wider truncate">Inventory Flow</span>
                 </div>
-                <span className="text-white text-[11px] xl:text-xs font-bold shrink-0">+12.4%</span>
+                <span className="text-white text-sm xl:text-base font-bold shrink-0">+12.4%</span>
               </div>
-              <svg width="100%" height="28" viewBox="0 0 208 28">
+              <svg width="100%" height="32" viewBox="0 0 208 28">
                 <rect x="2" y="18" width="18" height="10" rx="1.5" fill="#81D4FA" opacity="0.5"/>
                 <rect x="24" y="11" width="18" height="17" rx="1.5" fill="#81D4FA" opacity="0.4"/>
                 <rect x="46" y="14" width="18" height="14" rx="1.5" fill="#4FC3F7" opacity="0.7"/>
@@ -200,22 +200,22 @@ const Login = () => {
               </svg>
             </div>
 
-            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-3 xl:p-4 min-w-0 shadow-lg shadow-black/10">
+            <div className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] rounded-xl p-4 xl:p-5 min-w-0 shadow-lg shadow-black/10">
               <div className="flex items-center justify-between mb-2 xl:mb-3">
                 <div className="flex items-center gap-1.5 xl:gap-2">
-                  <Activity size={10} className="text-emerald-300 shrink-0" />
-                  <span className="text-white/60 text-[7px] xl:text-[9px] font-bold uppercase tracking-wider">Health</span>
+                  <Activity size={14} className="text-emerald-300 shrink-0" />
+                  <span className="text-white/60 text-[9px] xl:text-[11px] font-bold uppercase tracking-wider">Health</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 xl:gap-4">
-                <svg width="32" height="32" viewBox="0 0 40 40" className="xl:w-10 xl:h-10 shrink-0">
+                <svg width="40" height="40" viewBox="0 0 40 40" className="xl:w-12 xl:h-12 shrink-0">
                   <circle cx="20" cy="20" r="16" fill="none" stroke="white" strokeWidth="3" opacity="0.1"/>
                   <circle cx="20" cy="20" r="16" fill="none" stroke="#81D4FA" strokeWidth="3" strokeDasharray="88 12" strokeDashoffset="0" transform="rotate(-90 20 20)" opacity="0.8"/>
                   <circle cx="20" cy="20" r="16" fill="none" stroke="#4FC3F7" strokeWidth="3" strokeDasharray="12 88" strokeDashoffset="-100" transform="rotate(-90 20 20)" opacity="0.5"/>
                 </svg>
                 <div>
-                  <div className="text-white text-sm font-bold">98.7%</div>
-                  <div className="text-white/40 text-[7px] xl:text-[8px] font-medium">uptime</div>
+                  <div className="text-white text-base xl:text-lg font-bold">98.7%</div>
+                  <div className="text-white/40 text-[9px] xl:text-[10px] font-medium">uptime</div>
                 </div>
               </div>
             </div>

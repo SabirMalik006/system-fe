@@ -1,11 +1,22 @@
 import React from 'react';
 
 const ItemDetail = ({ selectedItem }) => {
+    const getLocation = () => {
+        if (!selectedItem) return "N/A";
+        const parts = [
+            selectedItem.warehouse,
+            selectedItem.rackNumber,
+            selectedItem.shelfNumber,
+            selectedItem.binNumber,
+        ].filter(Boolean);
+        return parts.length > 0 ? parts.join(", ") : "N/A";
+    };
+
     const details = [
         { label: "Item Code:", value: selectedItem?.sku || "N/A" },
         { label: "Category:", value: selectedItem?.category || "N/A" },
         { label: "Reorder Level:", value: `${selectedItem?.minStock || 0} Units` },
-        { label: "Location:", value: selectedItem?.location || "N/A" },
+        { label: "Location:", value: getLocation() },
         { label: "Unit Value:", value: `Rs ${selectedItem?.unitPrice?.toLocaleString() || '0.00'}` }
     ];
 

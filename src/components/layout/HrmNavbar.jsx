@@ -1,21 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor } from 'lucide-react';
+import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor, LayoutDashboard, Users, ClipboardCheck, CalendarDays, ArrowRightLeft, ShieldCheck, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const allNavLinks = [
-  { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false },
-  { label: 'Personnel', path: '/department', hasDropdown: false },
-  { label: 'Attendance', path: '/attendance', hasDropdown: false },
-  { label: 'Leave', path: '/leave-management', hasDropdown: false },
-  { label: 'Transfer and Training', path: null, hasDropdown: true },
-  { label: 'Compliance', path: '/compliance', hasDropdown: false },
+  { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false, icon: LayoutDashboard },
+  { label: 'Personnel', path: '/department', hasDropdown: false, icon: Users },
+  { label: 'Attendance', path: '/attendance', hasDropdown: false, icon: ClipboardCheck },
+  { label: 'Leave', path: '/leave-management', hasDropdown: false, icon: CalendarDays },
+  { label: 'Transfer and Training', path: null, hasDropdown: true, icon: ArrowRightLeft },
+  { label: 'Compliance', path: '/compliance', hasDropdown: false, icon: ShieldCheck },
 ];
 
 const tradesmanLinks = [
-  { label: 'My Profile', path: '/employee-profile', hasDropdown: false },
-  { label: 'Attendance', path: '/attendance', hasDropdown: false },
-  { label: 'Leave', path: '/leave-management', hasDropdown: false },
+  { label: 'My Profile', path: '/employee-profile', hasDropdown: false, icon: User },
+  { label: 'Attendance', path: '/attendance', hasDropdown: false, icon: ClipboardCheck },
+  { label: 'Leave', path: '/leave-management', hasDropdown: false, icon: CalendarDays },
 ];
 
 const developmentDropdownItems = [
@@ -108,8 +108,10 @@ export default function HrmNavbar() {
         </div>
       </div>
 
+      <div className="w-px h-5 bg-white/10 mx-1 hidden lg:block" />
+
       {/* Desktop Nav links */}
-      <div className="hidden lg:flex items-center gap-0.5">
+      <div className="hidden lg:flex items-center justify-between flex-1 max-w-[60%]">
         {navLinks.map((link) => {
           const active = link.path ? isActive(link.path) : isDevelopmentActive();
 
@@ -129,6 +131,7 @@ export default function HrmNavbar() {
                   }`}
                   style={active ? { borderRadius: 0 } : {}}
                 >
+                  <link.icon size={14} className="text-white flex-shrink-0" />
                   {link.label}
                   <ChevronDown size={10} className={`mt-0.5 transition-transform duration-200 ${isDevelopmentOpen ? 'rotate-180' : ''}`} />
                 </div>
@@ -172,13 +175,12 @@ export default function HrmNavbar() {
               }`}
               style={active ? { borderRadius: 0 } : {}}
             >
+              <link.icon size={14} className="text-white flex-shrink-0" />
               {link.label}
             </div>
           );
         })}
       </div>
-
-      <div className="flex-1 hidden lg:block" />
 
       {/* Search */}
       <div className="hidden lg:flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 w-52">
@@ -262,7 +264,7 @@ export default function HrmNavbar() {
                           : 'text-blue-200 hover:bg-white/10'
                       }`}
                     >
-                      <span>{link.label}</span>
+                      <span className="flex items-center gap-2"><link.icon size={14} className="text-white flex-shrink-0" />{link.label}</span>
                       <ChevronDown size={14} className={`transition-transform duration-200 ${isMobileDevelopmentOpen ? 'rotate-180' : ''}`} />
                     </div>
 
@@ -291,12 +293,13 @@ export default function HrmNavbar() {
                 <div
                   key={link.label}
                   onClick={() => handleNavigation(link.path)}
-                  className={`px-3 py-2 text-sm rounded-lg cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg cursor-pointer ${
                     active
                       ? 'text-white font-semibold bg-white/10'
                       : 'text-blue-200 hover:bg-white/10'
                   }`}
                 >
+                  <link.icon size={14} className="text-white flex-shrink-0" />
                   {link.label}
                 </div>
               );

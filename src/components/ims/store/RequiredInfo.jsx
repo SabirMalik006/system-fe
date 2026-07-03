@@ -22,10 +22,10 @@ const RequiredInfo = ({ formData, setFormData }) => {
   }, []);
 
   const handleQuantityChange = (type) => {
-    const currentQty = parseInt(formData.quantity) || 0;
+    const currentQty = parseInt(formData.quantity) || 1;
     if (type === "increment") {
       setFormData({ ...formData, quantity: currentQty + 1 });
-    } else if (type === "decrement" && currentQty > 0) {
+    } else if (type === "decrement" && currentQty > 1) {
       setFormData({ ...formData, quantity: currentQty - 1 });
     }
   };
@@ -42,18 +42,23 @@ const RequiredInfo = ({ formData, setFormData }) => {
           <label className="text-sm font-medium text-gray-700 mb-2 block uppercase">
             ITEM RECEIVED (ITEM MASTER)
           </label>
-          <select 
-            value={formData.itemId}
-            onChange={(e) => setFormData({ ...formData, itemId: e.target.value })}
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white"
-          >
-            <option value="">Select an item...</option>
-            {items.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.name} ({item.identifiers})
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select 
+              value={formData.itemId}
+              onChange={(e) => setFormData({ ...formData, itemId: e.target.value })}
+              className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white appearance-none pr-10"
+            >
+              <option value="" disabled hidden>Select an item...</option>
+              {items.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name} ({item.identifiers})
+                </option>
+              ))}
+            </select>
+            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
           <p className="text-xs text-gray-400 mt-1">
             Item received from vendor
           </p>
@@ -68,7 +73,13 @@ const RequiredInfo = ({ formData, setFormData }) => {
             <input
               type="number"
               value={formData.quantity}
-              onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                if (!isNaN(val) && val >= 1) {
+                  setFormData({ ...formData, quantity: val });
+                }
+              }}
+              min="1"
               className="w-full px-4 py-2.5 text-base text-center border border-gray-300 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white font-medium"
             />
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-0.5">
@@ -99,12 +110,21 @@ const RequiredInfo = ({ formData, setFormData }) => {
             <label className="text-sm font-medium text-gray-700 mb-2 block uppercase">
               RECEIVING UNIT / WAREHOUSE
             </label>
-            <input 
-              value={formData.department}
-              onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-              placeholder="e.g. Warehouse A"
-              className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white" 
-            />
+            <div className="relative">
+              <select
+                value={formData.department}
+                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white appearance-none pr-10"
+              >
+                <option value="Main Warehouse">Main Warehouse</option>
+                <option value="Secondary Warehouse">Secondary Warehouse</option>
+                <option value="Cold Storage">Cold Storage</option>
+                <option value="Overflow Storage">Overflow Storage</option>
+              </select>
+              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
 
           <div>
@@ -113,9 +133,10 @@ const RequiredInfo = ({ formData, setFormData }) => {
             </label>
             <input
               type="text"
-              value={formData.userName || "Current User"}
-              className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 text-[#94A3B8]"
-              readOnly
+              value={formData.issuedTo || ""}
+              onChange={(e) => setFormData({ ...formData, issuedTo: e.target.value })}
+              placeholder="Enter receiving user name"
+              className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1A8FA0] bg-white"
             />
           </div>
           <div>

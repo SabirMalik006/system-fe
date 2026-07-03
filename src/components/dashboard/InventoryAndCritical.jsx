@@ -53,6 +53,7 @@ export default function InventoryStatusCard() {
       padding: '16px 18px 14px',
       width: 220,
       flexShrink: 0,
+      height: '100%',
     }}>
       <div style={{
         display: 'flex', alignItems: 'center',

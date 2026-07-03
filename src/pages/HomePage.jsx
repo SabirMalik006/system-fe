@@ -169,7 +169,7 @@ export default function HomePage() {
               <path d="M20 20L28 15.5M20 20L12 15.5M20 20V28" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
             </svg>
           </div>
-          <span className="text-white font-bold text-base tracking-tight">System IMS/HRMS</span>
+          <span className="text-white font-bold text-base tracking-tight leading-none">System IMS/HRMS</span>
           <span className="text-gray-600 text-[10px] font-medium ml-1">v4.2</span>
         </div>
         <div className="flex items-center gap-4">
@@ -274,7 +274,7 @@ export default function HomePage() {
             <line x1="50" y1="0" x2="50" y2="100" stroke="#ffffff" strokeOpacity="0.06" strokeWidth="0.5" />
             <circle cx="50" cy="50" r="49.5" fill="none" stroke="#ffffff20" strokeWidth="0.5" />
 
-            {/* HRMS label (left half - aligned to exact half center) */}
+            {/* HRMS label (left half) */}
             <g
               className="cursor-pointer"
               onClick={() => navigate('/hrm-dashboard')}
@@ -292,7 +292,7 @@ export default function HomePage() {
               <text x="25" y="63" textAnchor="middle" fill="#ffffff60" fontSize="3.5" fontFamily="inherit">Personnel</text>
             </g>
 
-            {/* IMS label (right half - aligned to exact half center) */}
+            {/* IMS label (right half) */}
             <g
               className="cursor-pointer"
               onClick={() => navigate('/dashboard')}
@@ -311,10 +311,9 @@ export default function HomePage() {
             </g>
           </svg>
 
-          {/* Center hub (responsive sizing via aspect-based classes) */}
+          {/* Center hub */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28%] rounded-full bg-[#0A1628] border border-white/10 flex flex-col items-center justify-center z-10 shadow-2xl shadow-black/50" style={{ aspectRatio: '1/1' }}>
             <div className="absolute inset-[8%] rounded-full border border-white/5" />
-
             {hovered === null ? (
               <>
                 <div className="text-gray-500 text-[clamp(6px,1.8vw,10px)] font-bold uppercase tracking-widest mb-0.5">Select</div>
@@ -340,35 +339,31 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Side arrows + labels (proportionally positioned) */}
+          {/* Side arrows + labels */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
-            style={{ right: 'clamp(-60px,-15vw,-20px)' }}
+            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none flex items-center"
+            style={{ right: 'clamp(-80px,-20vw,-30px)' }}
           >
-            <div className="flex items-center gap-2">
-              <div className={`transition-all duration-300 ${hovered === 'ims' ? 'opacity-100 -translate-x-1' : 'opacity-40'}`}>
-                <ArrowLeft size={18} className="text-[#296FA8] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
-              </div>
-              <div className={`transition-all duration-300 ${hovered === 'ims' ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider ${hovered === 'ims' ? 'text-[#296FA8]' : 'text-gray-500'}`}>
-                  IMS
-                </div>
+            <div className={`transition-all duration-300 ${hovered === 'ims' ? 'opacity-100 scale-110 -translate-x-1' : 'opacity-40 scale-100 translate-x-0'}`}>
+              <ArrowLeft size={18} className="text-[#296FA8] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
+            </div>
+            <div className={`transition-all duration-300 ml-2 ${hovered === 'ims' ? 'opacity-100 scale-110 -translate-x-1' : 'opacity-40 scale-100 translate-x-0'}`}>
+              <div className="text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider text-[#296FA8]">
+                IMS
               </div>
             </div>
           </div>
 
           <div
-            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
-            style={{ left: 'clamp(-60px,-15vw,-20px)' }}
+            className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none flex items-center"
+            style={{ left: 'clamp(-92px,-24vw,-38px)' }}
           >
-            <div className="flex items-center gap-2 flex-row-reverse">
-              <div className={`transition-all duration-300 ${hovered === 'hrms' ? 'opacity-100 translate-x-1' : 'opacity-40'}`}>
-                <ArrowRight size={18} className="text-[#1A7FC4] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
-              </div>
-              <div className={`transition-all duration-300 ${hovered === 'hrms' ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider ${hovered === 'hrms' ? 'text-[#1A7FC4]' : 'text-gray-500'}`}>
-                  HRMS
-                </div>
+            <div className={`transition-all duration-300 ${hovered === 'hrms' ? 'opacity-100 scale-110 translate-x-1' : 'opacity-40 scale-100 translate-x-0'} order-last`}>
+              <ArrowRight size={18} className="text-[#1A7FC4] w-[clamp(14px,3vw,20px)] h-[clamp(14px,3vw,20px)]" />
+            </div>
+            <div className={`transition-all duration-300 mr-2 ${hovered === 'hrms' ? 'opacity-100 scale-110 translate-x-1' : 'opacity-40 scale-100 translate-x-0'}`}>
+              <div className="text-[clamp(10px,2.5vw,14px)] font-bold uppercase tracking-wider text-[#1A7FC4]">
+                HRMS
               </div>
             </div>
           </div>

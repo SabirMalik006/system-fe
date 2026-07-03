@@ -98,16 +98,40 @@ const ItemMasterList = () => {
 
     // Create new item
     const handleCreateItem = async () => {
+        if (!formData.name?.trim()) {
+            toast.error("Item name is required");
+            return;
+        }
+        const minStock = parseInt(formData.minimumStock);
+        const stock = parseInt(formData.currentStock);
+        const thresh = parseInt(formData.threshold);
+        const price = parseFloat(formData.unitPrice);
+        if (minStock <= 0) {
+            toast.error("Minimum Stock Level must be greater than 0");
+            return;
+        }
+        if (thresh <= 0) {
+            toast.error("Threshold must be greater than 0");
+            return;
+        }
+        if (stock <= 0) {
+            toast.error("Current Stock must be greater than 0");
+            return;
+        }
+        if (price <= 0) {
+            toast.error("Price must be greater than 0");
+            return;
+        }
         try {
             const newItem = {
                 name: formData.name,
                 sku: formData.sku,
                 category: formData.category,
                 unit: formData.unit,
-                minimumStock: parseInt(formData.minimumStock) || 0,
-                currentStock: parseInt(formData.currentStock) || 0,
-                threshold: parseInt(formData.threshold) || 0,
-                unitPrice: parseFloat(formData.unitPrice) || 0,
+                minimumStock: minStock,
+                currentStock: stock,
+                threshold: thresh,
+                unitPrice: price,
                 description: formData.description,
                 barcode: formData.barcode,
                 isActive: formData.isActive
@@ -129,15 +153,35 @@ const ItemMasterList = () => {
 
     // Update item
     const handleUpdateItem = async () => {
+        const minStock = parseInt(formData.minimumStock);
+        const stock = parseInt(formData.currentStock);
+        const thresh = parseInt(formData.threshold);
+        const price = parseFloat(formData.unitPrice);
+        if (minStock <= 0) {
+            toast.error("Minimum Stock Level must be greater than 0");
+            return;
+        }
+        if (thresh <= 0) {
+            toast.error("Threshold must be greater than 0");
+            return;
+        }
+        if (stock <= 0) {
+            toast.error("Current Stock must be greater than 0");
+            return;
+        }
+        if (price <= 0) {
+            toast.error("Price must be greater than 0");
+            return;
+        }
         try {
             const updatedItem = {
                 name: formData.name,
                 category: formData.category,
                 unit: formData.unit,
-                minimumStock: parseInt(formData.minimumStock) || 0,
-                currentStock: parseInt(formData.currentStock) || 0,
-                threshold: parseInt(formData.threshold) || 0,
-                unitPrice: parseFloat(formData.unitPrice) || 0,
+                minimumStock: minStock,
+                currentStock: stock,
+                threshold: thresh,
+                unitPrice: price,
                 description: formData.description,
                 barcode: formData.barcode,
                 isActive: formData.isActive
@@ -448,6 +492,7 @@ const ItemMasterList = () => {
                                         value={formData.minimumStock}
                                         onChange={handleInputChange}
                                         placeholder="e.g. 50"
+                                        min="1"
                                         className="w-full border border-gray-300 rounded-sm px-2.5 py-1.5 focus:outline-none text-xs"
                                     />
                                 </div>
@@ -461,6 +506,7 @@ const ItemMasterList = () => {
                                         value={formData.threshold}
                                         onChange={handleInputChange}
                                         placeholder="e.g. 200"
+                                        min="1"
                                         className="w-full border border-gray-300 rounded-sm px-2.5 py-1.5 focus:outline-none text-xs"
                                     />
                                 </div>
@@ -476,6 +522,7 @@ const ItemMasterList = () => {
                                         value={formData.currentStock}
                                         onChange={handleInputChange}
                                         placeholder="e.g. 1240"
+                                        min="1"
                                         className="w-full border border-gray-300 rounded-sm px-2.5 py-1.5 focus:outline-none text-xs"
                                     />
                                 </div>
@@ -489,6 +536,7 @@ const ItemMasterList = () => {
                                         value={formData.unitPrice}
                                         onChange={handleInputChange}
                                         placeholder="e.g. 450"
+                                        min="1"
                                         className="w-full border border-gray-300 rounded-sm px-2.5 py-1.5 focus:outline-none text-xs"
                                     />
                                 </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp, Download, Zap, Loader2, AlertCircle } from "lucide-react";
 import { stockInAPI } from "../../../services/api";
 import GraphContainer from "../../common/GraphContainer";
+import { exportToCSV } from "../../../utils/exportUtils";
+import toast from "react-hot-toast";
 
 const CX = 160,
   CY = 160;
@@ -146,6 +148,44 @@ export default function VendorPerformanceSection() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadReport = () => {
+    if (!performance) {
+      toast.error("No performance data available to download");
+      return;
+    }
+
+    const reportData = [
+      {
+        metric: "Composite Score",
+        value: `${performance?.compositeScore || 0}%`,
+        improvement: performance?.improvement || "0%",
+      },
+      ...(topVendor
+        ? [
+            {
+              metric: `Top Vendor - ${topVendor.name}`,
+              value: `${topVendor.performanceScore}%`,
+              improvement: "Reliability Score",
+            },
+          ]
+        : []),
+      ...(rankings || []).map((r) => ({
+        metric: `Rank ${r.rank} - ${r.name}`,
+        value: `${r.pct}%`,
+        improvement: "Efficiency",
+      })),
+    ];
+
+    const headers = [
+      { label: "Metric", key: "metric" },
+      { label: "Value", key: "value" },
+      { label: "Detail", key: "improvement" },
+    ];
+
+    exportToCSV(reportData, headers, "vendor_performance_report");
+    toast.success("Full report downloaded");
   };
 
   const vendorCategories = [
@@ -309,7 +349,10 @@ export default function VendorPerformanceSection() {
             </div>
           </div>
 
-          <button className="w-full bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+          <button
+            onClick={handleDownloadReport}
+            className="w-full bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+          >
             Download Full Report
           </button>
         </div>

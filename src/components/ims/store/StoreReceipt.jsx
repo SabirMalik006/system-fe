@@ -25,6 +25,16 @@ const StoreReceipt = () => {
     issuedTo: "",
   });
 
+  const initialFormData = {
+    itemId: "",
+    quantity: 0,
+    department: "Main Warehouse",
+    notes: "",
+    reference: "stock_in",
+    referenceId: "",
+    issuedTo: "",
+  };
+
   useEffect(() => {
     if (formData.itemId) {
       fetchItemDetails(formData.itemId);
@@ -42,6 +52,22 @@ const StoreReceipt = () => {
     } catch (error) {
       console.error("Error fetching item details:", error);
     }
+  };
+
+  const handleClearForm = () => {
+    setFormData({ ...initialFormData });
+    setSelectedItem(null);
+    toast.success("Form cleared");
+  };
+
+  const handleSaveDraft = () => {
+    const draft = { ...formData, savedAt: new Date().toISOString() };
+    localStorage.setItem("stockInDraft", JSON.stringify(draft));
+    toast.success("Draft saved successfully");
+  };
+
+  const handleReviewSubmit = () => {
+    handleSubmit();
   };
 
   const handleSubmit = async () => {
@@ -74,7 +100,7 @@ const StoreReceipt = () => {
       <Toaster position="top-right" />
       <div className="p-4 sm:p-6">
         {/* Header */}
-        <StoreHeader />
+        <StoreHeader onClearForm={handleClearForm} onSaveDraft={handleSaveDraft} onReviewSubmit={handleReviewSubmit} />
 
         {/* Main Grid - Responsive */}
         <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">

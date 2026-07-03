@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package } from 'lucide-react';
+import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package, LayoutDashboard, ShoppingCart, BarChart3, Building2, ShieldCheck } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -30,12 +30,12 @@ const Navbar = () => {
   }, []);
 
   const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', hasDropdown: false },
-    { name: 'Inventory', path: '/items', hasDropdown: true },
-    { name: 'Procurements', path: '/procurement-management', hasDropdown: false },
-    { name: 'Reports', path: '/reports', hasDropdown: false },
-    { name: 'Vendors', path: '/vendors', hasDropdown: false },
-    { name: 'Inspection', path: '/tools-inspection', hasDropdown: false },
+    { name: 'Dashboard', path: '/dashboard', hasDropdown: false, icon: LayoutDashboard },
+    { name: 'Inventory', path: '/items', hasDropdown: true, icon: Package },
+    { name: 'Procurements', path: '/procurement-management', hasDropdown: false, icon: ShoppingCart },
+    { name: 'Reports', path: '/reports', hasDropdown: false, icon: BarChart3 },
+    { name: 'Vendors', path: '/vendors', hasDropdown: false, icon: Building2 },
+    { name: 'Inspection', path: '/tools-inspection', hasDropdown: false, icon: ShieldCheck },
   ];
 
   const inventoryDropdownItems = [
@@ -88,7 +88,7 @@ const Navbar = () => {
           <div className="w-8 h-8 bg-blue-400 rounded-md flex items-center justify-center">
             <Package size={16} className="text-white" />
           </div>
-          <span className="text-white font-bold text-base tracking-wide">IMS</span>
+          <span className="text-white font-bold text-base tracking-wide leading-none">IMS</span>
         </div>
 
         <div
@@ -101,8 +101,10 @@ const Navbar = () => {
         </div>
       </div>
 
+      <div className="w-px h-5 bg-white/10 mx-1 hidden lg:block" />
+
       {/* Desktop Nav links */}
-      <div className="hidden lg:flex items-center gap-0.5">
+      <div className="hidden lg:flex items-center justify-between flex-1 max-w-[60%]">
         {menuItems.map((item) => {
           const active = item.path ? isActive(item.path) : isInventoryActive();
 
@@ -123,6 +125,7 @@ const Navbar = () => {
                   }`}
                   style={active ? { borderRadius: 0 } : {}}
                 >
+                  <item.icon size={14} className="text-white flex-shrink-0" />
                   {item.name}
                   <ChevronDown size={10} className={`mt-0.5 transition-transform duration-200 ${isInventoryOpen ? 'rotate-180' : ''}`} />
                 </div>
@@ -163,13 +166,12 @@ const Navbar = () => {
               }`}
               style={active ? { borderRadius: 0 } : {}}
             >
+              <item.icon size={14} className="text-white flex-shrink-0" />
               {item.name}
             </div>
           );
         })}
       </div>
-
-      <div className="flex-1 hidden lg:block" />
 
       {/* Search */}
       <div className="hidden lg:flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 w-52">
@@ -253,7 +255,7 @@ const Navbar = () => {
                           : 'text-blue-200 hover:bg-white/10'
                       }`}
                     >
-                      <span>{item.name}</span>
+                      <span className="flex items-center gap-2"><item.icon size={14} className="text-white flex-shrink-0" />{item.name}</span>
                       <ChevronDown size={14} className={`transition-transform duration-200 ${isMobileInventoryOpen ? 'rotate-180' : ''}`} />
                     </div>
 
@@ -282,12 +284,13 @@ const Navbar = () => {
                 <div
                   key={item.name}
                   onClick={() => handleNavigation(item.path)}
-                  className={`px-3 py-2 text-sm rounded-lg cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg cursor-pointer ${
                     active
                       ? 'text-white font-semibold bg-white/10'
                       : 'text-blue-200 hover:bg-white/10'
                   }`}
                 >
+                  <item.icon size={14} className="text-white flex-shrink-0" />
                   {item.name}
                 </div>
               );
