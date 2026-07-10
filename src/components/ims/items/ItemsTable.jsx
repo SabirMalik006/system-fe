@@ -6,6 +6,7 @@ const ItemsTable = ({ items, loading, onEdit, onDelete, onViewBarcode }) => {
         "IDENTIFIERS",
         "BARCODE",
         "ITEM NAME AND CATEGORY",
+        "DESCRIPTION",
         "UNIT",
         "MIN STOCK",
         "CURRENT STOCK",
@@ -71,6 +72,7 @@ const ItemsTable = ({ items, loading, onEdit, onDelete, onViewBarcode }) => {
                                 <div className="text-sm font-medium text-gray-900">{item.name}</div>
                                 <div className="text-xs text-gray-400">{item.category}</div>
                             </td>
+                            <td className="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate" title={item.description}>{item.description || '-'}</td>
                             <td className="px-4 py-3 text-sm text-gray-600">{item.unit}</td>
                             <td className="px-4 py-3 text-sm text-gray-600">{item.minStock || item.minimumStock}</td>
                             <td className="px-4 py-3">

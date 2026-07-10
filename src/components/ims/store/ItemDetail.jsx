@@ -15,7 +15,6 @@ const ItemDetail = ({ selectedItem }) => {
     const details = [
         { label: "Item Code:", value: selectedItem?.sku || "N/A" },
         { label: "Category:", value: selectedItem?.category || "N/A" },
-        { label: "Reorder Level:", value: `${selectedItem?.minStock || 0} Units` },
         { label: "Location:", value: getLocation() },
         { label: "Unit Value:", value: `Rs ${selectedItem?.unitPrice?.toLocaleString() || '0.00'}` }
     ];

@@ -165,33 +165,6 @@ const StoreReceipt = () => {
                 </div>
               </div>
 
-              {/* COMPARATIVE STORE */}
-              <div className="bg-gradient-to-b from-[#1E4D7B] to-[#1E4D7B] rounded-xl border border-gray-200 p-3 text-white">
-                <div className="flex items-center gap-3">
-                  <svg
-                    className="w-6 sm:w-8 h-6 sm:h-8 text-white/90 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  <div>
-                    <div className="text-xs text-white/80 uppercase">
-                      Reorder Level
-                    </div>
-                    <div className="text-xl sm:text-2xl font-bold text-white">
-                      {selectedItem ? selectedItem.minStock : "0"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* FINANCE INFORMATION */}
               <div className="bg-gradient-to-b from-[#1E4D7B] to-[#1E4D7B] rounded-xl border border-gray-200 p-3 text-white">
                 <div className="flex items-center gap-3">

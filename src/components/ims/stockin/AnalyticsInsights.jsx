@@ -62,14 +62,14 @@ export default function AnalyticsInsights() {
 
     let startAngle = -90;
     const CX = 125, CY = 125, R_OUT = 105, R_IN = 70;
-    const total = categoryData.reduce((sum, c) => sum + parseFloat(c.pct || 0), 0);
-    const totalItems = categoryData.reduce((sum, c) => sum + (c.count || 0), 0);
+    const total = categoryData.reduce((sum, c) => sum + (c.count || 0), 0);
+    const totalItems = total;
     
     return (
       <div className="flex flex-col items-center">
         <svg width="250" height="250" viewBox="0 0 250 250">
           {categoryData.map((s, i) => {
-            const sweep = (parseFloat(s.pct || 0) / total) * 360;
+            const sweep = ((s.count || 0) / total) * 360;
             const res = (
               <circle 
                 key={i} 
@@ -158,7 +158,7 @@ export default function AnalyticsInsights() {
                   <span className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
                   <span className="text-sm font-medium text-[#334155]">{c.label}</span>
                 </div>
-                <span className="text-sm font-bold text-[#0F172A]">{c.pct}%</span>
+                <span className="text-sm font-bold text-[#0F172A]">{c.count} items</span>
               </div>
             ))}
           </div>

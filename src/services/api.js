@@ -19,6 +19,9 @@ api.interceptors.request.use((config) => {
 });
 
 // Response interceptor with token refresh
+let isRefreshing = false;
+let refreshQueue = [];
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -30,10 +33,18 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 && 
       !originalRequest._retry && 
-      !originalRequest.url.includes('/auth/login')
+      !originalRequest.url.includes('/auth/login') &&
+      !originalRequest.url.includes('/auth/refresh')
     ) {
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          refreshQueue.push(() => resolve(api(originalRequest)));
+        });
+      }
+
       originalRequest._retry = true;
-      
+      isRefreshing = true;
+
       try {
         // Call refresh token endpoint
         const response = await axios.post(
@@ -48,16 +59,23 @@ api.interceptors.response.use(
             localStorage.setItem('accessToken', response.data.accessToken);
           }
           
+          // Retry all queued requests
+          refreshQueue.forEach((cb) => cb());
+          refreshQueue = [];
+          
           // Retry the original request
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - redirect to login
+        // Clear queue and redirect to login
+        refreshQueue = [];
         console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
@@ -132,6 +150,7 @@ export const stockOutAPI = {
   approveStockOut: (id) => api.put(`/stockout/approve/${id}`),
   rejectStockOut: (id, reason) => api.put(`/stockout/reject/${id}`, { reason }),
   getSummary: () => api.get('/stockout/summary'),
+  deleteTransaction: (id) => api.delete(`/stockout/transactions/${id}`),
 };
 
 // ==================== STOCK RETURN API ====================
@@ -194,13 +213,14 @@ export const purchaseRequestAPI = {
 
 // ==================== REPORTS API ====================
 export const reportsAPI = {
-  getLogs: (page = 1, limit = 10, module = '', action = '', user = '', startDate = '', endDate = '') => {
+  getLogs: (page = 1, limit = 10, module = '', action = '', user = '', startDate = '', endDate = '', resource = '') => {
     let url = `/reports/logs?page=${page}&limit=${limit}`;
     if (module) url += `&module=${module}`;
     if (action) url += `&action=${action}`;
     if (user) url += `&user=${user}`;
     if (startDate) url += `&startDate=${startDate}`;
     if (endDate) url += `&endDate=${endDate}`;
+    if (resource) url += `&resource=${resource}`;
     return api.get(url);
   },
   getStats: () => api.get('/reports/stats'),

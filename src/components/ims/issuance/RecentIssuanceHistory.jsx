@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import toast from "react-hot-toast";
 import {
   RotateCcw,
   Search,
-  ChevronDown,
   Download,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
   Loader2,
   AlertCircle,
+  Eye,
+  Trash2,
+  FileText,
 } from "lucide-react";
 import { stockOutAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
@@ -22,6 +25,24 @@ export default function RecentIssuanceHistory() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [viewModalRow, setViewModalRow] = useState(null);
+  const [deleteConfirmRow, setDeleteConfirmRow] = useState(null);
+  const menuRef = useRef(null);
+
+  const closeMenu = useCallback(() => setOpenMenuId(null), []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        closeMenu();
+      }
+    };
+    if (openMenuId !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenuId, closeMenu]);
 
   useEffect(() => {
     fetchTransactions();
@@ -93,6 +114,23 @@ Generated on: ${new Date().toLocaleString()}
     link.href = URL.createObjectURL(blob);
     link.download = `receipt_out_${row.id}.txt`;
     link.click();
+  };
+
+  const handleDelete = async () => {
+    const row = deleteConfirmRow;
+    if (!row) return;
+    try {
+      await stockOutAPI.deleteTransaction(row._mongoId);
+      setTransactions((prev) => prev.filter((t) => t._mongoId !== row._mongoId));
+      setTotalRecords((prev) => prev - 1);
+      setOpenMenuId(null);
+      setDeleteConfirmRow(null);
+      toast.success("Transaction deleted successfully");
+    } catch (err) {
+      console.error("Failed to delete:", err);
+      setDeleteConfirmRow(null);
+      toast.error("Failed to delete transaction.");
+    }
   };
 
   const startRecord = totalRecords === 0 ? 0 : (page - 1) * 10 + 1;
@@ -247,7 +285,7 @@ Generated on: ${new Date().toLocaleString()}
                         </span>
                       </td>
                       <td className="py-5 px-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative">
                           <button
                             onClick={() => handleDownloadReceipt(row)}
                             title="Download Receipt"
@@ -255,9 +293,51 @@ Generated on: ${new Date().toLocaleString()}
                           >
                             <Download size={16} />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 rounded-lg">
-                            <MoreVertical size={16} className="text-gray-400" />
-                          </button>
+                          <div ref={openMenuId === row.id ? menuRef : null}>
+                            <button
+                              onClick={() =>
+                                setOpenMenuId(openMenuId === row.id ? null : row.id)
+                              }
+                              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <MoreVertical size={16} className="text-gray-400" />
+                            </button>
+                            {openMenuId === row.id && (
+                              <div className="absolute right-0 top-full mt-1 z-50 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1">
+                                <button
+                                  onClick={() => {
+                                    setViewModalRow(row);
+                                    setOpenMenuId(null);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                  <Eye size={13} className="text-blue-500" />
+                                  View Details
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleDownloadReceipt(row);
+                                    setOpenMenuId(null);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                  <FileText size={13} className="text-green-500" />
+                                  Download Receipt
+                                </button>
+                                <hr className="my-1 border-gray-100" />
+                                <button
+                                  onClick={() => {
+                                    setDeleteConfirmRow(row);
+                                    setOpenMenuId(null);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                                >
+                                  <Trash2 size={13} />
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -296,6 +376,99 @@ Generated on: ${new Date().toLocaleString()}
             </div>
           </div>
         </>
+      )}
+
+      {deleteConfirmRow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-red-600">Delete Transaction</h3>
+              <button
+                onClick={() => setDeleteConfirmRow(null)}
+                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete transaction <strong>{deleteConfirmRow.id}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setDeleteConfirmRow(null)}
+                className="px-4 py-2 text-xs font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewModalRow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-gray-900">Transaction Details</h3>
+              <button
+                onClick={() => setViewModalRow(null)}
+                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Transaction ID</span>
+                <span className="font-semibold text-blue-600">{viewModalRow.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Date</span>
+                <span className="text-gray-800">{viewModalRow.date}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Time</span>
+                <span className="text-gray-800">{viewModalRow.time} {viewModalRow.ampm}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Item Issued</span>
+                <span className="text-gray-800">{viewModalRow.item}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Quantity</span>
+                <span className="text-gray-800">{viewModalRow.qty}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Requesting Officer</span>
+                <span className="text-gray-800">{viewModalRow.officer}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Department</span>
+                <span className="text-gray-800">{viewModalRow.dept}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Status</span>
+                <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full ${viewModalRow.statusStyle}`}>
+                  {viewModalRow.status}
+                </span>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end">
+              <button
+                onClick={() => setViewModalRow(null)}
+                className="px-4 py-2 text-xs font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

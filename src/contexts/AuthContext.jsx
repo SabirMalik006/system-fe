@@ -1,5 +1,8 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { authAPI } from '../services/api';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const AuthContext = createContext();
 
@@ -15,6 +18,43 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const refreshing = useRef(false);
+
+  const refreshSession = useCallback(async () => {
+    if (refreshing.current) return;
+    refreshing.current = true;
+    try {
+      const res = await axios.post(
+        `${API_BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      );
+      if (res.data.success && res.data.accessToken) {
+        localStorage.setItem('accessToken', res.data.accessToken);
+      }
+    } catch {
+      // ignore – will be handled on next request
+    } finally {
+      refreshing.current = false;
+    }
+  }, []);
+
+  useEffect(() => {
+    // Proactive refresh every 10 minutes (before 15 min expiry)
+    const interval = setInterval(refreshSession, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [refreshSession]);
+
+  useEffect(() => {
+    // Refresh token when tab becomes visible again
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        refreshSession();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [refreshSession]);
 
   useEffect(() => {
     checkAuth();

@@ -26,6 +26,9 @@ const Reports = () => {
     module: "",
     action: "",
     user: "",
+    startDate: "",
+    endDate: "",
+    resource: "",
   });
 
   useEffect(() => {
@@ -52,6 +55,9 @@ const Reports = () => {
         filters.module,
         filters.action,
         filters.user,
+        filters.startDate,
+        filters.endDate,
+        filters.resource,
       );
       if (res.data.success) {
         setLogs(res.data.data);
@@ -113,7 +119,7 @@ const Reports = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ module: "", action: "", user: "" });
+    setFilters({ module: "", action: "", user: "", startDate: "", endDate: "", resource: "" });
     setPage(1);
   };
 
@@ -201,7 +207,23 @@ const Reports = () => {
           {/* Date Range */}
           <div className="flex items-center gap-2 bg-[#EAF1F3] rounded-md pl-3 py-2.5">
             <img src="/Icon.png" alt="date icon" className="w-4 h-4" />
-            <p className="text-sm text-[#334155] font-medium">Date Range</p>
+            <input
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+              className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none w-28"
+              title="Start date"
+            />
+            <span className="text-[#334155]">-</span>
+            <input
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={handleFilterChange}
+              className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none w-28"
+              title="End date"
+            />
           </div>
 
           {/* User */}
@@ -266,7 +288,14 @@ const Reports = () => {
           {/* Resource ID */}
           <div className="flex items-center gap-2 bg-[#EAF1F3] rounded-md px-3 py-2.5">
             <img src="/Icon (2).png" alt="resource icon" className="w-4 h-4" />
-            <p className="text-sm text-[#334155] font-medium">Resource ID</p>
+            <input
+              type="text"
+              name="resource"
+              value={filters.resource}
+              onChange={handleFilterChange}
+              placeholder="Resource ID"
+              className="text-sm text-[#334155] font-medium bg-transparent border-none focus:outline-none w-28"
+            />
           </div>
         </div>
 

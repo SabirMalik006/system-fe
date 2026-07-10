@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   History,
   Filter,
@@ -45,6 +45,18 @@ export default function MasterSessionHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchTransactions();
@@ -140,12 +152,32 @@ Generated on: ${new Date().toLocaleString()}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative">
-            <button className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 bg-white">
+          <div className="relative" ref={filterRef}>
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 bg-white"
+            >
               <Filter size={12} />
               <span>{statusFilter}</span>
               <ChevronDown size={12} />
             </button>
+            {filterOpen && (
+              <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1">
+                {["All Status", "POSTED", "DRAFT", "PENDING"].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      setStatusFilter(s);
+                      setPage(1);
+                      setFilterOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${statusFilter === s ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <button
             onClick={handleExport}
