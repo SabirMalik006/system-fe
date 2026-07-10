@@ -43,17 +43,25 @@ export default function VendorPerformance() {
         ) : ratingData.length === 0 || ratingData.every(d => d.value === 0) ? (
           <div className="h-[340px] flex items-center justify-center text-gray-400 text-sm">No vendor data yet</div>
         ) : (
-        <div className="flex justify-center">
-          <ResponsiveContainer width="100%" height={320}>
+        <div className="flex flex-col items-center">
+          <ResponsiveContainer width="100%" height={280}>
             <PieChart>
-              <Pie data={ratingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} innerRadius={0} labelLine={true} label={({ name, value }) => `${value}%`}>
+              <Pie data={ratingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={110} innerRadius={0} labelLine={true} label={({ name, value, count }) => `${value}% (${count})`}>
                 {ratingData.map((entry, i) => (
                   <Cell key={i} fill={entry.color} stroke="white" strokeWidth={2} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip formatter={(value, name, props) => [`${value}% (${props.payload.count} vendors)`, name]} />
             </PieChart>
           </ResponsiveContainer>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 mt-1">
+            {ratingData.map((entry, i) => (
+              <div key={i} className="flex items-center gap-1.5 text-xs text-gray-500">
+                <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: entry.color }} />
+                {entry.name} <span className="font-semibold text-gray-700">({entry.count})</span>
+              </div>
+            ))}
+          </div>
         </div>
         )}
       </div>

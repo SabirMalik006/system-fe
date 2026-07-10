@@ -62,7 +62,7 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
       </div>
 
       <div className="bg-white">
-        <div className="grid grid-cols-[2fr_2fr_2fr_1.5fr_auto] gap-4 px-5 py-3 border-b border-gray-100 bg-white">
+        <div className="hidden sm:grid grid-cols-[2fr_2fr_2fr_1.5fr_auto] gap-4 px-5 py-3 border-b border-gray-100 bg-white">
           {['EMPLOYEE', 'DATE & TYPE', 'SEVERITY', 'STATUS', ''].map((h, i) => (
             <div key={i} className="text-[10px] font-bold text-gray-400 tracking-wider">{h}</div>
           ))}
@@ -81,11 +81,42 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
               <div
                 key={inc._id}
                 onClick={() => onEdit && onEdit(inc._id)}
-                className={`grid grid-cols-[2fr_2fr_2fr_1.5fr_auto] gap-4 items-center px-5 py-4 ${
+                className={`sm:grid sm:grid-cols-[2fr_2fr_2fr_1.5fr_auto] sm:gap-4 sm:items-center px-5 py-4 ${
                   i < incidents.length - 1 ? 'border-b border-gray-100' : ''
                 } hover:bg-gray-50 transition-colors cursor-pointer`}
               >
-                <div className="flex items-center gap-3">
+                {/* Mobile card view */}
+                <div className="sm:hidden flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+                      <circle cx="18" cy="18" r="18" fill="#E2E8F0"/>
+                      <circle cx="18" cy="14" r="6" fill="#94A3B8"/>
+                      <ellipse cx="18" cy="28" rx="10" ry="7" fill="#94A3B8"/>
+                    </svg>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 leading-tight truncate">{inc.employeeName}</div>
+                    <div className="text-xs text-gray-400 truncate">{inc.employeeRole || '—'}</div>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEdit && onEdit(inc._id); }}
+                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors ml-auto shrink-0"
+                  >
+                    <MoreVertical size={15} className="text-gray-400" />
+                  </button>
+                </div>
+                <div className="sm:hidden flex items-center gap-3 text-xs text-gray-500">
+                  <span>{inc.date}</span>
+                  <span className={`font-semibold ${ts.color} ${ts.bg} px-1.5 py-0.5 rounded`}>{inc.incidentType}</span>
+                  <span className={`font-semibold px-2 py-0.5 rounded ${ss}`}>{inc.severity}</span>
+                  <span className={`flex items-center gap-1 ml-auto ${sc.color}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                    {inc.status}
+                  </span>
+                </div>
+
+                {/* Desktop grid view */}
+                <div className="hidden sm:flex items-center gap-3 min-w-0">
                   <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold flex-shrink-0 overflow-hidden">
                     <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
                       <circle cx="18" cy="18" r="18" fill="#E2E8F0"/>
@@ -93,36 +124,38 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
                       <ellipse cx="18" cy="28" rx="10" ry="7" fill="#94A3B8"/>
                     </svg>
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900 leading-tight">{inc.employeeName}</div>
-                    <div className="text-xs text-gray-400">{inc.employeeRole || '—'}</div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 leading-tight truncate">{inc.employeeName}</div>
+                    <div className="text-xs text-gray-400 truncate">{inc.employeeRole || '—'}</div>
                   </div>
                 </div>
 
-                <div>
+                <div className="hidden sm:block">
                   <div className="text-sm text-gray-700 leading-tight">{inc.date}</div>
                   <span className={`text-xs font-semibold ${ts.color} ${ts.bg} px-1.5 py-0.5 rounded mt-0.5 inline-block`}>
                     {inc.incidentType}
                   </span>
                 </div>
 
-                <div>
+                <div className="hidden sm:block">
                   <span className={`text-xs font-semibold px-3 py-1.5 rounded ${ss}`}>
                     {inc.severity}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                <div className="hidden sm:flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${sc.dot}`} />
                   <span className={`text-sm font-medium ${sc.color}`}>{inc.status}</span>
                 </div>
 
-                <button
-                  onClick={(e) => { e.stopPropagation(); onEdit && onEdit(inc._id); }}
-                  className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <MoreVertical size={15} className="text-gray-400" />
-                </button>
+                <div className="hidden sm:block">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEdit && onEdit(inc._id); }}
+                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <MoreVertical size={15} className="text-gray-400" />
+                  </button>
+                </div>
               </div>
             );
           })

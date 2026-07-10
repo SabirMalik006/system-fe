@@ -159,10 +159,26 @@ const VendorManagement = () => {
         return;
       }
 
+      const totalOrdersNum = Number(formData.totalOrders);
+      const onTimeNum = Number(formData.onTimePercentage);
+
+      if (!totalOrdersNum || totalOrdersNum <= 0) {
+        toast.error("Total Orders must be greater than 0");
+        return;
+      }
+      if (!onTimeNum || onTimeNum <= 0) {
+        toast.error("On-Time Delivery must be greater than 0");
+        return;
+      }
+      if (onTimeNum > 100) {
+        toast.error("On-Time Delivery cannot exceed 100%");
+        return;
+      }
+
       const payload = {
         ...formData,
-        totalOrders: Number(formData.totalOrders) || 0,
-        onTimePercentage: Number(formData.onTimePercentage) || 0,
+        totalOrders: totalOrdersNum,
+        onTimePercentage: onTimeNum,
         rating: Number(formData.rating) || 0,
       };
 
@@ -187,10 +203,26 @@ const VendorManagement = () => {
         return;
       }
 
+      const totalOrdersNum = Number(formData.totalOrders);
+      const onTimeNum = Number(formData.onTimePercentage);
+
+      if (!totalOrdersNum || totalOrdersNum <= 0) {
+        toast.error("Total Orders must be greater than 0");
+        return;
+      }
+      if (!onTimeNum || onTimeNum <= 0) {
+        toast.error("On-Time Delivery must be greater than 0");
+        return;
+      }
+      if (onTimeNum > 100) {
+        toast.error("On-Time Delivery cannot exceed 100%");
+        return;
+      }
+
       const payload = {
         ...formData,
-        totalOrders: Number(formData.totalOrders) || 0,
-        onTimePercentage: Number(formData.onTimePercentage) || 0,
+        totalOrders: totalOrdersNum,
+        onTimePercentage: onTimeNum,
         rating: Number(formData.rating) || 0,
       };
 
@@ -448,6 +480,7 @@ const VendorManagement = () => {
                   value={formData.totalOrders}
                   onChange={handleInputChange}
                   placeholder="e.g., 482"
+                  min="1"
                   className="w-full bg-white text-gray-800 border border-gray-300 rounded-sm px-3 py-2 text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -466,7 +499,7 @@ const VendorManagement = () => {
                   onChange={handleInputChange}
                   placeholder="e.g., 100"
                   max="100"
-                  min="0"
+                  min="1"
                   className="w-full bg-white text-gray-800 border border-gray-300 rounded-sm px-3 py-2 text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -696,6 +729,7 @@ const VendorManagement = () => {
                   value={formData.totalOrders}
                   onChange={handleInputChange}
                   placeholder="e.g., 482"
+                  min="1"
                   className="w-full bg-white text-gray-800 border border-gray-300 rounded-sm px-3 py-2 text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -714,7 +748,7 @@ const VendorManagement = () => {
                   onChange={handleInputChange}
                   placeholder="e.g., 100"
                   max="100"
-                  min="0"
+                  min="1"
                   className="w-full bg-white text-gray-800 border border-gray-300 rounded-sm px-3 py-2 text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
               </div>
