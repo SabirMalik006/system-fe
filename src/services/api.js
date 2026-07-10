@@ -209,6 +209,7 @@ export const purchaseRequestAPI = {
   delete: (id) => api.delete(`/purchase-requests/${id}`),
   getKPIs: () => api.get('/purchase-requests/kpis'),
   getMonthlyTrend: (year = 2025) => api.get(`/purchase-requests/monthly-trend?year=${year}`),
+  sendPOEmail: (id, email) => api.post(`/purchase-requests/${id}/send-po-email`, { email }),
 };
 
 // ==================== REPORTS API ====================
@@ -224,6 +225,7 @@ export const reportsAPI = {
     return api.get(url);
   },
   getStats: () => api.get('/reports/stats'),
+  getProcurementSummary: () => api.get('/reports/procurement-summary'),
 };
 
 // ==================== HRMS / EMPLOYEE API ====================

@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import {
-  Info, List, User, ChevronDown, Plus, Trash2, Save, Send, Upload, CheckCircle, Printer, Download,
+  Info, List, User, ChevronDown, Plus, Trash2, Save, Send, Upload, CheckCircle, Printer, Download, Mail,
 } from "lucide-react";
-import { purchaseRequestAPI } from "../../../services/api";
+import { purchaseRequestAPI, vendorsAPI } from "../../../services/api";
 
 const categoryColors = {
   Construction: "bg-blue-100 text-blue-700",
@@ -29,9 +29,51 @@ export default function CreatePurchaseRequest() {
   const [requestingUser, setRequestingUser] = useState("");
   const [requestType, setRequestType] = useState("Manual Request");
   const [requestingUnit, setRequestingUnit] = useState("Warehouse A - North Sector");
-  const [saving, setSaving] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [savingSubmit, setSavingSubmit] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [lastPR, setLastPR] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const fileInputRef = useRef(null);
+  const [vendors, setVendors] = useState([]);
+  const [vendor, setVendor] = useState("");
+  const [vendorsLoading, setVendorsLoading] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [vendorEmail, setVendorEmail] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+
+  const fetchVendors = async () => {
+    try {
+      setVendorsLoading(true);
+      const res = await vendorsAPI.getVendors(1, 100);
+      if (res.data.success) {
+        setVendors(res.data.vendors);
+      }
+    } catch (err) {
+      console.error("Error fetching vendors", err);
+    } finally {
+      setVendorsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setItems([{ id: Date.now().toString(), sku: "", name: "New Item", category: "Construction", qty: 1, unitPrice: 0 }]);
+    setPriority("Medium");
+    setRemarks("");
+    setReason("");
+    setRequestingUser("");
+    setRequestType("Manual Request");
+    setRequestingUnit("Warehouse A - North Sector");
+    setSubmitted(false);
+    setLastPR(null);
+    setUploadedFiles([]);
+    setVendor("");
+    toast.success("Form cleared for new request");
+  };
 
   const updateItem = (id, field, value) =>
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
@@ -43,9 +85,7 @@ export default function CreatePurchaseRequest() {
     setItems((prev) => [...prev, { id: Date.now().toString(), sku: "", name: "New Item", category: "Construction", qty: 1, unitPrice: 0 }]);
 
   const subtotal = items.reduce((s, i) => s + i.qty * i.unitPrice, 0);
-  const shipping = 125;
-  const taxes = 0;
-  const total = subtotal + shipping + taxes;
+  const total = subtotal;
 
   const handleSubmit = async (status = "Pending") => {
     if (!requestingUser.trim()) {
@@ -56,10 +96,17 @@ export default function CreatePurchaseRequest() {
       toast.error("Please add at least one item with quantity");
       return;
     }
-    setSaving(true);
+    for (const item of items) {
+      if (!item.unitPrice || item.unitPrice <= 0) {
+        toast.error(`Invalid price for "${item.name || 'item'}". Price must be greater than 0.`);
+        return;
+      }
+    }
+    const setLoading = status === "Draft" ? setSavingDraft : setSavingSubmit;
+    setLoading(true);
     try {
       const data = {
-        requestType, requestingUnit, requestingUser, priority, reason, remarks,
+        requestType, requestingUnit, requestingUser, priority, reason, remarks, vendor,
         items: items.map(i => ({ sku: i.sku, name: i.name, category: i.category, qty: i.qty, unitPrice: i.unitPrice })),
         status,
       };
@@ -72,7 +119,34 @@ export default function CreatePurchaseRequest() {
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit request");
     } finally {
-      setSaving(false);
+      setLoading(false);
+    }
+  };
+
+  const handleFileSelect = useCallback((e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    setUploadedFiles(prev => [...prev, ...files]);
+    toast.success(`${files.length} file(s) selected`);
+    e.target.value = '';
+  }, []);
+
+  const removeFile = (index) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendPOEmail = async () => {
+    if (!vendorEmail.trim()) return toast.error("Please enter vendor email");
+    setSendingEmail(true);
+    try {
+      await purchaseRequestAPI.sendPOEmail(lastPR._id, vendorEmail);
+      toast.success(`Purchase order sent to ${vendorEmail}`);
+      setShowEmailModal(false);
+      setVendorEmail("");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send email");
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -115,7 +189,6 @@ export default function CreatePurchaseRequest() {
     });
     lines.push("-".repeat(50));
     lines.push(`Subtotal: ${subtotal.toFixed(2)} PKR`);
-    lines.push(`Shipping: ${shipping.toFixed(2)} PKR`);
     lines.push(`Total: ${total.toFixed(2)} PKR`);
     lines.push("");
     lines.push(`Reason: ${reason}`);
@@ -150,7 +223,7 @@ export default function CreatePurchaseRequest() {
         <thead><tr><th>SKU</th><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
         <tbody>${itemsRows}</tbody>
       </table>
-      <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)} PKR | <strong>Shipping:</strong> ${shipping.toFixed(2)} PKR | <strong>Total:</strong> ${total.toFixed(2)} PKR</p>
+      <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)} PKR | <strong>Total:</strong> ${total.toFixed(2)} PKR</p>
       <p><strong>Reason:</strong> ${reason}</p>
       <p><strong>Remarks:</strong> ${remarks}</p>
       <p style="text-align:center;color:#888;margin-top:30px;">Generated: ${new Date().toLocaleString()}</p>
@@ -168,6 +241,11 @@ export default function CreatePurchaseRequest() {
           <p className="text-gray-500 mb-1">Request ID: <strong className="text-blue-600">{lastPR.requestId}</strong></p>
           <p className="text-gray-500 mb-6">Status: <span className="text-green-600 font-bold">{lastPR.status}</span></p>
           <div className="flex flex-wrap gap-3 justify-center">
+            {lastPR.vendor && (
+              <button onClick={() => setShowEmailModal(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700">
+                <Mail size={16} /> Send PO Email
+              </button>
+            )}
             <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-[#1E4D7B] text-white rounded-xl text-sm font-bold hover:bg-blue-700">
               <Printer size={16} /> Print Receipt
             </button>
@@ -179,6 +257,27 @@ export default function CreatePurchaseRequest() {
             </button>
           </div>
         </div>
+        {showEmailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowEmailModal(false)}>
+            <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
+              <h3 className="text-base font-bold text-gray-900 mb-1">Send Purchase Order</h3>
+              <p className="text-xs text-gray-500 mb-4">Email PO to <strong>{lastPR.vendor}</strong></p>
+              <input
+                type="email"
+                value={vendorEmail}
+                onChange={e => setVendorEmail(e.target.value)}
+                placeholder="vendor@example.com"
+                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-400 mb-4"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => setShowEmailModal(false)} className="flex-1 py-2 text-sm font-semibold border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50">Cancel</button>
+                <button onClick={handleSendPOEmail} disabled={sendingEmail} className="flex-1 py-2 text-sm font-bold bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50">
+                  {sendingEmail ? "Sending..." : "Send Email"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <Toaster position="top-right" />
       </div>
     );
@@ -199,16 +298,13 @@ export default function CreatePurchaseRequest() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-black tracking-tight uppercase mb-2">Create Purchase Request</h1>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B] text-white text-xs font-bold px-3 py-1 rounded">New Request</span>
-            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
-            <button onClick={() => handleSubmit("Draft")} disabled={saving} className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 bg-white text-gray-700 text-xs sm:text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50">
-              <Save size={14} /> {saving ? "Saving..." : "Save Draft"}
+            <button onClick={() => handleSubmit("Draft")} disabled={savingDraft} className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 bg-white text-gray-700 text-xs sm:text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50">
+              <Save size={14} /> {savingDraft ? "Saving..." : "Save Draft"}
             </button>
-            <button onClick={() => handleSubmit("Pending")} disabled={saving} className="flex items-center gap-2 px-4 sm:px-5 py-2 bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B] hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50">
-              <Send size={14} /> {saving ? "Submitting..." : "Submit for Approval"}
+            <button onClick={() => handleSubmit("Pending")} disabled={savingSubmit} className="flex items-center gap-2 px-4 sm:px-5 py-2 bg-gradient-to-t from-[#1E4D7B] to-[#1E4D7B] hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50">
+              <Send size={14} /> {savingSubmit ? "Submitting..." : "Submit for Approval"}
             </button>
           </div>
         </div>
@@ -229,8 +325,6 @@ export default function CreatePurchaseRequest() {
                   <div className="relative">
                     <select className={selectCls} value={requestType} onChange={e => setRequestType(e.target.value)}>
                       <option>Manual Request</option>
-                      <option>Auto Reorder</option>
-                      <option>Emergency Request</option>
                     </select>
                     <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                   </div>
@@ -269,6 +363,21 @@ export default function CreatePurchaseRequest() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className={labelCls}>Preferred Vendor / Supplier</label>
+                  <div className="relative">
+                    <select className={selectCls} value={vendor} onChange={e => setVendor(e.target.value)} disabled={vendorsLoading}>
+                      <option value="">{vendorsLoading ? "Loading vendors..." : "Select a vendor (optional)"}</option>
+                      {vendors.map(v => (
+                        <option key={v._id} value={v.name}>{v.name}{v.vendorId ? ` (${v.vendorId})` : ''}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className={labelCls}>Reason for Purchase</label>
                 <textarea value={reason} onChange={e => setReason(e.target.value)} rows={4} placeholder="Describe why these items are needed..." className={`${inputCls} resize-none`} />
@@ -277,55 +386,82 @@ export default function CreatePurchaseRequest() {
 
             {/* Purchase Items Card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <List size={17} className="text-blue-500" />
-                  <h2 className="text-base font-bold text-gray-900">Purchase Items</h2>
+                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <List size={16} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-gray-900">Purchase Items</h2>
+                    <p className="text-xs text-gray-400">{items.length} item{items.length !== 1 ? 's' : ''} added</p>
+                  </div>
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">{items.length} Items</span>
+                <button onClick={addItem} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                  <Plus size={14} /> Add Item
+                </button>
               </div>
 
-              <div className="overflow-x-auto">
-                <div className="min-w-[600px]">
-                  <div className="grid grid-cols-[0.7fr_1.5fr_1fr_0.8fr_1fr_1fr_auto] gap-3 px-2 pb-2 border-b border-gray-100 mb-1">
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
+                <div className="min-w-[700px]">
+                  {/* Header */}
+                  <div className="grid grid-cols-[0.5fr_2.5fr_1fr_0.7fr_1fr_1fr_auto] gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200">
                     {[{ label: "ID", align: "text-left" },{ label: "Name / SKU", align: "text-left" },{ label: "Category", align: "text-center" },{ label: "Qty", align: "text-center" },{ label: "Unit Price", align: "text-right" },{ label: "Total", align: "text-right" },{ label: "", align: "text-center" }].map(h => (
-                      <div key={h.label} className={`text-[10px] font-bold text-gray-400 tracking-wider uppercase ${h.align}`}>{h.label}</div>
+                      <div key={h.label} className={`text-[11px] font-bold text-gray-500 uppercase tracking-wider ${h.align}`}>{h.label}</div>
                     ))}
                   </div>
 
-                  <div className="divide-y divide-gray-50">
-                    {items.map((item) => (
-                      <div key={item.id} className="grid grid-cols-[0.7fr_1.5fr_1fr_0.8fr_1fr_1fr_auto] gap-3 items-center py-4 px-2">
-                        <div className="text-xs font-medium text-gray-500 text-left">#{item.id.slice(-4)}</div>
-                        <div className="text-left">
-                          <input type="text" value={item.name} onChange={e => updateItem(item.id, "name", e.target.value)} className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-transparent border-b border-dashed border-gray-200 focus:border-blue-400 outline-none" placeholder="Item name" />
-                          <input type="text" value={item.sku} onChange={e => updateItem(item.id, "sku", e.target.value)} className="w-full text-[10px] text-gray-400 bg-transparent border-b border-dashed border-gray-200 focus:border-blue-400 outline-none mt-0.5" placeholder="SKU (optional)" />
-                        </div>
-                        <div className="text-center">
-                          <select value={item.category} onChange={e => updateItem(item.id, "category", e.target.value)} className="text-[10px] sm:text-xs font-semibold px-1 py-1 rounded border border-gray-200 outline-none bg-white">
-                            {Object.keys(categoryColors).map(c => <option key={c}>{c}</option>)}
-                          </select>
-                        </div>
-                        <div className="text-center">
-                          <input type="number" value={item.qty} onChange={e => updateItem(item.id, "qty", Number(e.target.value) || 0)} className="w-full px-2 py-1.5 text-xs sm:text-sm text-center border border-gray-200 rounded-lg outline-none focus:border-blue-400 font-semibold" min={1} />
-                        </div>
-                        <div className="text-right">
-                          <input type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value) || 0)} className="w-full px-2 py-1.5 text-xs sm:text-sm text-right border border-gray-200 rounded-lg outline-none focus:border-blue-400 font-semibold" min={0} step="0.01" />
-                        </div>
-                        <div className="text-xs sm:text-sm font-bold text-gray-900 text-right">{(item.qty * item.unitPrice).toFixed(2)}</div>
-                        <div className="text-center">
-                          <button onClick={() => removeItem(item.id)} className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors mx-auto block"><Trash2 size={15} /></button>
+                  {/* Rows */}
+                  {items.map((item, idx) => (
+                    <div key={item.id} className={`grid grid-cols-[0.5fr_2.5fr_1fr_0.7fr_1fr_1fr_auto] gap-2 px-4 py-3 ${idx !== items.length - 1 ? 'border-b border-gray-100' : ''} hover:bg-gray-50 transition-colors`}>
+                      <div className="flex items-center">
+                        <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded">#{item.id.slice(-4)}</span>
+                      </div>
+                      <div>
+                        <input type="text" value={item.name} onChange={e => updateItem(item.id, "name", e.target.value)} className="w-full text-sm font-semibold text-gray-900 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none pb-0.5 transition-colors" placeholder="Item name" />
+                        <input type="text" value={item.sku} onChange={e => updateItem(item.id, "sku", e.target.value)} className="w-full text-xs text-gray-400 bg-transparent border-b-2 border-transparent focus:border-blue-400 outline-none pb-0.5 transition-colors mt-0.5" placeholder="SKU (optional)" />
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <select value={item.category} onChange={e => updateItem(item.id, "category", e.target.value)} className="w-full text-xs font-medium px-2 py-1.5 rounded-lg border border-gray-200 outline-none bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-colors">
+                          {Object.keys(categoryColors).map(c => <option key={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <input type="number" value={item.qty} onChange={e => updateItem(item.id, "qty", Number(e.target.value) || 0)} className="w-full px-2 py-1.5 text-sm text-center font-semibold border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100 transition-colors" min={1} />
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <div className="relative w-full">
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">Rs</span>
+                          <input type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value) || 0)} className="w-full pl-8 pr-2 py-1.5 text-sm text-right font-semibold border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100 transition-colors" min={0} step="0.01" />
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center justify-end">
+                        <span className="text-sm font-bold text-gray-900">{(item.qty * item.unitPrice).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <button onClick={() => removeItem(item.id)} className="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Remove item">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <button onClick={addItem} className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-200 rounded-xl text-xs sm:text-sm font-semibold text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                  <Plus size={15} /> Add Line Item
-                </button>
+              {items.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <p className="text-sm italic">No items added yet. Click "Add Item" to get started.</p>
+                </div>
+              )}
+
+              {/* Summary bar */}
+              <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <div className="text-xs text-gray-400">
+                  <span className="font-medium text-gray-600">{items.length}</span> item{items.length !== 1 ? 's' : ''} · Total: <span className="font-bold text-gray-900">{total.toFixed(2)} PKR</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Subtotal</span>
+                  <span className="text-sm font-black text-gray-900">{subtotal.toFixed(2)} PKR</span>
+                </div>
               </div>
             </div>
           </div>
@@ -341,12 +477,8 @@ export default function CreatePurchaseRequest() {
                   <span className="font-semibold text-white">{subtotal.toFixed(2)} PKR</span>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm text-blue-100">
-                  <span>Estimated Shipping</span>
-                  <span className="font-semibold text-white">{shipping.toFixed(2)} PKR</span>
-                </div>
-                <div className="flex items-center justify-between text-xs sm:text-sm text-blue-100">
                   <span>Taxes</span>
-                  <span className="font-semibold text-white">{taxes.toFixed(2)} PKR</span>
+                  <span className="font-semibold text-white">0.00 PKR</span>
                 </div>
               </div>
               <div className="border-t border-white/20" />
@@ -354,8 +486,8 @@ export default function CreatePurchaseRequest() {
                 <span className="text-xs sm:text-sm font-bold text-white">Total</span>
                 <span className="text-base sm:text-lg font-black text-blue-300">{total.toFixed(2)} PKR</span>
               </div>
-              <button onClick={() => handleSubmit("Pending")} disabled={saving} className="w-full py-2.5 sm:py-3 bg-blue-800 hover:bg-blue-400 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
-                {saving ? "Submitting..." : "Submit for Approval"}
+              <button onClick={() => handleSubmit("Pending")} disabled={savingSubmit} className="w-full py-2.5 sm:py-3 bg-blue-800 hover:bg-blue-400 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
+                {savingSubmit ? "Submitting..." : "Submit for Approval"}
               </button>
               <p className="text-[9px] sm:text-[10px] text-blue-200 text-center leading-relaxed tracking-wide uppercase">Review items before submission. Once submitted enters approval workflow.</p>
               <div className="border-t border-white/20" />
@@ -365,10 +497,31 @@ export default function CreatePurchaseRequest() {
               </div>
               <div>
                 <label className="text-xs sm:text-sm font-bold text-white mb-2 block">Supporting Documents</label>
-                <div className="border-2 border-dashed border-white/30 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-white/50 transition-colors">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx"
+                />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-white/30 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-white/50 transition-colors"
+                >
                   <Upload size={20} className="text-blue-200" />
-                  <span className="text-[10px] sm:text-xs text-blue-200 text-center">Click or drag files to upload</span>
+                  <span className="text-[10px] sm:text-xs text-blue-200 text-center">Click to upload</span>
                 </div>
+                {uploadedFiles.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {uploadedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center justify-between bg-white/10 rounded-lg px-2 py-1">
+                        <span className="text-[10px] text-blue-200 truncate max-w-[160px]">{file.name}</span>
+                        <button onClick={() => removeFile(i)} className="text-blue-200 hover:text-white text-xs leading-none ml-1">&times;</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

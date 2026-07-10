@@ -231,6 +231,18 @@ export default function ProcurementRequestsTable() {
                     <span className={`text-xs font-semibold ${valClass}`}>{val}</span>
                   </div>
                 ))}
+                {selected.reason && (
+                  <div className="pt-1.5 border-t border-gray-100">
+                    <div className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">Reason</div>
+                    <p className="text-xs text-gray-700">{selected.reason}</p>
+                  </div>
+                )}
+                {selected.remarks && (
+                  <div className="pt-1.5 border-t border-gray-100">
+                    <div className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">Remarks</div>
+                    <p className="text-xs text-gray-700">{selected.remarks}</p>
+                  </div>
+                )}
               </div>
               <div className="mb-4 px-4">
                 <div className="text-[10px] font-bold text-gray-800 tracking-widest uppercase mb-2">Line Items</div>

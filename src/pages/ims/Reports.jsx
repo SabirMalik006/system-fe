@@ -3,7 +3,7 @@ import Footer from "../../components/common/fotter";
 import { reportsAPI } from "../../services/api";
 import toast from "react-hot-toast";
 import { exportToCSV } from "../../utils/exportUtils";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, ShoppingCart, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 
 const Reports = () => {
   const [selectedLog, setSelectedLog] = useState(null);
@@ -15,6 +15,8 @@ const Reports = () => {
     mostActiveModule: "N/A",
     mostActiveUser: "N/A",
   });
+  const [procurement, setProcurement] = useState(null);
+  const [procurementLoading, setProcurementLoading] = useState(true);
 
   // Pagination and filters
   const [page, setPage] = useState(1);
@@ -34,6 +36,7 @@ const Reports = () => {
   useEffect(() => {
     fetchStats();
     fetchLogs();
+    fetchProcurement();
   }, [page, filters]);
 
   const fetchStats = async () => {
@@ -44,6 +47,20 @@ const Reports = () => {
       }
     } catch (error) {
       console.error("Error fetching stats", error);
+    }
+  };
+
+  const fetchProcurement = async () => {
+    try {
+      setProcurementLoading(true);
+      const res = await reportsAPI.getProcurementSummary();
+      if (res.data.success) {
+        setProcurement(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching procurement summary", error);
+    } finally {
+      setProcurementLoading(false);
     }
   };
 
@@ -201,6 +218,113 @@ const Reports = () => {
         })}
       </div>
 
+      {/* Procurement Overview */}
+      {procurement && (
+        <div className="mx-4 md:mx-6 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <ShoppingCart size={16} className="text-[#1A8FA0]" />
+            <h2 className="text-sm font-bold text-[#1A3A5C] uppercase tracking-wider">Procurement Overview</h2>
+          </div>
+
+          {/* Procurement stat cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3.5 border-l-4" style={{ borderLeftColor: '#3B82F6' }}>
+              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Total Requests</div>
+              <div className="text-xl font-bold text-gray-900 mt-0.5">{procurement.kpiStats.totalRequests}</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3.5 border-l-4" style={{ borderLeftColor: '#F59E0B' }}>
+              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Pending Approval</div>
+              <div className="text-xl font-bold text-gray-900 mt-0.5 flex items-center gap-1.5">
+                {procurement.kpiStats.pendingApproval}
+                <Clock size={14} className="text-amber-500" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3.5 border-l-4" style={{ borderLeftColor: '#10B981' }}>
+              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Approved</div>
+              <div className="text-xl font-bold text-gray-900 mt-0.5 flex items-center gap-1.5">
+                {procurement.kpiStats.approved}
+                <CheckCircle size={14} className="text-green-500" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3.5 border-l-4" style={{ borderLeftColor: '#EF4444' }}>
+              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Rejected</div>
+              <div className="text-xl font-bold text-gray-900 mt-0.5 flex items-center gap-1.5">
+                {procurement.kpiStats.rejected}
+                <XCircle size={14} className="text-red-500" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3.5 border-l-4" style={{ borderLeftColor: '#8B5CF6' }}>
+              <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">Total PO Value</div>
+              <div className="text-xl font-bold text-gray-900 mt-0.5 flex items-center gap-1.5">
+                <DollarSign size={14} className="text-purple-500" />
+                {(procurement.kpiStats.totalPOValue || 0).toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {/* Recent procurement requests table */}
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent Procurement Requests</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px]">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Request ID</th>
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Unit</th>
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Priority</th>
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {procurement.recentRequests && procurement.recentRequests.length > 0 ? (
+                    procurement.recentRequests.map((req) => {
+                      const statusColors = {
+                        Draft: 'bg-gray-100 text-gray-600',
+                        Pending: 'bg-amber-100 text-amber-700',
+                        Approved: 'bg-green-100 text-green-700',
+                        Rejected: 'bg-red-100 text-red-700',
+                        Processing: 'bg-blue-100 text-blue-700',
+                      };
+                      const priorityColors = {
+                        Low: 'text-gray-500',
+                        Medium: 'text-amber-600',
+                        High: 'text-red-600',
+                      };
+                      return (
+                        <tr key={req._id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                          <td className="px-4 py-3 text-xs font-semibold text-gray-800">{req.requestId}</td>
+                          <td className="px-4 py-3 text-xs text-gray-600">{req.requestingUnit}</td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-semibold ${priorityColors[req.priority] || 'text-gray-500'}`}>
+                              {req.priority}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 text-[10px] font-semibold rounded ${statusColors[req.status] || 'bg-gray-100 text-gray-600'}`}>
+                              {req.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs font-medium text-gray-700">Rs {req.total?.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-xs text-gray-500">{new Date(req.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="px-4 py-6 text-center text-xs text-gray-400">No procurement requests found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filters - Responsive */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 bg-white p-4 md:p-5 rounded-2xl border border-gray-200 shadow-sm mx-4 md:mx-6">
         <div className="flex flex-wrap items-center gap-3">
@@ -282,6 +406,8 @@ const Reports = () => {
               <option value="Vendors">Vendors</option>
               <option value="System">System</option>
               <option value="Approvals">Approvals</option>
+              <option value="Purchases">Purchases</option>
+              <option value="Returns">Returns</option>
             </select>
           </div>
 

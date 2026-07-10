@@ -11,6 +11,7 @@ import {
   Edit2,
   Loader2,
   AlertCircle,
+  Printer,
 } from "lucide-react";
 import { stockInAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
@@ -104,6 +105,44 @@ export default function MasterSessionHistory() {
 
     // Trigger CSV export
     exportToCSV(transactions, exportHeaders, "stock_in_history");
+  };
+
+  const handlePrintReceipt = (row) => {
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`
+      <html>
+        <head>
+          <title>Stock In Receipt - ${row.id}</title>
+          <style>
+            @media print { @page { margin: 0.5in; } body { font-family: monospace; font-size: 14px; } }
+            body { font-family: monospace; padding: 20px; max-width: 400px; margin: 0 auto; }
+            h1 { text-align: center; font-size: 18px; margin-bottom: 4px; }
+            .divider { border-top: 1px dashed #000; margin: 12px 0; }
+            .row { display: flex; justify-content: space-between; padding: 4px 0; }
+            .label { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>STOCK IN RECEIPT</h1>
+          <div class="divider"></div>
+          <div class="row"><span class="label">Entry ID:</span><span>${row.id}</span></div>
+          <div class="row"><span class="label">Item:</span><span>${row.itemName}</span></div>
+          <div class="row"><span class="label">SKU:</span><span>${row.sku}</span></div>
+          <div class="row"><span class="label">Quantity:</span><span>${row.qty}</span></div>
+          <div class="row"><span class="label">Vendor:</span><span>${row.vendor}</span></div>
+          <div class="row"><span class="label">P.O. #:</span><span>${row.po}</span></div>
+          <div class="row"><span class="label">Batch/Lot:</span><span>${row.batch}</span></div>
+          <div class="row"><span class="label">Warehouse:</span><span>${row.warehouse}</span></div>
+          <div class="row"><span class="label">Status:</span><span>${row.status}</span></div>
+          <div class="row"><span class="label">Timestamp:</span><span>${row.timestamp}</span></div>
+          <div class="divider"></div>
+          <p style="text-align:center;font-size:12px;color:#666;">Generated on: ${new Date().toLocaleString()}</p>
+        </body>
+      </html>
+    `);
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(() => { printWin.print(); }, 300);
   };
 
   const handleDownloadReceipt = (row) => {
@@ -293,6 +332,13 @@ Generated on: ${new Date().toLocaleString()}
                       </td>
                       <td className="py-3.5 px-2">
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handlePrintReceipt(row)}
+                            title="Print Receipt"
+                            className="p-1 hover:bg-gray-100 text-gray-600 rounded transition-colors"
+                          >
+                            <Printer size={14} />
+                          </button>
                           <button
                             onClick={() => handleDownloadReceipt(row)}
                             title="Download Receipt"

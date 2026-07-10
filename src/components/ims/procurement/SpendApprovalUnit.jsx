@@ -79,7 +79,7 @@ export default function SpendApprovalUnit() {
       const maxVal = sorted.reduce((m, [,c]) => Math.max(m, c), 1);
       const colors = ['#2563EB', '#3B82F6', '#60A5FA', '#0891B2', '#1D4ED8', '#1E60AF'];
       setUnitData(sorted.map(([unit, value], i) => ({
-        unit: unit.length > 18 ? unit.slice(0, 16) + '...' : unit,
+        unit,
         value,
         color: colors[i % colors.length],
         pct: Math.round(value / maxVal * 100),
@@ -111,18 +111,22 @@ export default function SpendApprovalUnit() {
             </div>
           ))}
         </div>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={spendData} barSize={8} barCategoryGap="25%" margin={{ top: 0, right: 0, left: -35, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#d1d1d2" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#000' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#000' }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }} />
-              {Object.entries(deptColors).map(([key, color]) => (
-                <Bar key={key} dataKey={key} fill={color} radius={[2, 2, 0, 0]} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="h-[200px] min-w-[200px]">
+          {spendData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={spendData} barSize={8} barCategoryGap="25%" margin={{ top: 0, right: 0, left: -35, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d1d2" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#000' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#000' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }} />
+                {Object.entries(deptColors).map(([key, color]) => (
+                  <Bar key={key} dataKey={key} fill={color} radius={[2, 2, 0, 0]} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-xs text-gray-400">No spend data</div>
+          )}
         </div>
       </div>
 
@@ -140,41 +144,59 @@ export default function SpendApprovalUnit() {
             </div>
           ))}
         </div>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={approvalData} margin={{ top: 0, right: 5, left: -30, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#bfc1c4" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#000000' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#000000' }} axisLine={false} tickLine={false}
-                domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={v => `${v}%`} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }}
-                formatter={(v) => [`${v}%`]} />
-              {Object.entries(deptColors).map(([key, color]) => (
-                <Line key={key} type="monotone" dataKey={key} stroke={color} strokeWidth={2}
-                  dot={{ r: 3, fill: '#ffffff', stroke: color, strokeWidth: 2 }}
-                  activeDot={{ r: 5 }} />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="h-[200px] min-w-[200px]">
+          {approvalData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={approvalData} margin={{ top: 0, right: 5, left: -30, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#bfc1c4" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#000000' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#000000' }} axisLine={false} tickLine={false}
+                  domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={v => `${v}%`} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }}
+                  formatter={(v) => [`${v}%`]} />
+                {Object.entries(deptColors).map(([key, color]) => (
+                  <Line key={key} type="monotone" dataKey={key} stroke={color} strokeWidth={2}
+                    dot={{ r: 3, fill: '#ffffff', stroke: color, strokeWidth: 2 }}
+                    activeDot={{ r: 5 }} />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-xs text-gray-400">No approval data</div>
+          )}
         </div>
       </div>
 
       {/* Requests by Unit */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#1A3A5C]">Requests by Unit</h3>
-          <button className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-blue-100 text-[#0E7490]">Top Units</button>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col h-full">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+            <h3 className="text-sm font-semibold text-[#1A3A5C]">Requests by Unit</h3>
+          </div>
+          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-600 border border-blue-100">Top {unitData.length}</span>
         </div>
-        <div className="flex flex-col gap-2.5">
-          {unitData.map((u, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <span className="text-xs text-[#000000] font-base w-20 flex-shrink-0 truncate" title={u.unit}>{u.unit}</span>
-              <div className="flex-1 h-5 bg-white rounded-sm overflow-hidden">
-                <div className="h-full rounded-sm" style={{ width: `${u.pct}%`, background: u.color }} />
+        <div className="flex flex-col gap-3 flex-1 justify-center">
+          {unitData.map((u, i) => {
+            const rankColors = ['text-yellow-500', 'text-gray-400', 'text-amber-600', 'text-gray-300', 'text-gray-300', 'text-gray-300'];
+            return (
+              <div key={i} className="group flex items-center gap-2.5">
+                <span className={`text-xs font-bold w-4 text-center ${rankColors[i] || 'text-gray-300'}`}>{i + 1}</span>
+                <span className="text-xs font-medium text-gray-700 flex-shrink-0 truncate max-w-[130px]" title={u.unit}>
+                  {u.unit}
+                </span>
+                <div className="flex-1 h-6 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+                  <div
+                    className="h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-1.5"
+                    style={{ width: `${Math.max(u.pct, 4)}%`, background: `linear-gradient(135deg, ${u.color}, ${u.color}cc)` }}
+                  >
+                    <span className="text-[9px] font-bold text-white drop-shadow-sm">{u.pct}%</span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-gray-800 w-5 text-center tabular-nums">{u.value}</span>
               </div>
-              <span className="text-xs font-normal text-[#000000] w-6 text-right">{u.value}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
