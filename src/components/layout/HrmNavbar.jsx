@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor, LayoutDashboard, Users, ClipboardCheck, CalendarDays, ArrowRightLeft, ShieldCheck, User } from 'lucide-react';
+import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor, LayoutDashboard, Users, ClipboardCheck, CalendarDays, ArrowRightLeft, ShieldCheck, User, UserCog } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -49,7 +49,9 @@ export default function HrmNavbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const navLinks = user?.role === 'tradesman' ? tradesmanLinks : allNavLinks;
+  const navLinks = user?.role === 'tradesman'
+    ? tradesmanLinks
+    : [...allNavLinks, ...((user?.role === 'dwece' || user?.role === 'charge_head') ? [{ label: 'Users', path: '/hrm-user-management', hasDropdown: false, icon: UserCog }] : [])];
 
   const isActive = (path) => location.pathname === path;
 

@@ -23,6 +23,9 @@ import ProcurementManagement from './pages/ims/ProcurementManagement';
 import StockIssuance from './pages/ims/StockIssuance';
 import ToolsInspection from './pages/ims/ToolsInspection';
 
+// Shared Pages
+import UserManagement from './pages/UserManagement';
+
 // HRM Pages
 import PersonnelProfile from './pages/hrm/PersonnelProfile';
 import Compliance from './pages/hrm/Compliance';
@@ -170,6 +173,11 @@ function AppRoutes() {
           <IMSLayout><ToolsInspection /></IMSLayout>
         </ProtectedRoute>
       } />
+      <Route path="/user-management" element={
+        <ProtectedRoute>
+          <IMSLayout><UserManagement /></IMSLayout>
+        </ProtectedRoute>
+      } />
       
       {/* HRM Routes (with HrmNavbar) */}
       <Route path="/personnel-profile" element={
@@ -240,6 +248,11 @@ function AppRoutes() {
       <Route path="/employee-profile" element={
         <ProtectedRoute>
           <HRMLayout><EmployeeProfile /></HRMLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/hrm-user-management" element={
+        <ProtectedRoute>
+          <HRMLayout><UserManagement /></HRMLayout>
         </ProtectedRoute>
       } />
       

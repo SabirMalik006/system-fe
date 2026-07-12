@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package, LayoutDashboard, ShoppingCart, BarChart3, Building2, ShieldCheck } from 'lucide-react';
+import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package, LayoutDashboard, ShoppingCart, BarChart3, Building2, ShieldCheck, Users } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -36,6 +36,7 @@ const Navbar = () => {
     { name: 'Reports', path: '/reports', hasDropdown: false, icon: BarChart3 },
     { name: 'Vendors', path: '/vendors', hasDropdown: false, icon: Building2 },
     { name: 'Inspection', path: '/tools-inspection', hasDropdown: false, icon: ShieldCheck },
+    ...((user?.role === 'dwece' || user?.role === 'charge_head') ? [{ name: 'Users', path: '/user-management', hasDropdown: false, icon: Users }] : []),
   ];
 
   const inventoryDropdownItems = [

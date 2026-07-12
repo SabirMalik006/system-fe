@@ -99,7 +99,14 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
-  getUsers: () => api.get('/auth/users'),
+  getUsers: (params = {}) => {
+    const { page = 1, limit = 20, search = '', role = '' } = params;
+    let url = `/auth/users?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (role) url += `&role=${role}`;
+    return api.get(url);
+  },
+  getRoleCounts: () => api.get('/auth/role-counts'),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
   changePassword: (currentPassword, newPassword) => 
