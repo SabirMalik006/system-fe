@@ -29,6 +29,9 @@ export default function EmployeeProfile() {
   const [error, setError] = useState(null);
   const [confirm, setConfirm] = useState({ isOpen: false, variant: 'danger', title: '', message: '', onConfirm: null });
   const [activeSection, setActiveSection] = useState(null);
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [tasks, setTasks] = useState([]);
   const selfEmployee = useMemo(() => {
     if (empId || !user) return null;
     const names = (user.name || '').split(' ');
@@ -180,7 +183,11 @@ export default function EmployeeProfile() {
 
       {activeSection && (
         <div className="max-w-[2560px] mx-auto px-4 sm:px-5 pt-4">
-          {activeSection === 'assignTask' && (
+          {activeSection === 'assignTask' && (() => {
+            const highCount = tasks.filter(t => t.priority === 'High').length;
+            const medCount = tasks.filter(t => t.priority === 'Medium').length;
+            const lowCount = tasks.filter(t => t.priority === 'Low').length;
+            return (
             <div className="bg-white rounded-2xl border border-blue-200 shadow-sm overflow-hidden">
               <div className="bg-[#1a3a8f] px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -193,34 +200,38 @@ export default function EmployeeProfile() {
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div className="bg-red-50 rounded-xl p-4 border border-red-200">
                     <p className="text-[10px] font-bold text-red-600 uppercase">High</p>
-                    <p className="text-xl font-extrabold text-gray-900 mt-1">3</p>
+                    <p className="text-xl font-extrabold text-gray-900 mt-1">{highCount}</p>
                     <p className="text-[10px] text-gray-500">pending</p>
                   </div>
                   <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
                     <p className="text-[10px] font-bold text-yellow-600 uppercase">Medium</p>
-                    <p className="text-xl font-extrabold text-gray-900 mt-1">5</p>
+                    <p className="text-xl font-extrabold text-gray-900 mt-1">{medCount}</p>
                     <p className="text-[10px] text-gray-500">pending</p>
                   </div>
                   <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                     <p className="text-[10px] font-bold text-green-600 uppercase">Low</p>
-                    <p className="text-xl font-extrabold text-gray-900 mt-1">2</p>
+                    <p className="text-xl font-extrabold text-gray-900 mt-1">{lowCount}</p>
                     <p className="text-[10px] text-gray-500">pending</p>
                   </div>
                   <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                     <p className="text-[10px] font-bold text-blue-600 uppercase">Total</p>
-                    <p className="text-xl font-extrabold text-gray-900 mt-1">10</p>
+                    <p className="text-xl font-extrabold text-gray-900 mt-1">{tasks.length}</p>
                     <p className="text-[10px] text-gray-500">tasks</p>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  {[
-                    { task: 'Inspect plumbing Line B', due: 'Today, 5:00 PM', priority: 'High' },
-                    { task: 'Complete maintenance report', due: 'Tomorrow, 12:00 PM', priority: 'Medium' },
-                    { task: 'Review safety protocols', due: 'Jul 5, 9:00 AM', priority: 'Low' },
-                  ].map((t, i) => (
+                  {tasks.length === 0 ? (
+                    <p className="text-xs text-gray-400 text-center py-4">No tasks assigned yet</p>
+                  ) : tasks.map((t, i) => (
                     <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
                       <div className="flex items-center gap-3">
-                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600" />
+                        <input type="checkbox" checked={t.done || false}
+                          onChange={() => {
+                            const updated = [...tasks];
+                            updated[i] = { ...updated[i], done: !updated[i].done };
+                            setTasks(updated);
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600" />
                         <div>
                           <p className="text-xs font-medium text-gray-900">{t.task}</p>
                           <p className="text-[10px] text-gray-400">{t.due}</p>
@@ -234,14 +245,28 @@ export default function EmployeeProfile() {
                     </div>
                   ))}
                 </div>
-                <button className="flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline">
+                <button onClick={() => {
+                  const name = `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || 'Employee';
+                  setTasks(prev => [...prev, {
+                    task: `New task for ${name}`,
+                    due: 'Not set',
+                    priority: 'Low',
+                    done: false,
+                  }]);
+                  toast.success('Task added');
+                }} className="flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline">
                   <Plus size={12} /> Add Task
                 </button>
               </div>
             </div>
-          )}
+            );
+          })()}
 
-          {activeSection === 'taskSummary' && (
+          {activeSection === 'taskSummary' && (() => {
+            const completed = tasks.filter(t => t.done).length;
+            const inProgress = tasks.filter(t => !t.done).length;
+            const overdue = 0;
+            return (
             <div className="bg-white rounded-2xl border border-blue-200 shadow-sm overflow-hidden">
               <div className="bg-[#1a3a8f] px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -253,16 +278,14 @@ export default function EmployeeProfile() {
               <div className="p-5 space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { icon: CheckCircle, label: 'Completed', value: '12', color: 'text-green-600', bg: 'bg-green-50' },
-                    { icon: Clock, label: 'In Progress', value: '5', color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { icon: AlertCircle, label: 'Overdue', value: '2', color: 'text-red-600', bg: 'bg-red-50' },
-                    { icon: Target, label: 'Total', value: '19', color: 'text-gray-900', bg: 'bg-gray-50' },
+                    { icon: CheckCircle, label: 'Completed', value: completed, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' },
+                    { icon: Clock, label: 'In Progress', value: inProgress, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+                    { icon: AlertCircle, label: 'Overdue', value: overdue, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
+                    { icon: Target, label: 'Total', value: tasks.length, color: 'text-gray-900', bg: 'bg-gray-50', border: 'border-gray-200' },
                   ].map((stat, i) => {
                     const Icon = stat.icon;
                     return (
-                      <div key={i} className={`${stat.bg} rounded-xl p-4 border ${
-                        i === 0 ? 'border-green-200' : i === 1 ? 'border-blue-200' : i === 2 ? 'border-red-200' : 'border-gray-200'
-                      }`}>
+                      <div key={i} className={`${stat.bg} rounded-xl p-4 border ${stat.border}`}>
                         <Icon size={16} className={stat.color} />
                         <p className="text-lg font-extrabold text-gray-900 mt-2">{stat.value}</p>
                         <p className="text-[10px] text-gray-500">{stat.label}</p>
@@ -270,6 +293,9 @@ export default function EmployeeProfile() {
                     );
                   })}
                 </div>
+                {tasks.length === 0 ? (
+                  <p className="text-xs text-gray-400 text-center py-4">No tasks yet</p>
+                ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
@@ -281,11 +307,7 @@ export default function EmployeeProfile() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {[
-                        { task: 'Inspect plumbing Line B', priority: 'High', status: 'In Progress', due: 'Today' },
-                        { task: 'Complete maintenance report', priority: 'Medium', status: 'Pending', due: 'Tomorrow' },
-                        { task: 'Review safety protocols', priority: 'Low', status: 'Completed', due: 'Jul 5' },
-                      ].map((t, i) => (
+                      {tasks.map((t, i) => (
                         <tr key={i}>
                           <td className="py-2.5 pr-4 text-xs font-medium text-gray-900">{t.task}</td>
                           <td className="py-2.5 pr-4">
@@ -297,10 +319,8 @@ export default function EmployeeProfile() {
                           </td>
                           <td className="py-2.5 pr-4">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                              t.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                              t.status === 'In Progress' ? 'bg-blue-100 text-blue-700' :
-                              'bg-gray-100 text-gray-600'
-                            }`}>{t.status}</span>
+                              t.done ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                            }`}>{t.done ? 'Completed' : 'In Progress'}</span>
                           </td>
                           <td className="py-2.5 text-xs text-gray-500">{t.due}</td>
                         </tr>
@@ -308,9 +328,11 @@ export default function EmployeeProfile() {
                     </tbody>
                   </table>
                 </div>
+                )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {activeSection === 'sendMessage' && (
             <div className="bg-white rounded-2xl border border-blue-200 shadow-sm overflow-hidden">
@@ -332,18 +354,47 @@ export default function EmployeeProfile() {
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Subject</label>
                   <input type="text" placeholder="Enter subject..."
+                    value={messageSubject} onChange={e => setMessageSubject(e.target.value)}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 mt-1" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Message</label>
                   <textarea rows={4} placeholder="Type your message..."
+                    value={messageBody} onChange={e => setMessageBody(e.target.value)}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 resize-none mt-1" />
                 </div>
                 <div className="flex items-center gap-2 pt-1">
-                  <button className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  <button onClick={() => {
+                    if (!messageSubject.trim() || !messageBody.trim()) {
+                      toast.error('Please fill in both subject and message');
+                      return;
+                    }
+                    toast.success(`Message sent to ${employee.firstName} ${employee.lastName}`);
+                    setMessageSubject('');
+                    setMessageBody('');
+                    setActiveSection(null);
+                  }} className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <Send size={12} /> Send
                   </button>
-                  <button className="flex items-center gap-1.5 border border-gray-200 text-gray-600 text-xs font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button onClick={() => {
+                    if (!messageSubject.trim() && !messageBody.trim()) {
+                      toast.error('Nothing to save as draft');
+                      return;
+                    }
+                    const drafts = JSON.parse(localStorage.getItem('messageDrafts') || '[]');
+                    drafts.push({
+                      to: `${employee.firstName} ${employee.lastName}`,
+                      employeeId: employee._id,
+                      subject: messageSubject,
+                      message: messageBody,
+                      savedAt: new Date().toISOString(),
+                    });
+                    localStorage.setItem('messageDrafts', JSON.stringify(drafts));
+                    toast.success('Message saved as draft');
+                    setMessageSubject('');
+                    setMessageBody('');
+                    setActiveSection(null);
+                  }} className="flex items-center gap-1.5 border border-gray-200 text-gray-600 text-xs font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                     <MessageSquare size={12} /> Draft
                   </button>
                 </div>

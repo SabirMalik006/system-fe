@@ -1,9 +1,16 @@
 import React, { useEffect } from "react";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Calendar } from "lucide-react";
 
 const inputCls =
   "w-full border border-gray-200 rounded-sm px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-colors bg-white";
 const labelCls = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+function formatCnic(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 13);
+  if (digits.length <= 5) return digits;
+  if (digits.length <= 12) return digits.slice(0, 5) + '-' + digits.slice(5);
+  return digits.slice(0, 5) + '-' + digits.slice(5, 12) + '-' + digits.slice(12);
+}
 
 export default function PersonalInformation({ values = {}, onChange }) {
   const v = (f) => values[f] || '';
@@ -40,8 +47,11 @@ export default function PersonalInformation({ values = {}, onChange }) {
         </div>
         <div>
           <label className={labelCls}>Date of Birth</label>
-          <input type="text" placeholder="mm/dd/yyyy" className={inputCls}
-            value={v('dateOfBirth')} onChange={e => onChange('dateOfBirth', e.target.value)} />
+          <div className="relative">
+            <input type="date" className={`${inputCls} pr-10`}
+              value={v('dateOfBirth')} onChange={e => onChange('dateOfBirth', e.target.value)} />
+            <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -70,8 +80,8 @@ export default function PersonalInformation({ values = {}, onChange }) {
           <label className={labelCls}>
             CNIC / ID Number <span className="text-red-400">*</span>
           </label>
-          <input placeholder="00000-0000000-0" className={inputCls}
-            value={v('cnic')} onChange={e => onChange('cnic', e.target.value)} />
+          <input placeholder="00000-0000000-0" maxLength={15} className={inputCls}
+            value={v('cnic')} onChange={e => onChange('cnic', formatCnic(e.target.value))} />
         </div>
         <div>
           <label className={labelCls}>Phone Number</label>

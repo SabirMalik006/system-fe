@@ -1,12 +1,12 @@
 import React from "react";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Calendar } from "lucide-react";
 
 const inputCls =
   "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-colors bg-white";
 const labelCls = "block text-xs font-semibold text-gray-800 mb-1.5";
 
 const empTypes = ["Permanent", "Contract", "Temporary"];
-const empStatuses = ["Active", "On Leave", "Suspended", "Terminated", "Retired"];
+const empStatuses = ["Draft", "Active", "On Leave", "Suspended", "Terminated", "Retired"];
 const cmesUnits = [
   "CMES ISB/LHR",
   "CMES COMPAK",
@@ -123,8 +123,11 @@ export default function ProfessionalInformation({ values = {}, onChange }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Joining Date</label>
-          <input type="text" placeholder="mm/dd/yyyy" className={inputCls}
-            value={v('joiningDate')} onChange={e => onChange('joiningDate', e.target.value)} />
+          <div className="relative">
+            <input type="date" className={`${inputCls} pr-10`}
+              value={v('joiningDate')} onChange={e => onChange('joiningDate', e.target.value)} />
+            <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
         </div>
       </div>
     </div>

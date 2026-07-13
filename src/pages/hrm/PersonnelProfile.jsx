@@ -16,7 +16,7 @@ const EMPTY_FORM = {
   firstName: '', lastName: '', dateOfBirth: '', gender: '',
   cnic: '', phone: '', email: '', emergencyContact: '',
   designation: '', trade: '', employmentType: 'Permanent',
-  employmentStatus: 'Active', unit: 'CMES ISB/LHR', geAe: 'GE SOUTH',
+  employmentStatus: 'Draft', unit: 'CMES ISB/LHR', geAe: 'GE SOUTH',
   joiningDate: '', department: '', skills: [], serviceHistory: [],
   profilePhoto: '',
 };
@@ -45,12 +45,18 @@ export default function PersonnelProfile() {
     setLoading(true);
     try {
       const payload = { ...form };
-      if (status) payload.employmentStatus = status;
+      if (status) {
+        payload.employmentStatus = status;
+      }
       const res = editId
         ? await employeeAPI.update(editId, payload)
         : await employeeAPI.create(payload);
       if (res.data.success) {
-        toast.success(editId ? 'Employee updated' : 'Employee created');
+        if (status === 'Draft') {
+          toast.success('Employee saved as draft');
+        } else {
+          toast.success(editId ? 'Employee updated' : 'Employee created');
+        }
         navigate('/department');
       } else {
         toast.error(res.data.error || 'Operation failed');
@@ -66,8 +72,8 @@ export default function PersonnelProfile() {
     <div className="min-h-screen bg-[#C8E1FA] font-sans">
       <PersonnelHeader
         loading={loading}
-        onSaveDraft={() => handleSave('Active')}
-        onSubmit={() => handleSave('Active')}
+        onSaveDraft={() => handleSave('Draft')}
+        onSubmit={() => handleSave()}
         onCancel={() => navigate('/department')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col gap-4">
