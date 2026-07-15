@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useRef } from "react";
 import { Plus } from 'lucide-react';
 import TransferKPICards from "../../components/hrm/transfer/TransferKPICards";
 import NewTransferOrderForm from "../../components/hrm/transfer/NewTransferOrderForm";
@@ -8,7 +7,7 @@ import RecentTransferOrders from "../../components/hrm/transfer/RecentTransferOr
 import TransferAnalytics from "../../components/hrm/transfer/TransferAnalytics";
 
 export default function InterUnitTransfer() {
-  const navigate = useNavigate();
+  const formRef = useRef(null);
   const [editId, setEditId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -34,7 +33,7 @@ export default function InterUnitTransfer() {
             </p>
           </div>
           <button
-            onClick={() => navigate('/inter-unit-transfer/new')}
+            onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             className="flex items-center gap-1.5 bg-[#274c77] hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm flex-shrink-0"
           >
             <Plus size={15} />
@@ -45,11 +44,13 @@ export default function InterUnitTransfer() {
         <TransferKPICards refreshKey={refreshKey} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <NewTransferOrderForm
-            editId={editId}
-            onSuccess={handleFormSuccess}
-            onCancel={() => setEditId(null)}
-          />
+          <div ref={formRef}>
+            <NewTransferOrderForm
+              editId={editId}
+              onSuccess={handleFormSuccess}
+              onCancel={() => setEditId(null)}
+            />
+          </div>
           <QuickTransferHistory refreshKey={refreshKey} />
         </div>
 

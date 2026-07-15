@@ -1,9 +1,13 @@
-import React from 'react';
-import { History, Download, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { History, Download, Plus, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { employeeAPI } from '../../../services/api';
 
 export default function ServiceHistoryLog({ employee = {} }) {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({ company: '', designation: '', fromDate: '', toDate: '' });
+  const [saving, setSaving] = useState(false);
+
   const history = (employee.serviceHistory || []).length > 0
     ? employee.serviceHistory.map((entry, i) => ({
         designation: entry.designation || 'N/A',
@@ -17,6 +21,27 @@ export default function ServiceHistoryLog({ employee = {} }) {
     : [
         { designation: 'Current Position', dept: 'Current Department', unit: employee.unit || 'N/A', start: employee.joiningDate || 'N/A', end: 'Present', remark: 'Current', remarkStyle: 'bg-[#2563EB] text-white' },
       ];
+
+  const handleAddEntry = async () => {
+    if (!formData.designation.trim() || !formData.company.trim()) {
+      toast.error('Please fill in designation and company');
+      return;
+    }
+    setSaving(true);
+    try {
+      const updatedHistory = [...(employee.serviceHistory || []), formData];
+      const res = await employeeAPI.update(employee._id, { serviceHistory: updatedHistory });
+      if (res.data.success) {
+        toast.success('Entry added successfully');
+        setShowForm(false);
+        setFormData({ company: '', designation: '', fromDate: '', toDate: '' });
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to add entry');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -48,7 +73,7 @@ export default function ServiceHistoryLog({ employee = {} }) {
             Export CSV
           </button>
           <button
-            onClick={() => toast.success('Add entry form will open')}
+            onClick={() => setShowForm(true)}
             className="flex items-center gap-1 text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus size={12} />
@@ -103,6 +128,55 @@ export default function ServiceHistoryLog({ employee = {} }) {
       <div className="px-5 py-3 border-t border-gray-100">
         <p className="text-[13px] text-[#7A8BA5]">Records are immutable. Corrections must be added as new entries with remarks.</p>
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+              <h3 className="text-sm font-bold text-gray-800">Add Service Entry</h3>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Designation</label>
+                <input type="text" value={formData.designation} onChange={e => setFormData(f => ({ ...f, designation: e.target.value }))}
+                  placeholder="e.g. Senior Electrician"
+                  className="w-full mt-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Company / Unit</label>
+                <input type="text" value={formData.company} onChange={e => setFormData(f => ({ ...f, company: e.target.value }))}
+                  placeholder="e.g. CMES COMCOAST"
+                  className="w-full mt-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">From Date</label>
+                  <input type="date" value={formData.fromDate} onChange={e => setFormData(f => ({ ...f, fromDate: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">To Date</label>
+                  <input type="date" value={formData.toDate} onChange={e => setFormData(f => ({ ...f, toDate: e.target.value }))}
+                    className="w-full mt-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => setShowForm(false)}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={handleAddEntry} disabled={saving}
+                  className="px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+                  {saving ? 'Adding...' : 'Add Entry'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

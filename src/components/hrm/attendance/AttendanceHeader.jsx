@@ -46,6 +46,18 @@ export default function AttendanceHeader({ kpiData, onDataChange }) {
 
   const handleMarkAttendance = async (e) => {
     e.preventDefault();
+    if (/^\d+$/.test(markData.employeeName.trim())) {
+      toast.error('Employee name cannot be only numbers');
+      return;
+    }
+    if (!markData.employeeName.trim()) {
+      toast.error('Employee name is required');
+      return;
+    }
+    if (!markData.employeeId.trim()) {
+      toast.error('Employee ID is required');
+      return;
+    }
     setMarking(true);
     try {
       await attendanceAPI.create(markData);
@@ -101,11 +113,14 @@ export default function AttendanceHeader({ kpiData, onDataChange }) {
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Employee Name</label>
                   <input required value={markData.employeeName} onChange={e => setMarkData({...markData, employeeName: e.target.value})}
-                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
+                    className={`w-full text-xs border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 ${/^\d+$/.test(markData.employeeName.trim()) ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+                  {/^\d+$/.test(markData.employeeName.trim()) && (
+                    <p className="text-[10px] text-red-500 mt-0.5">Numeric values are not allowed</p>
+                  )}
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID</label>
-                  <input value={markData.employeeId} onChange={e => setMarkData({...markData, employeeId: e.target.value})}
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID *</label>
+                  <input required value={markData.employeeId} onChange={e => setMarkData({...markData, employeeId: e.target.value})}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
               </div>

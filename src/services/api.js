@@ -257,6 +257,7 @@ export const employeeAPI = {
   getDeptBreakdown: () => api.get('/employees/stats/dept-breakdown'),
   getSkillDist: () => api.get('/employees/stats/skill-dist'),
   deactivateAccount: (id) => api.put(`/employees/${id}/deactivate-account`),
+  activateAccount: (id) => api.put(`/employees/${id}/activate-account`),
   deleteWithAccount: (id) => api.delete(`/employees/${id}/with-account`),
   exportEmployees: () => api.get('/employees/export', { responseType: 'blob' }),
 };

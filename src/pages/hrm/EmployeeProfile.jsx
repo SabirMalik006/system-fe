@@ -28,6 +28,8 @@ export default function EmployeeProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirm, setConfirm] = useState({ isOpen: false, variant: 'danger', title: '', message: '', onConfirm: null });
+  const [linkedUser, setLinkedUser] = useState(null);
+  const [userDeactivated, setUserDeactivated] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
@@ -75,8 +77,12 @@ export default function EmployeeProfile() {
     setLoading(true);
     setError(null);
     employeeAPI.getById(empId).then(({ data }) => {
-      if (data.success) setEmployee(data.data);
-      else {
+      if (data.success) {
+        setEmployee(data.data);
+        const lu = data.data.linkedUser || null;
+        setLinkedUser(lu);
+        setUserDeactivated(lu ? !lu.isActive : false);
+      } else {
         toast.error('Employee not found');
         setError('Employee not found. The ID may be invalid.');
       }
@@ -86,6 +92,18 @@ export default function EmployeeProfile() {
     })
     .finally(() => setLoading(false));
   }, [empId, user]);
+
+  const refetchEmployee = () => {
+    if (!empId) return;
+    employeeAPI.getById(empId).then(({ data }) => {
+      if (data.success) {
+        setEmployee(data.data);
+        const lu = data.data.linkedUser || null;
+        setLinkedUser(lu);
+        if (lu) setUserDeactivated(!lu.isActive);
+      }
+    });
+  };
 
   const handleDeactivate = () => {
     if (!employee) return;
@@ -100,8 +118,32 @@ export default function EmployeeProfile() {
           await employeeAPI.deactivateAccount(employee._id);
           toast.success('User account deactivated successfully');
           setConfirm(prev => ({ ...prev, isOpen: false }));
+          setUserDeactivated(true);
+          refetchEmployee();
         } catch (err) {
           toast.error(err.response?.data?.error || 'Failed to deactivate account');
+        }
+      },
+    });
+  };
+
+  const handleActivate = () => {
+    if (!employee) return;
+    const name = `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || 'this employee';
+    setConfirm({
+      isOpen: true,
+      variant: 'success',
+      title: 'Activate Account',
+      message: `Activate user account for ${name}? This will restore their login access.`,
+      onConfirm: async () => {
+        try {
+          await employeeAPI.activateAccount(employee._id);
+          toast.success('User account activated successfully');
+          setConfirm(prev => ({ ...prev, isOpen: false }));
+          setUserDeactivated(false);
+          refetchEmployee();
+        } catch (err) {
+          toast.error(err.response?.data?.error || 'Failed to activate account');
         }
       },
     });
@@ -168,12 +210,15 @@ export default function EmployeeProfile() {
 
   if (!employee) return null;
 
+  const isDwece = user?.role === 'dwece';
+
   return (
     <div className="min-h-screen bg-[#dce9f7] font-sans">
       <ProfileActionBar
         onEdit={() => navigate(`/personnel-profile?edit=${employee._id}`)}
-        onDeactivate={handleDeactivate}
-        onDelete={handleDelete}
+        onDeactivate={isDwece && !userDeactivated ? handleDeactivate : undefined}
+        onActivate={isDwece && userDeactivated ? handleActivate : undefined}
+        onDelete={isDwece ? handleDelete : undefined}
         onViewReport={handleViewReport}
         onAssignTask={() => setActiveSection(activeSection === 'assignTask' ? null : 'assignTask')}
         onTaskSummary={() => setActiveSection(activeSection === 'taskSummary' ? null : 'taskSummary')}
@@ -246,6 +291,10 @@ export default function EmployeeProfile() {
                   ))}
                 </div>
                 <button onClick={() => {
+                  if (tasks.some(t => t.task.startsWith('New task for'))) {
+                    toast.error('Please edit the pending task first');
+                    return;
+                  }
                   const name = `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || 'Employee';
                   setTasks(prev => [...prev, {
                     task: `New task for ${name}`,
@@ -253,7 +302,6 @@ export default function EmployeeProfile() {
                     priority: 'Low',
                     done: false,
                   }]);
-                  toast.success('Task added');
                 }} className="flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline">
                   <Plus size={12} /> Add Task
                 </button>

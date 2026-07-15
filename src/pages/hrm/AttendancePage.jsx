@@ -114,7 +114,7 @@ export default function AttendancePage() {
           </div>
         </div>
 
-        <DailyAttendanceTable onDataChange={handleDataChange} />
+        <DailyAttendanceTable onDataChange={handleDataChange} refreshKey={refreshKey} />
         <BottomInfoStrip pendingCount={pendingCount} />
       </div>
       <Footer />

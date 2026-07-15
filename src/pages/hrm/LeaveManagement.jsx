@@ -15,11 +15,14 @@ export default function LeaveManagement() {
   const [approvalQueue, setApprovalQueue] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [dateError, setDateError] = useState('');
   const [form, setForm] = useState({
     employeeName: '', employeeId: '', designation: '', department: '',
     type: 'Annual', startDate: '', endDate: '', durationDays: '',
     reason: '', urgency: 'Normal',
   });
+
+  const todayStr = new Date().toISOString().split('T')[0];
 
   const fetchAll = async () => {
     try {
@@ -44,8 +47,14 @@ export default function LeaveManagement() {
     if (form.startDate && form.endDate) {
       const s = new Date(form.startDate);
       const e = new Date(form.endDate);
-      const diff = Math.max(0, Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1);
-      setForm(f => ({ ...f, durationDays: String(diff) }));
+      if (e < s) {
+        setDateError('End date cannot be earlier than start date');
+        setForm(f => ({ ...f, durationDays: '-' }));
+      } else {
+        setDateError('');
+        const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
+        setForm(f => ({ ...f, durationDays: String(diff) }));
+      }
     }
   };
 
@@ -55,6 +64,22 @@ export default function LeaveManagement() {
     e.preventDefault();
     if (!form.employeeName.trim()) {
       toast.error('Employee name is required');
+      return;
+    }
+    if (/^\d+$/.test(form.employeeName.trim())) {
+      toast.error('Employee name cannot be only numbers');
+      return;
+    }
+    if (!form.employeeId.trim()) {
+      toast.error('Employee ID is required');
+      return;
+    }
+    if (!form.startDate || form.startDate < todayStr) {
+      toast.error('Start date cannot be in the past');
+      return;
+    }
+    if (!form.endDate || form.endDate < form.startDate) {
+      toast.error('End date must be on or after start date');
       return;
     }
     setSubmitting(true);
@@ -114,11 +139,14 @@ export default function LeaveManagement() {
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Employee Name *</label>
                   <input required value={form.employeeName} onChange={e => setForm({...form, employeeName: e.target.value})}
-                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
+                    className={`w-full text-xs border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 ${/^\d+$/.test(form.employeeName.trim()) ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+                  {/^\d+$/.test(form.employeeName.trim()) && (
+                    <p className="text-[10px] text-red-500 mt-0.5">Numeric values are not allowed</p>
+                  )}
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID</label>
-                  <input value={form.employeeId} onChange={e => setForm({...form, employeeId: e.target.value})}
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID *</label>
+                  <input required value={form.employeeId} onChange={e => setForm({...form, employeeId: e.target.value})}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
               </div>
@@ -147,15 +175,18 @@ export default function LeaveManagement() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Start Date *</label>
-                  <input type="date" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})}
+                  <input type="date" required min={todayStr} value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">End Date *</label>
-                  <input type="date" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})}
+                  <input type="date" required min={form.startDate || todayStr} value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})}
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
               </div>
+              {dateError && (
+                <p className="text-[11px] text-red-500 font-medium">{dateError}</p>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Duration (Days)</label>

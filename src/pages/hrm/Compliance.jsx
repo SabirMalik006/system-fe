@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import ComplianceHeader from "../../components/hrm/compliance/ComplianceHeader";
 import ComplianceFilters from "../../components/hrm/compliance/ComplianceFilters";
 import RecentIncidentsTable from "../../components/hrm/compliance/RecentIncidentsTable";
@@ -7,6 +7,7 @@ import IncidentCharts from "../../components/hrm/compliance/IncidentCharts";
 import IncidentRecordForm from "../../components/hrm/compliance/IncidentRecordForm";
 
 export default function Compliance() {
+  const formRef = useRef(null);
   const [filterValues, setFilterValues] = useState({
     search: '',
     incidentType: '',
@@ -32,7 +33,7 @@ export default function Compliance() {
   return (
     <div className="min-h-screen bg-[#EEF4FB] font-sans">
       <div className="max-w-[2560px] mx-auto px-5 py-5 flex flex-col gap-4">
-        <ComplianceHeader />
+        <ComplianceHeader onNewIncident={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
         <ComplianceFilters onChange={handleFilterChange} />
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <div className="xl:col-span-2 flex flex-col gap-4">
@@ -44,7 +45,7 @@ export default function Compliance() {
             <IncidentStatCards refreshKey={refreshKey} />
             <IncidentCharts refreshKey={refreshKey} />
           </div>
-          <div className="xl:col-span-1">
+          <div className="xl:col-span-1" ref={formRef}>
             <IncidentRecordForm
               editId={editId}
               onSuccess={handleFormSuccess}

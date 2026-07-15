@@ -19,7 +19,7 @@ const typeStyle = {
 
 const HEADERS = ["Employee","ID","Designation","Department","Unit","Shift","Clock In","Clock Out","Work Hrs","Status","Type","Joined","Actions"];
 
-export default function DailyAttendanceTable({ onDataChange }) {
+export default function DailyAttendanceTable({ onDataChange, refreshKey }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -66,7 +66,7 @@ export default function DailyAttendanceTable({ onDataChange }) {
     return () => clearTimeout(timer);
   }, [search]);
   useEffect(() => { setPage(1); }, [debouncedSearch, statusFilter, shiftFilter, dateFilter]);
-  useEffect(() => { fetchRecords(); }, [page, debouncedSearch, statusFilter, shiftFilter, dateFilter]);
+  useEffect(() => { fetchRecords(); }, [page, debouncedSearch, statusFilter, shiftFilter, dateFilter, refreshKey]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

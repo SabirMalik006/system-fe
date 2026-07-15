@@ -1,7 +1,7 @@
 import React from 'react';
-import { FileText, Target, ClipboardList, Mail, Edit, Trash2, UserX } from 'lucide-react';
+import { FileText, Target, ClipboardList, Mail, Edit, Trash2, UserX, UserCheck } from 'lucide-react';
 
-export default function ProfileActionBar({ onEdit, onDeactivate, onDelete, onViewReport, onAssignTask, onTaskSummary, onSendMessage }) {
+export default function ProfileActionBar({ onEdit, onDeactivate, onActivate, onDelete, onViewReport, onAssignTask, onTaskSummary, onSendMessage }) {
   const actions = [
     { icon: FileText, label: 'View Report', onClick: onViewReport },
     { icon: Target, label: 'Assign Tasks', onClick: onAssignTask },
@@ -32,6 +32,15 @@ export default function ProfileActionBar({ onEdit, onDeactivate, onDelete, onVie
           </button>
         );
       })}
+      {onActivate && (
+        <button
+          onClick={onActivate}
+          className="flex items-center gap-2.5 px-8 py-3 rounded-sm text-sm font-semibold transition-colors border border-green-400 text-green-300 hover:bg-green-400/10"
+        >
+          <UserCheck size={14} />
+          Activate
+        </button>
+      )}
       {onDeactivate && (
         <button
           onClick={onDeactivate}
