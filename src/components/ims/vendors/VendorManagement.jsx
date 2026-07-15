@@ -5,7 +5,6 @@ import VendorStats from "./VendorStats";
 import VendorTable from "./VendorTable";
 import VendorPerformance from "./VendorPerformance";
 import Footer from "../../common/fotter";
-import VendorProfilePanel from "./VendorProfilePanel";
 import { vendorsAPI } from "../../../services/api";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -14,9 +13,7 @@ const VendorManagement = () => {
   const [showAddVendor, setShowAddVendor] = useState(false);
   const [showEditVendor, setShowEditVendor] = useState(false);
   const [showDeleteVendor, setShowDeleteVendor] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState(null);
   const [vendorToEdit, setVendorToEdit] = useState(null);
-  const [showProfilePanel, setShowProfilePanel] = useState(false);
 
   // API states
   const [vendors, setVendors] = useState([]);
@@ -40,7 +37,6 @@ const VendorManagement = () => {
   });
 
   const modalRef = useRef(null);
-  const panelRef = useRef(null);
 
   const fetchVendors = async (page = pagination.page) => {
     try {
@@ -87,34 +83,6 @@ const VendorManagement = () => {
       document.body.style.overflow = "unset";
     };
   }, [showAddVendor, showEditVendor, showDeleteVendor]);
-
-  // Close profile panel when clicking outside
-  useEffect(() => {
-    const handleClickOutsidePanel = (event) => {
-      if (panelRef.current && !panelRef.current.contains(event.target)) {
-        setShowProfilePanel(false);
-        setSelectedVendor(null);
-      }
-    };
-
-    if (showProfilePanel) {
-      document.addEventListener("mousedown", handleClickOutsidePanel);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutsidePanel);
-    };
-  }, [showProfilePanel]);
-
-  const handleVendorClick = (vendor) => {
-    setSelectedVendor(vendor);
-    setShowProfilePanel(true);
-  };
-
-  const handleClosePanel = () => {
-    setShowProfilePanel(false);
-    setSelectedVendor(null);
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -311,7 +279,6 @@ const VendorManagement = () => {
               ) : (
                 <VendorTable
                   vendors={vendors}
-                  onVendorClick={handleVendorClick}
                   onEdit={handleOpenEdit}
                   onDelete={handleOpenDelete}
                 />
@@ -359,18 +326,6 @@ const VendorManagement = () => {
       </div>
 
       <Footer />
-
-      {/* Vendor Profile Panel */}
-      {showProfilePanel && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div ref={panelRef}>
-            <VendorProfilePanel
-              onClose={handleClosePanel}
-              vendor={selectedVendor}
-            />
-          </div>
-        </div>
-      )}
 
       {/* ADD NEW VENDOR MODAL */}
       {showAddVendor && (
