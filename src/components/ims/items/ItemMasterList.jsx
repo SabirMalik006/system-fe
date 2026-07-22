@@ -285,9 +285,9 @@ const ItemMasterList = () => {
     };
 
     return (
-        <div className="bg-[#E8F4FF] min-h-screen">
+        <div className="bg-[#E8F4FF] min-h-screen flex flex-col justify-between">
             <Toaster position="top-right" />
-            <div className="max-w-[2560px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <div className="max-w-[2560px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 flex-1">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Item Master List</h1>
@@ -372,7 +372,9 @@ const ItemMasterList = () => {
                     />
                 </div>
 
-            <StatsCircles />
+                <StatsCircles />
+            </div>
+
             <Footer />
 
             {/* ==================== CREATE MODAL ==================== */}
@@ -852,7 +854,6 @@ const ItemMasterList = () => {
                     </div>
                 </div>
             )}
-        </div>
         </div>
     );
 };
