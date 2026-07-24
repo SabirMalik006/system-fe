@@ -57,7 +57,7 @@ export default function PersonnelProfile() {
         } else {
           toast.success(editId ? 'Employee updated' : 'Employee created');
         }
-        navigate('/department');
+        navigate('/personnel');
       } else {
         toast.error(res.data.error || 'Operation failed');
       }
@@ -74,7 +74,7 @@ export default function PersonnelProfile() {
         loading={loading}
         onSaveDraft={() => handleSave('Draft')}
         onSubmit={() => handleSave()}
-        onCancel={() => navigate('/department')}
+        onCancel={() => navigate('/personnel')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col gap-4">
         <SystemIdentifier value={form.employeeId} onChange={(v) => update('employeeId', v)} />

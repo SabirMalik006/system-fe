@@ -64,7 +64,7 @@ export default function QuickTransferHistory({ refreshKey }) {
           <thead>
             <tr className="bg-[#274c77] text-white">
               {['ORDER ID', 'EMPLOYEE', 'FROM → TO', 'STATUS'].map(h => (
-                <th key={h} className="text-left py-3 px-4 text-[10px] font-bold tracking-wider uppercase">{h}</th>
+                <th key={h} className="text-left py-3 px-4 text-[10px] md:text-xs font-bold tracking-wider uppercase">{h}</th>
               ))}
             </tr>
           </thead>
@@ -83,7 +83,7 @@ export default function QuickTransferHistory({ refreshKey }) {
                     className={`border-b border-gray-100 transition-colors ${isHighlight ? 'bg-[#3b82f6] text-white' : ''}`}
                   >
                     <td className="py-3 px-4">
-                      <span className={`text-xs ${isHighlight ? 'text-blue-100' : 'text-gray-500'}`}>{row.id}</span>
+                      <span className={`text-xs md:text-sm ${isHighlight ? 'text-blue-100' : 'text-gray-500'}`}>{row.id}</span>
                     </td>
                     <td className="py-3 px-4">
                       <span className={`text-sm font-bold ${isHighlight ? 'text-white' : 'text-gray-900'}`}>{row.employee}</span>
@@ -92,7 +92,7 @@ export default function QuickTransferHistory({ refreshKey }) {
                       <span className={`text-xs font-semibold ${isHighlight ? 'text-white' : 'text-gray-800'}`}>{row.from} → {row.to}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`text-[9px] font-bold px-2 py-1 rounded tracking-wider ${statusStyles[sKey] || statusStyles.draft}`}>
+                      <span className={`text-[9px] md:text-xs font-bold px-2 py-1 rounded tracking-wider ${statusStyles[sKey] || statusStyles.draft}`}>
                         {row.statusLabel || row.status?.toUpperCase()}
                       </span>
                     </td>
@@ -105,22 +105,22 @@ export default function QuickTransferHistory({ refreshKey }) {
       </div>
 
       <div className="flex items-center justify-between mt-auto p-4 border-t border-gray-100">
-        <span className="text-[11px] font-medium text-gray-500">
+        <span className="text-[11px] md:text-xs font-medium text-gray-500">
           Showing {paginated.length} of {filtered.length}
         </span>
         <div className="flex items-center gap-1">
           <button
             onClick={handlePrev}
             disabled={page <= 1}
-            className="px-3 py-1 bg-[#274c77] rounded text-white text-[11px] font-semibold hover:bg-blue-800 transition-colors disabled:opacity-40"
+            className="px-3 py-1 bg-[#274c77] rounded text-white text-[11px] md:text-xs font-semibold hover:bg-blue-800 transition-colors disabled:opacity-40"
           >
             Prev
           </button>
-          <span className="px-2 text-[11px] text-gray-500">{page} / {totalPages}</span>
+          <span className="px-2 text-[11px] md:text-xs text-gray-500">{page} / {totalPages}</span>
           <button
             onClick={handleNext}
             disabled={page >= totalPages}
-            className="px-3 py-1 bg-[#274c77] rounded text-white text-[11px] font-semibold hover:bg-blue-800 transition-colors disabled:opacity-40"
+            className="px-3 py-1 bg-[#274c77] rounded text-white text-[11px] md:text-xs font-semibold hover:bg-blue-800 transition-colors disabled:opacity-40"
           >
             Next
           </button>

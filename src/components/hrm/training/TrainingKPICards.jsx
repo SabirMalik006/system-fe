@@ -39,25 +39,25 @@ export default function TrainingKPICards({ data, loading }) {
                 : 'border-l-[#2563EB]'
           }`}
         >
-          <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
+          <div className="text-[11px] md:text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
             {card.label}
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-2xl md:text-3xl font-bold text-gray-900">
               {card.value}
             </div>
             {card.badge && (
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${card.badge.style}`}>
+              <span className={`text-[11px] md:text-xs font-bold px-2 py-0.5 rounded ${card.badge.style}`}>
                 {card.badge.text}
               </span>
             )}
             {card.suffix && (
-              <span className="text-sm text-gray-400 font-medium">
+              <span className="text-xs md:text-sm text-gray-400 font-medium">
                 {card.suffix}
               </span>
             )}
           </div>
-          <div className="text-[11px] text-gray-400">
+          <div className="text-[11px] md:text-xs text-gray-400">
             {card.sub}
           </div>
         </div>

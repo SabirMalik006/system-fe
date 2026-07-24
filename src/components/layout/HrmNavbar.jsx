@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const allNavLinks = [
   { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false, icon: LayoutDashboard },
-  { label: 'Personnel', path: '/department', hasDropdown: false, icon: Users },
+  { label: 'Personnel', path: '/personnel', hasDropdown: false, icon: Users },
   { label: 'Attendance', path: '/attendance', hasDropdown: false, icon: ClipboardCheck },
   { label: 'Leave', path: '/leave-management', hasDropdown: false, icon: CalendarDays },
   { label: 'Transfer and Training', path: null, hasDropdown: true, icon: ArrowRightLeft },
@@ -156,18 +156,20 @@ export default function HrmNavbar() {
           onClick={() => handleNavigation('/hrm-dashboard')}
           className="flex items-center gap-2 cursor-pointer"
         >
-          <div className="w-8 h-8 bg-blue-400 rounded-md flex items-center justify-center">
-            <Anchor size={16} className="text-white" />
+          <div className="w-7 lg:w-8 h-7 lg:h-8 bg-blue-400 rounded-md flex items-center justify-center">
+            <Anchor size={12} className="lg:hidden text-white" />
+            <Anchor size={16} className="hidden lg:block text-white" />
           </div>
-          <span className="text-white font-bold text-base tracking-wide">HRMS</span>
+          <span className="text-white font-bold text-xs lg:text-base tracking-wide">HRMS</span>
         </div>
 
         <div
           onClick={() => handleNavigation('/')}
-          className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-200 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg transition-all ml-1 cursor-pointer"
+          className="flex items-center gap-1 lg:gap-1.5 text-[9px] lg:text-[10px] font-semibold text-blue-200 hover:text-white bg-white/5 hover:bg-white/10 px-1.5 lg:px-2.5 py-1 rounded-lg transition-all ml-1 cursor-pointer"
           title="Home"
         >
-          <Home size={14} />
+          <Home size={10} className="lg:hidden" />
+          <Home size={14} className="hidden lg:block" />
           <span className="hidden lg:inline">Home</span>
         </div>
       </div>
@@ -188,16 +190,18 @@ export default function HrmNavbar() {
                 className="relative"
               >
                 <div
-                  className={`flex items-center gap-1 px-3 py-1.5 text-sm transition-colors rounded-sm cursor-pointer ${
+                  className={`flex items-center gap-1 px-2 xl:px-3 py-1.5 text-[9px] xl:text-[10px] transition-colors rounded-sm cursor-pointer ${
                     active
                       ? 'text-white font-semibold border-b-2 border-white'
                       : 'text-blue-200 hover:text-white'
                   }`}
                   style={active ? { borderRadius: 0 } : {}}
                 >
-                  <link.icon size={14} className="text-white flex-shrink-0" />
+                  <link.icon size={10} className="xl:hidden text-white flex-shrink-0" />
+                  <link.icon size={14} className="hidden xl:block text-white flex-shrink-0" />
                   {link.label}
-                  <ChevronDown size={10} className={`mt-0.5 transition-transform duration-200 ${isDevelopmentOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={8} className={`xl:hidden mt-0.5 transition-transform duration-200 ${isDevelopmentOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={10} className={`hidden xl:block mt-0.5 transition-transform duration-200 ${isDevelopmentOpen ? 'rotate-180' : ''}`} />
                 </div>
 
                 {isDevelopmentOpen && (
@@ -232,14 +236,15 @@ export default function HrmNavbar() {
             <div
               key={link.label}
               onClick={() => handleNavigation(link.path)}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm transition-colors rounded-sm cursor-pointer ${
+              className={`flex items-center gap-1 px-2 xl:px-3 py-1.5 text-xs xl:text-sm transition-colors rounded-sm cursor-pointer ${
                 active
                   ? 'text-white font-semibold border-b-2 border-white'
                   : 'text-blue-200 hover:text-white'
               }`}
               style={active ? { borderRadius: 0 } : {}}
             >
-              <link.icon size={14} className="text-white flex-shrink-0" />
+              <link.icon size={12} className="xl:hidden text-white flex-shrink-0" />
+              <link.icon size={14} className="hidden xl:block text-white flex-shrink-0" />
               {link.label}
             </div>
           );
@@ -247,10 +252,10 @@ export default function HrmNavbar() {
       </div>
 
       {/* Search */}
-      <div className="hidden lg:flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 w-52">
+      <div className="hidden lg:flex items-center gap-2 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 w-36 xl:w-52">
         <Search size={13} className="text-blue-200 flex-shrink-0" />
         <input
-          placeholder="Search employees, reports..."
+          placeholder="Search"
           className="bg-transparent text-xs text-white outline-none w-full placeholder-blue-300"
         />
       </div>
@@ -259,9 +264,10 @@ export default function HrmNavbar() {
       <div className="relative hidden lg:block" ref={notifPanelRef}>
         <button
           onClick={toggleNotifPanel}
-          className="relative p-2 ml-1 cursor-pointer"
+          className="relative p-1.5 lg:p-2 ml-1 cursor-pointer"
         >
-          <Bell size={17} className="text-blue-200" />
+          <Bell size={14} className="lg:hidden text-blue-200" />
+          <Bell size={17} className="hidden lg:block text-blue-200" />
           {notifNewCount > 0 && (
             <span className="absolute top-1 right-1 w-2 h-2 bg-[#EF4444] rounded-full border border-[#0B4E89]" />
           )}
@@ -326,10 +332,10 @@ export default function HrmNavbar() {
           className="flex items-center gap-2 ml-1 cursor-pointer"
         >
           <div className="text-right">
-            <div className="text-white text-xs font-bold leading-none">{user?.name || 'User'}</div>
-            <div className="text-blue-200 text-[10px] uppercase leading-tight">{user?.role?.replace('_', ' ') || ''}</div>
+            <div className="text-white text-[10px] lg:text-xs font-bold leading-none">{user?.name || 'User'}</div>
+            <div className="text-blue-200 text-[9px] lg:text-[10px] uppercase leading-tight">{user?.role?.replace('_', ' ') || ''}</div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-blue-300 flex items-center justify-center text-xs font-bold text-blue-900 relative">
+          <div className="w-7 lg:w-8 h-7 lg:h-8 rounded-full bg-blue-300 flex items-center justify-center text-[9px] lg:text-xs font-bold text-blue-900 relative">
             {user?.name?.charAt(0) || 'U'}
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border border-[#0B4E89]" />
           </div>

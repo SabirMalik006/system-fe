@@ -240,7 +240,7 @@ function AppRoutes() {
           <HRMLayout><HrmDashboard /></HRMLayout>
         </ProtectedRoute>
       } />
-      <Route path="/department" element={
+      <Route path="/personnel" element={
         <ProtectedRoute>
           <HRMLayout><Department /></HRMLayout>
         </ProtectedRoute>

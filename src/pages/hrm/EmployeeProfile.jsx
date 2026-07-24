@@ -161,7 +161,7 @@ export default function EmployeeProfile() {
         try {
           await employeeAPI.deleteWithAccount(employee._id);
           toast.success('Employee and account deleted');
-          navigate('/department');
+          navigate('/personnel');
         } catch (err) {
           toast.error(err.response?.data?.error || 'Failed to delete');
         }
@@ -200,7 +200,7 @@ export default function EmployeeProfile() {
           <div className="text-4xl mb-4 text-gray-300">!</div>
           <h2 className="text-xl font-bold text-gray-800 mb-2">Employee Profile</h2>
           <p className="text-gray-500 mb-6">{error}</p>
-          <Link to="/department" className="inline-block px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+          <Link to="/personnel" className="inline-block px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
             Back to Department
           </Link>
         </div>

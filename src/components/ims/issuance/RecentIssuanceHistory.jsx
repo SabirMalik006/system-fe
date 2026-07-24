@@ -10,11 +10,14 @@ import {
   Loader2,
   AlertCircle,
   Eye,
+  Edit3,
   Trash2,
   FileText,
+  XCircle,
 } from "lucide-react";
 import { stockOutAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function RecentIssuanceHistory() {
   const [transactions, setTransactions] = useState([]);
@@ -27,8 +30,12 @@ export default function RecentIssuanceHistory() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [openMenuId, setOpenMenuId] = useState(null);
   const [viewModalRow, setViewModalRow] = useState(null);
+  const [editModalRow, setEditModalRow] = useState(null);
+  const [editForm, setEditForm] = useState({ itemName: '', quantity: 0, issuedTo: '', department: '', notes: '' });
+  const [saving, setSaving] = useState(false);
   const [deleteConfirmRow, setDeleteConfirmRow] = useState(null);
   const menuRef = useRef(null);
+  const { user } = useAuth();
 
   const closeMenu = useCallback(() => setOpenMenuId(null), []);
 
@@ -130,6 +137,38 @@ Generated on: ${new Date().toLocaleString()}
       console.error("Failed to delete:", err);
       setDeleteConfirmRow(null);
       toast.error("Failed to delete transaction.");
+    }
+  };
+
+  const handleEditClick = (row) => {
+    setEditForm({
+      itemName: row.item || '',
+      quantity: parseInt(row.qty) || 0,
+      issuedTo: row.officer || '',
+      department: row.dept || '',
+      notes: ''
+    });
+    setEditModalRow(row);
+    setOpenMenuId(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSave = async () => {
+    if (!editModalRow) return;
+    setSaving(true);
+    try {
+      await stockOutAPI.updateStockOut(editModalRow._mongoId, editForm);
+      toast.success("Transaction updated successfully");
+      setEditModalRow(null);
+      fetchTransactions();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update transaction");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -287,6 +326,13 @@ Generated on: ${new Date().toLocaleString()}
                       <td className="py-5 px-2">
                         <div className="flex items-center gap-2 relative">
                           <button
+                            onClick={() => setViewModalRow(row)}
+                            title="View Details"
+                            className="p-1 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button
                             onClick={() => handleDownloadReceipt(row)}
                             title="Download Receipt"
                             className="p-1 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
@@ -304,16 +350,15 @@ Generated on: ${new Date().toLocaleString()}
                             </button>
                             {openMenuId === row.id && (
                               <div className="absolute right-0 top-full mt-1 z-50 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1">
-                                <button
-                                  onClick={() => {
-                                    setViewModalRow(row);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                  <Eye size={13} className="text-blue-500" />
-                                  View Details
-                                </button>
+                                {['dwece', 'cmes', 'ages_ges'].includes(user?.role) && (
+                                  <button
+                                    onClick={() => handleEditClick(row)}
+                                    className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                                  >
+                                    <Edit3 size={13} className="text-indigo-500" />
+                                    Edit
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => {
                                     handleDownloadReceipt(row);
@@ -465,6 +510,64 @@ Generated on: ${new Date().toLocaleString()}
                 className="px-4 py-2 text-xs font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editModalRow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEditModalRow(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 bg-indigo-600">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Edit3 size={13} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-white">Edit Transaction</h3>
+                  <p className="text-[9px] text-indigo-200">{editModalRow.id}</p>
+                </div>
+              </div>
+              <button onClick={() => setEditModalRow(null)} className="p-1 hover:bg-white/10 rounded-lg text-indigo-200 transition-colors">
+                <XCircle size={14} />
+              </button>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">Item Name</label>
+                <input name="itemName" value={editForm.itemName} onChange={handleEditChange}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-400" />
+              </div>
+              <div>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">Quantity</label>
+                <input name="quantity" type="number" value={editForm.quantity} onChange={handleEditChange}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-400" />
+              </div>
+              <div>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">Requesting Officer</label>
+                <input name="issuedTo" value={editForm.issuedTo} onChange={handleEditChange}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-400" />
+              </div>
+              <div>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">Department</label>
+                <input name="department" value={editForm.department} onChange={handleEditChange}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-400" />
+              </div>
+              <div>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">Notes</label>
+                <textarea name="notes" value={editForm.notes} onChange={handleEditChange} rows={2}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-400 resize-none" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-5 py-3 border-t border-gray-100 bg-gray-50">
+              <button onClick={() => setEditModalRow(null)}
+                className="px-4 py-1.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleEditSave} disabled={saving}
+                className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

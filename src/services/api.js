@@ -159,6 +159,7 @@ export const stockOutAPI = {
   approveStockOut: (id) => api.put(`/stockout/approve/${id}`),
   rejectStockOut: (id, reason) => api.put(`/stockout/reject/${id}`, { reason }),
   getSummary: () => api.get('/stockout/summary'),
+  updateStockOut: (id, data) => api.put(`/stockout/${id}`, data),
   deleteTransaction: (id) => api.delete(`/stockout/transactions/${id}`),
 };
 

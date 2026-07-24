@@ -39,7 +39,7 @@ export default function TrainingHeader({ onRefresh }) {
     <>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-base font-black text-gray-900 leading-tight">
+          <h1 className="text-sm md:text-base lg:text-lg font-black text-gray-900 leading-tight">
             Training Management
           </h1>
         </div>

@@ -188,12 +188,6 @@ export default function VendorPerformanceSection() {
     toast.success("Full report downloaded");
   };
 
-  const vendorCategories = [
-    { name: "Hardware", pct: 45, color: "#1a4fa0" },
-    { name: "Electrical", pct: 30, color: "#0f172a" },
-    { name: "Sanitary", pct: 25, color: "#2ec4b6" },
-  ];
-
   if (loading || error) {
     return (
       <GraphContainer
@@ -271,7 +265,7 @@ export default function VendorPerformanceSection() {
                   </div>
                   <div className="flex items-baseline gap-1 mt-1">
                     <span className="text-2xl font-black text-gray-900">
-                      2.1<span className="text-sm font-bold">d</span>
+                      {(performance.vendors[1].leadTime ?? '2.1')}<span className="text-sm font-bold">d</span>
                     </span>
                     <span className="text-[10px] text-gray-400">
                       AVG. LEAD TIME
@@ -363,7 +357,7 @@ export default function VendorPerformanceSection() {
             Top Vendor Categories
           </h3>
           <div className="flex flex-col gap-2.5">
-            {vendorCategories.map((cat, i) => (
+            {(performance.categoryDistribution || []).map((cat, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span

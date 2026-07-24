@@ -29,10 +29,10 @@ export default function ParticipantTracking({ participants, pagination, onRefres
         <div>
           <h2 className="text-sm font-bold text-white">Participant Tracking</h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[9px] font-bold bg-white/15 text-white px-2 py-0.5 rounded">
+            <span className="text-[9px] md:text-xs font-bold bg-white/15 text-white px-2 py-0.5 rounded">
               {pagination?.total || 0} Total
             </span>
-            <span className="text-[9px] font-bold bg-white/15 text-white px-2 py-0.5 rounded">
+            <span className="text-[9px] md:text-xs font-bold bg-white/15 text-white px-2 py-0.5 rounded">
               {participants?.filter(p => p.progress > 0 && p.progress < 100).length || 0} Active
             </span>
           </div>
@@ -53,14 +53,14 @@ export default function ParticipantTracking({ participants, pagination, onRefres
                 toast.error('Export failed');
               }
             }}
-            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors"
           >
             <Download size={12} />
             Export CSV
           </button>
           <button
             onClick={() => toast.success('Add participant form would open')}
-            className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-lg transition-colors"
           >
             <UserPlus size={12} />
             Add Participant
@@ -94,7 +94,7 @@ export default function ParticipantTracking({ participants, pagination, onRefres
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
               {['Employee', 'Department', 'Institute', 'Program', 'Start Date', 'Planned End', 'Result', 'Score', 'Start Test', 'Test Status', 'Actions'].map(h => (
-                <th key={h} className="text-left px-3 py-2.5 text-[12px] font-bold text-gray-900 tracking-wider whitespace-nowrap">{h}</th>
+                <th key={h} className="text-left px-3 py-2.5 text-xs md:text-sm font-bold text-gray-900 tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
@@ -110,27 +110,27 @@ export default function ParticipantTracking({ participants, pagination, onRefres
                         {p.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '?'}
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-gray-900 leading-tight whitespace-nowrap">{p.name}</div>
-                        <div className="text-[9px] text-gray-400">{p.empId}</div>
+                        <div className="text-xs md:text-sm font-semibold text-gray-900 leading-tight whitespace-nowrap">{p.name}</div>
+                        <div className="text-[9px] md:text-xs text-gray-400">{p.empId}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-[11px] text-gray-600">{p.department || '—'}</td>
-                  <td className="px-3 py-3 text-[11px] text-gray-600">{p.institute || '—'}</td>
-                  <td className="px-3 py-3 text-[11px] text-gray-600">{p.program || '—'}</td>
-                  <td className="px-3 py-3 text-[11px] text-gray-600 whitespace-nowrap">{p.startDate ? new Date(p.startDate).toLocaleDateString('en-GB') : '—'}</td>
-                  <td className="px-3 py-3 text-[11px] text-gray-600 whitespace-nowrap">{p.endDate ? new Date(p.endDate).toLocaleDateString('en-GB') : '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs text-gray-600">{p.department || '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs text-gray-600">{p.institute || '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs text-gray-600">{p.program || '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs text-gray-600 whitespace-nowrap">{p.startDate ? new Date(p.startDate).toLocaleDateString('en-GB') : '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs text-gray-600 whitespace-nowrap">{p.endDate ? new Date(p.endDate).toLocaleDateString('en-GB') : '—'}</td>
                   <td className="px-3 py-3">
                     {p.result && (
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${resultStyles[p.result] || 'bg-gray-100 text-gray-600'}`}>{p.result}</span>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-[11px] font-bold text-gray-800">{p.score ?? '—'}</td>
+                  <td className="px-3 py-3 text-[11px] md:text-xs font-bold text-gray-800">{p.score ?? '—'}</td>
                   <td className="px-3 py-3">
                     <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-blue-600" style={{ width: `${p.progress || 0}%` }} />
                     </div>
-                    <div className="text-[9px] text-gray-400 mt-0.5">{p.progress || 0}%</div>
+                    <div className="text-[9px] md:text-xs text-gray-400 mt-0.5">{p.progress || 0}%</div>
                   </td>
                   <td className="px-3 py-3">
                     <button
@@ -156,7 +156,7 @@ export default function ParticipantTracking({ participants, pagination, onRefres
       </div>
 
       <div className="bg-white flex items-center justify-between px-5 py-3 border-t border-gray-100 rounded-b-2xl">
-        <span className="text-[10px] text-gray-400">
+        <span className="text-[10px] md:text-xs text-gray-400">
           Showing 1–{Math.min(10, pagination?.total || 0)} of {pagination?.total || 0} records
         </span>
         <div className="flex items-center gap-1">

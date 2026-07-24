@@ -47,10 +47,10 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
       <div className="bg-white rounded-2xl border-2 border-[#2478B5] shadow-sm p-4">
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="text-[13px] font-bold text-gray-900 leading-tight">
+            <h3 className="text-xs md:text-sm font-bold text-gray-900 leading-tight">
               Training Completion Trend
             </h3>
-            <p className="text-[10px] text-gray-400 mt-0.5">
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5">
               Monthly enrolled vs completed {new Date().getFullYear()}
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
               <svg width="16" height="6">
                 <line x1="0" y1="3" x2="16" y2="3" stroke={l.color} strokeWidth={l.dashed ? 1.5 : 2} strokeDasharray={l.dashed ? '4 3' : undefined} />
               </svg>
-              <span className="text-[9px] text-gray-400">{l.label}</span>
+              <span className="text-[9px] md:text-xs text-gray-400">{l.label}</span>
             </div>
           ))}
         </div>
@@ -99,8 +99,8 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
 
       {/* Enrollment Status */}
       <div className="bg-white rounded-2xl border-3 border-[#1E60AF] shadow-sm p-5">
-        <h3 className="text-[13px] font-bold text-gray-900 leading-tight">Enrollment Status</h3>
-        <p className="text-[10px] text-gray-400 mb-5">
+        <h3 className="text-xs md:text-sm font-bold text-gray-900 leading-tight">Enrollment Status</h3>
+        <p className="text-[10px] md:text-xs text-gray-400 mb-5">
           All programs {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
         </p>
 
@@ -124,8 +124,8 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
               </Pie>
             </PieChart>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[22px] font-black text-gray-900 leading-none">{completionPct}%</span>
-              <span className="text-[9px] text-gray-400 mt-0.5">Completion</span>
+              <span className="text-lg md:text-2xl font-black text-gray-900 leading-none">{completionPct}%</span>
+              <span className="text-[9px] md:text-xs text-gray-400 mt-0.5">Completion</span>
             </div>
           </div>
 
@@ -134,8 +134,8 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
               <div key={i} className="flex items-center gap-2 border-2 border-[#2478B5] p-2 rounded-md">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
                 <div>
-                  <p className="text-[10px] text-gray-400 leading-none mb-0.5">{d.name}</p>
-                  <p className="text-[18px] font-extrabold text-gray-900 leading-none">{d.value}</p>
+                  <p className="text-[10px] md:text-xs text-gray-400 leading-none mb-0.5">{d.name}</p>
+                  <p className="text-sm md:text-lg font-extrabold text-gray-900 leading-none">{d.value}</p>
                 </div>
               </div>
             ))}
@@ -148,8 +148,8 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
         className="rounded-2xl border border-gray-100 shadow-sm p-4"
         style={{ background: 'linear-gradient(135deg, #1E4D7B, #1E4D7B)' }}
       >
-        <h3 className="text-[13px] font-bold text-white leading-tight">Programs by Category</h3>
-        <p className="text-[10px] text-blue-200 mb-4">Participant enrollment count</p>
+        <h3 className="text-xs md:text-sm font-bold text-white leading-tight">Programs by Category</h3>
+        <p className="text-[10px] md:text-xs text-blue-200 mb-4">Participant enrollment count</p>
 
         <div className="flex flex-col gap-3.5">
           {programsByCategory.length === 0 ? (
@@ -158,10 +158,10 @@ export default function TrainingTopCharts({ trendData, enrollmentData, categoryD
             programsByCategory.map((p, i) => (
               <div key={i}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] text-blue-100 font-medium leading-tight truncate pr-2">
+                  <span className="text-[11px] md:text-xs text-blue-100 font-medium leading-tight truncate pr-2">
                     {p.label}
                   </span>
-                  <span className="text-[11px] font-bold text-white flex-shrink-0">{p.count}</span>
+                  <span className="text-[11px] md:text-xs font-bold text-white flex-shrink-0">{p.count}</span>
                 </div>
                 <div className="h-1.5 bg-white rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: '#1A6FC4' }} />

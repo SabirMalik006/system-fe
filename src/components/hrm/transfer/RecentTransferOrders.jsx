@@ -45,7 +45,7 @@ export default function RecentTransferOrders({ refreshKey }) {
           <thead>
             <tr className="bg-[#274c77] text-white">
               {['EMPLOYEE DETAILS', 'CURRENT STATION', 'NEW POSTING', 'HARD AREA TRANSFER', 'RELEASE DATE', 'STATUS', 'ACTIONS'].map(h => (
-                <th key={h} className={`text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase ${h === 'STATUS' || h === 'ACTIONS' || h === 'HARD AREA TRANSFER' ? 'text-center' : ''}`}>
+                <th key={h} className={`text-left px-5 py-3 text-[10px] md:text-xs font-bold tracking-wider uppercase ${h === 'STATUS' || h === 'ACTIONS' || h === 'HARD AREA TRANSFER' ? 'text-center' : ''}`}>
                   {h}
                 </th>
               ))}
@@ -70,19 +70,19 @@ export default function RecentTransferOrders({ refreshKey }) {
                         >
                           {initials}
                         </div>
-                        <div className="text-[11px] font-semibold text-gray-500">
+                        <div className="text-[11px] md:text-xs font-semibold text-gray-500">
                           {row.employeeId || row.employeeName}
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="text-xs font-bold text-gray-900 leading-tight">{row.sourceUnit || '—'}</div>
+                      <div className="text-xs md:text-sm font-bold text-gray-900 leading-tight">{row.sourceUnit || '—'}</div>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="text-xs font-bold text-gray-900 leading-tight">{row.destinationUnit || '—'}</div>
+                      <div className="text-xs md:text-sm font-bold text-gray-900 leading-tight">{row.destinationUnit || '—'}</div>
                     </td>
                     <td className="px-5 py-4 text-center">
-                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full ${
+                      <span className={`text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full ${
                         row.hardAreaTransfer
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
@@ -90,11 +90,11 @@ export default function RecentTransferOrders({ refreshKey }) {
                         {row.hardAreaTransfer ? 'On' : 'Off'}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-xs font-bold text-gray-900 whitespace-nowrap">
+                    <td className="px-5 py-4 text-xs md:text-sm font-bold text-gray-900 whitespace-nowrap">
                       {row.effectiveDate || '—'}
                     </td>
                     <td className="px-5 py-4 text-center">
-                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full ${ss}`}>
+                      <span className={`text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full ${ss}`}>
                         {row.status}
                       </span>
                     </td>

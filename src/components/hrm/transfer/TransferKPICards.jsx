@@ -49,19 +49,19 @@ export default function TransferKPICards({ refreshKey }) {
       {cards.map((card, i) => (
         <div key={i} className={`${card.bg} rounded-xl p-5 text-white flex flex-col justify-between h-28 relative overflow-hidden shadow-md`}>
           <div>
-            <div className="text-[10px] font-bold tracking-widest text-[#a8c6e8] uppercase mb-1">
+            <div className="text-[10px] md:text-xs font-bold tracking-widest text-[#a8c6e8] uppercase mb-1">
               {card.label}
             </div>
-            <div className="text-3xl font-bold">{card.value}</div>
+            <div className="text-2xl md:text-3xl font-bold">{card.value}</div>
           </div>
           {card.trend && (
-            <div className={`absolute bottom-5 right-5 flex items-center gap-1 text-xs font-bold ${card.trendUp ? 'text-[#4cceac]' : 'text-red-400'}`}>
+            <div className={`absolute bottom-5 right-5 flex items-center gap-1 text-xs lg:text-sm font-bold ${card.trendUp ? 'text-[#4cceac]' : 'text-red-400'}`}>
               {card.trend}
               {card.trendUp && <ArrowUp size={12} strokeWidth={3} />}
             </div>
           )}
           {card.sub && (
-            <div className="absolute bottom-5 right-5 text-[10px] font-bold opacity-70 tracking-widest uppercase">
+            <div className="absolute bottom-5 right-5 text-[10px] md:text-xs font-bold opacity-70 tracking-widest uppercase">
               {card.sub}
             </div>
           )}

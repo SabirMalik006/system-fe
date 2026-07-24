@@ -12,12 +12,12 @@ const QuickInsightCard = ({ currentStock = 1250, safetyThreshold = 200 }) => {
             <div className="mb-4 z-2">
                 <div className="flex items-center justify-between text-sm mb-1">
                     <span className="">Current Stock:</span>
-                    <span className="font-medium z-1">1,260 Units</span>
+                    <span className="font-medium z-1">{currentStock.toLocaleString()} Units</span>
                     {/* <img src="/3.png" alt="" /> */}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                     <span className="">Safety Threshold:</span>
-                    <span className="font-medium z-1 ">200 Units</span>
+                    <span className="font-medium z-1 ">{safetyThreshold.toLocaleString()} Units</span>
                 </div>
             </div>
 

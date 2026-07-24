@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import QuickInsightCard from "./QuickInsightCard";
 import StatsCards from "./StatsCards";
 import RecentIssuances from "./RecentIssuances";
@@ -35,6 +36,8 @@ const StockOutEntry = () => {
     referenceId: "",
     notes: ""
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStats();
@@ -75,10 +78,10 @@ const StockOutEntry = () => {
         const transactions = response.data.transactions || [];
         // Format transactions for display
         const formatted = transactions.map(transaction => ({
-          issuedTo: transaction.issuedTo,
-          itemName: transaction.itemName,
-          transactionDate: transaction.transactionDate,
-          timeAgo: getTimeAgo(transaction.transactionDate)
+          issuedTo: transaction.officer,
+          itemName: transaction.item,
+          transactionDate: transaction.date,
+          timeAgo: getTimeAgo(transaction.date)
         }));
         setRecentIssuances(formatted);
       }
@@ -142,12 +145,8 @@ const StockOutEntry = () => {
       };
       const response = await stockOutAPI.createStockOut(payload);
       if (response.data.success) {
-        setCreatedTransaction(response.data.transaction);
         toast.success(response.data.message);
-        setShowSuccessModal(true);
-        // Refresh stats and recent issuances after creating new issuance
-        fetchStats();
-        fetchRecentIssuances();
+        navigate('/stock-issuance');
       }
     } catch (error) {
       console.error("Error creating stock out:", error);

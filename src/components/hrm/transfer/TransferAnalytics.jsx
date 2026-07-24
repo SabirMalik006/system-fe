@@ -81,7 +81,7 @@ export default function TransferAnalytics({ refreshKey }) {
             ].map(l => (
               <div key={l.label} className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-sm inline-block" style={{ background: l.color }} />
-                <span className="text-xs font-bold text-gray-800">{l.label}</span>
+                <span className="text-xs md:text-sm font-bold text-gray-800">{l.label}</span>
               </div>
             ))}
           </div>
@@ -101,8 +101,8 @@ export default function TransferAnalytics({ refreshKey }) {
                 margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                <XAxis dataKey="unit" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{stroke: '#cbd5e1'}} tickLine={false} tickMargin={10} />
-                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="unit" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{stroke: '#cbd5e1'}} tickLine={false} tickMargin={10} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
                 <Bar dataKey="incoming" name="Incoming" fill="#274c77" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="outgoing" name="Outgoing" fill="#1a73e8" radius={[4, 4, 0, 0]} />

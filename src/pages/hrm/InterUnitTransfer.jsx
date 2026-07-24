@@ -34,10 +34,10 @@ export default function InterUnitTransfer() {
       <div className="max-w-[1280px] mx-auto px-4 py-5 flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight leading-tight">
+            <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight leading-tight">
               Inter-Unit Transfer
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm md:text-base text-gray-500 mt-1">
               Manage and track personnel transfers across units and designations
             </p>
           </div>

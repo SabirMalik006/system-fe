@@ -33,7 +33,7 @@ export default function TrainingBottomSection({ scoreData, upcomingData, instruc
 
       {/* Score Distribution */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-800 mb-3">Score Distribution</h3>
+        <h3 className="text-xs md:text-sm font-bold text-gray-800 mb-3">Score Distribution</h3>
 
         <div className="flex flex-col gap-2 mb-4">
           {scoreDistData.length === 0 ? (
@@ -42,8 +42,8 @@ export default function TrainingBottomSection({ scoreData, upcomingData, instruc
             scoreDistData.map((r, i) => (
               <div key={i}>
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[10px] text-gray-500">{r.label}</span>
-                  <span className="text-[10px] font-bold text-gray-700">{r.count}</span>
+                  <span className="text-[10px] md:text-xs text-gray-500">{r.label}</span>
+                  <span className="text-[10px] md:text-xs font-bold text-gray-700">{r.count}</span>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full ${r.color}`} style={{ width: `${r.pct}%` }} />
@@ -55,23 +55,23 @@ export default function TrainingBottomSection({ scoreData, upcomingData, instruc
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="text-center">
-            <div className="text-lg font-black text-gray-900">{scoreData?.avgScore || '—'}</div>
-            <div className="text-[9px] text-gray-400">Avg Score</div>
+            <div className="text-base md:text-lg font-black text-gray-900">{scoreData?.avgScore || '—'}</div>
+            <div className="text-[9px] md:text-xs text-gray-400">Avg Score</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-black text-gray-900">{scoreData?.scoreRange || '—'}</div>
-            <div className="text-[9px] text-gray-400">Score Range</div>
+            <div className="text-base md:text-lg font-black text-gray-900">{scoreData?.scoreRange || '—'}</div>
+            <div className="text-[9px] md:text-xs text-gray-400">Score Range</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-black text-gray-900">{scoreData?.highest || '—'}</div>
-            <div className="text-[9px] text-gray-400">Highest</div>
+            <div className="text-base md:text-lg font-black text-gray-900">{scoreData?.highest || '—'}</div>
+            <div className="text-[9px] md:text-xs text-gray-400">Highest</div>
           </div>
         </div>
       </div>
 
       {/* Upcoming Schedule */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-800 mb-3">Upcoming Schedule</h3>
+        <h3 className="text-xs md:text-sm font-bold text-gray-800 mb-3">Upcoming Schedule</h3>
         <div className="flex flex-col gap-2.5">
           {upcoming.length === 0 ? (
             <p className="text-gray-400 text-xs">No upcoming programs</p>
@@ -93,7 +93,7 @@ export default function TrainingBottomSection({ scoreData, upcomingData, instruc
 
       {/* Active Instructors */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-800 mb-3">Active Instructors</h3>
+        <h3 className="text-xs md:text-sm font-bold text-gray-800 mb-3">Active Instructors</h3>
         <div className="flex flex-col gap-2.5">
           {instructors.length === 0 ? (
             <p className="text-gray-400 text-xs">No instructors found</p>

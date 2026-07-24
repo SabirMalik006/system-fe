@@ -13,6 +13,7 @@ import {
   Printer,
   CheckCircle,
   XCircle,
+  Eye,
 } from "lucide-react";
 import { stockInAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
@@ -49,6 +50,7 @@ export default function MasterSessionHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [viewTarget, setViewTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [rejectTarget, setRejectTarget] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -374,6 +376,13 @@ Generated on: ${new Date().toLocaleString()}
                       </td>
                       <td className="py-3.5 px-2">
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setViewTarget(row)}
+                            title="View Details"
+                            className="p-1 hover:bg-blue-50 text-blue-600 rounded transition-colors"
+                          >
+                            <Eye size={14} />
+                          </button>
                           {canApprove && row.status === 'PENDING' && (
                             <>
                               <button
@@ -487,6 +496,74 @@ Generated on: ${new Date().toLocaleString()}
         confirmText="Reject"
         variant="danger"
       />
+
+      {viewTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setViewTarget(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 bg-blue-600">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Eye size={13} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-white">Transaction Details</h3>
+                  <p className="text-[9px] text-blue-200">{viewTarget.id}</p>
+                </div>
+              </div>
+              <button onClick={() => setViewTarget(null)} className="p-1 hover:bg-white/10 rounded-lg text-blue-200 transition-colors">
+                <XCircle size={14} />
+              </button>
+            </div>
+
+            <div className="px-5 py-4">
+              <table className="w-full">
+                <tbody>
+                  {[
+                    { label: 'Item Name', value: viewTarget.itemName },
+                    { label: 'SKU', value: viewTarget.sku },
+                    { label: 'Quantity', value: viewTarget.qty, highlight: true },
+                    { label: 'Batch/Lot', value: viewTarget.batch },
+                    { label: 'Vendor', value: viewTarget.vendor },
+                    { label: 'P.O. #', value: viewTarget.po },
+                    { label: 'Warehouse', value: viewTarget.warehouse },
+                    { label: 'Timestamp', value: viewTarget.timestamp },
+                  ].map((f, i) => (
+                    <tr key={i} className={i % 2 === 0 ? 'bg-blue-50/40' : ''}>
+                      <td className="py-2 px-3 w-28">
+                        <span className="text-[10px] font-medium text-gray-500">{f.label}</span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <span className={`text-xs ${f.highlight ? 'font-bold text-blue-600' : 'font-semibold text-gray-900'}`}>
+                          {f.value || '—'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="py-2 px-3">
+                      <span className="text-[10px] font-medium text-gray-500">Status</span>
+                    </td>
+                    <td className="py-2 px-3">
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${statusStyles[viewTarget.status] || 'bg-gray-100 text-gray-600'}`}>
+                        {viewTarget.status || '—'}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end px-5 py-3 border-t border-gray-100">
+              <button
+                onClick={() => setViewTarget(null)}
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
