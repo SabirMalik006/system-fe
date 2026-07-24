@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, Edit, Trash2, ChevronLeft, ChevronRight, CheckCircle, Printer, Download } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ChevronLeft, ChevronRight, CheckCircle, Printer, Download, Mail, X } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { purchaseRequestAPI } from '../../../services/api';
 import ConfirmModal from '../../common/ConfirmModal';
@@ -34,6 +34,9 @@ export default function ProcurementRequestsTable() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [vendorEmail, setVendorEmail] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
   const limit = 8;
 
   useEffect(() => {
@@ -123,6 +126,21 @@ export default function ProcurementRequestsTable() {
     w.print();
   };
 
+  const handleSendPOEmail = async () => {
+    if (!vendorEmail.trim()) {
+      toast.error('Please enter vendor email address');
+      return;
+    }
+    setSendingEmail(true);
+    // Email sending will be implemented after SMTP setup
+    setTimeout(() => {
+      setSendingEmail(false);
+      setShowEmailModal(false);
+      setVendorEmail('');
+      toast.success('Purchase order email will be sent after email system setup');
+    }, 1000);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Toaster position="top-right" />
@@ -161,14 +179,16 @@ export default function ProcurementRequestsTable() {
                   <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Priority</th>
                   <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Amount</th>
                   <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Date</th>
+                  <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Reason</th>
+                  <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Remarks</th>
                   <th className="text-left py-2 px-2 text-[10px] font-semibold text-white tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={9} className="text-center py-10 text-gray-400">Loading...</td></tr>
+                  <tr><td colSpan={11} className="text-center py-10 text-gray-400">Loading...</td></tr>
                 ) : data.length === 0 ? (
-                  <tr><td colSpan={9} className="text-center py-10 text-gray-400">No requests found</td></tr>
+                  <tr><td colSpan={11} className="text-center py-10 text-gray-400">No requests found</td></tr>
                 ) : data.map((row) => (
                   <tr key={row._id} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="py-3 px-2 text-blue-500 font-semibold whitespace-nowrap">{row.requestId}</td>
@@ -181,6 +201,8 @@ export default function ProcurementRequestsTable() {
                     <td className="py-3 px-2 text-gray-600 whitespace-nowrap">{row.priority}</td>
                     <td className="py-3 px-2 text-[#196EE6] font-semibold whitespace-nowrap">Rs {row.total?.toFixed(0)}</td>
                     <td className="py-3 px-2 text-gray-400 whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString()}</td>
+                    <td className="py-3 px-2 text-gray-600 max-w-[160px] truncate" title={row.reason}>{row.reason || '—'}</td>
+                    <td className="py-3 px-2 text-gray-600 max-w-[160px] truncate" title={row.remarks}>{row.remarks || '—'}</td>
                     <td className="py-3 px-2">
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => handleView(row._id)} className="p-1 hover:bg-gray-100 rounded"><Eye size={12} className="text-black" /></button>
@@ -262,9 +284,16 @@ export default function ProcurementRequestsTable() {
                   </>
                 )}
                 {selected.status === 'Approved' && (
-                  <button onClick={() => handlePrintReceipt(selected)} className="flex items-center justify-center gap-2 w-full bg-[#1E4D7B] hover:bg-blue-600 text-white text-xs font-medium py-2.5 rounded-xl">
-                    <Printer size={14} /> Print
-                  </button>
+                  <>
+                    <button onClick={() => handlePrintReceipt(selected)} className="flex items-center justify-center gap-2 w-full bg-[#1E4D7B] hover:bg-blue-600 text-white text-xs font-medium py-2.5 rounded-xl">
+                      <Printer size={14} /> Print
+                    </button>
+                    {selected.vendor && (
+                      <button onClick={() => { setVendorEmail(''); setShowEmailModal(true); }} className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2.5 rounded-xl">
+                        <Mail size={14} /> Send PO Email
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </>
@@ -280,6 +309,40 @@ export default function ProcurementRequestsTable() {
         title="Delete Request"
         message="Delete this request?"
       />
+
+      {showEmailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowEmailModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-base font-bold text-gray-900">Send Purchase Order</h3>
+              <button onClick={() => setShowEmailModal(false)} className="p-1 hover:bg-gray-100 rounded-lg">
+                <X size={16} className="text-gray-400" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Email PO to <strong>{selected?.vendor || 'Vendor'}</strong>
+            </p>
+            <input
+              type="email"
+              value={vendorEmail}
+              onChange={e => setVendorEmail(e.target.value)}
+              placeholder="vendor@example.com"
+              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 mb-4"
+            />
+            <p className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+              Email sending will be available after SMTP setup.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowEmailModal(false)} className="flex-1 py-2 text-sm font-semibold border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={handleSendPOEmail} disabled={sendingEmail} className="flex-1 py-2 text-sm font-bold bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50">
+                {sendingEmail ? 'Processing...' : 'Send Email'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -137,6 +137,8 @@ export const stockInAPI = {
   createTransaction: (data) => api.post('/stockin/transactions', data),
   updateTransaction: (id, data) => api.put(`/stockin/transactions/${id}`, data),
   deleteTransaction: (id) => api.delete(`/stockin/transactions/${id}`),
+  approveTransaction: (id) => api.put(`/stockin/approve/${id}`),
+  rejectTransaction: (id, reason) => api.put(`/stockin/reject/${id}`, { reason }),
   getTrend: (days = 7) => api.get(`/stockin/analytics/trend?days=${days}`),
   getCategoryDistribution: () => api.get('/stockin/analytics/category-distribution'),
   getVendorPerformance: () => api.get('/stockin/analytics/vendor-performance'),

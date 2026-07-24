@@ -54,40 +54,57 @@ export default function AnalyticsInsights() {
   const weekData = trendData;
 
   const CategoryDonut = () => {
-    if (categoryData.length === 0) return (
-      <div className="flex flex-col items-center justify-center h-[250px] text-gray-400 text-xs italic">
+    if (!categoryData || categoryData.length === 0) return (
+      <div className="flex flex-col items-center justify-center h-[220px] text-gray-400 text-xs italic">
         No category data found
       </div>
     );
 
-    let startAngle = -90;
-    const CX = 125, CY = 125, R_OUT = 105, R_IN = 70;
     const total = categoryData.reduce((sum, c) => sum + (c.count || 0), 0);
-    const totalItems = total;
-    
+    const CX = 110, CY = 110, r = 80, stroke = 24;
+    const circumference = 2 * Math.PI * r;
+
+    let cumulativePct = 0;
+
     return (
-      <div className="flex flex-col items-center">
-        <svg width="250" height="250" viewBox="0 0 250 250">
+      <div className="flex flex-col items-center justify-center relative my-2">
+        <svg width="220" height="220" viewBox="0 0 220 220">
           {categoryData.map((s, i) => {
-            const sweep = ((s.count || 0) / total) * 360;
-            const res = (
-              <circle 
-                key={i} 
-                cx={CX} 
-                cy={CY} 
-                r={90} 
-                fill="none" 
-                stroke={s.color} 
-                strokeWidth="30" 
-                strokeDasharray={`${(sweep / 360) * 565} 565`} 
-                strokeDashoffset={-((startAngle - 90) / 360) * 565} 
-              />
+            const count = s.count || 0;
+            const pct = total > 0 ? count / total : 0;
+            const dash = pct * circumference;
+            // Subtract small gap between segments for clear visual separation
+            const segmentDash = Math.max(0, dash - 3);
+            const gap = circumference - segmentDash;
+            const rotation = cumulativePct * 360 - 90;
+            cumulativePct += pct;
+
+            return (
+              <circle
+                key={i}
+                cx={CX}
+                cy={CY}
+                r={r}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={stroke}
+                strokeDasharray={`${segmentDash} ${gap}`}
+                transform={`rotate(${rotation} ${CX} ${CY})`}
+                className="transition-all duration-300 hover:opacity-80 hover:stroke-[28] cursor-pointer"
+              >
+                <title>{`${s.label}: ${count} items (${Math.round(pct * 100)}%)`}</title>
+              </circle>
             );
-            startAngle += sweep;
-            return res;
           })}
-          <text x={CX} y={CY + 2} textAnchor="middle" fontSize="32" fontWeight="800" fill="#0F172A">{totalItems}</text>
-          <text x={CX} y={CY + 22} textAnchor="middle" fontSize="10" fill="#1A8FA0" fontWeight={700} letterSpacing="0.08em">TOTAL ITEMS</text>
+          {/* Center White Circle */}
+          <circle cx={CX} cy={CY} r={r - stroke / 2 - 3} fill="white" className="drop-shadow-sm" />
+
+          <text x={CX} y={CY - 2} textAnchor="middle" fontSize="28" fontWeight="800" fill="#0F172A">
+            {total}
+          </text>
+          <text x={CX} y={CY + 18} textAnchor="middle" fontSize="9" fill="#1A8FA0" fontWeight={700} letterSpacing="0.08em">
+            TOTAL ITEMS
+          </text>
         </svg>
       </div>
     );
@@ -148,19 +165,39 @@ export default function AnalyticsInsights() {
           </div>
         </div>
 
-        <div className="border border-[#2B8CEE] rounded-xl p-4 flex flex-col">
-          <h3 className="font-bold text-[#0F172A] text-base mb-3">Category Distribution</h3>
-          <CategoryDonut />
-          <div className="mt-2 flex flex-col gap-2">
-            {categoryData.map((c, i) => (
-              <div key={i} className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
-                  <span className="text-sm font-medium text-[#334155]">{c.label}</span>
+        <div className="border border-[#2B8CEE] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-[#0F172A] text-base mb-1">Category Distribution</h3>
+            <CategoryDonut />
+          </div>
+          <div className="mt-2 flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
+            {categoryData.map((c, i) => {
+              const total = categoryData.reduce((sum, item) => sum + (item.count || 0), 0);
+              const pct = c.pct !== undefined ? c.pct : (total > 0 ? Math.round((c.count / total) * 100) : 0);
+              return (
+                <div 
+                  key={i} 
+                  className="flex items-center justify-between p-2 rounded-lg border border-gray-100 bg-gray-50/60 hover:bg-white hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span 
+                      className="w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-xs border border-white" 
+                      style={{ background: c.color }} 
+                    />
+                    <span className="text-xs font-bold text-[#1E293B]">{c.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[#475569]">{c.count} items</span>
+                    <span 
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shadow-xs"
+                      style={{ background: c.color }}
+                    >
+                      {pct}%
+                    </span>
+                  </div>
                 </div>
-                <span className="text-sm font-bold text-[#0F172A]">{c.count} items</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

@@ -182,7 +182,7 @@ export default function SpendApprovalUnit() {
             return (
               <div key={i} className="group flex items-center gap-2.5">
                 <span className={`text-xs font-bold w-4 text-center ${rankColors[i] || 'text-gray-300'}`}>{i + 1}</span>
-                <span className="text-xs font-medium text-gray-700 flex-shrink-0 truncate max-w-[130px]" title={u.unit}>
+                <span className="text-xs font-medium text-gray-700 truncate max-w-[250px]" title={u.unit}>
                   {u.unit}
                 </span>
                 <div className="flex-1 h-6 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">

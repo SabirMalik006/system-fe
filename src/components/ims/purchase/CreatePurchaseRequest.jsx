@@ -322,11 +322,8 @@ export default function CreatePurchaseRequest() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className={labelCls}>Request Type</label>
-                  <div className="relative">
-                    <select className={selectCls} value={requestType} onChange={e => setRequestType(e.target.value)}>
-                      <option>Manual Request</option>
-                    </select>
-                    <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <div>
+                    <input type="text" value={requestType} placeholder="Manual Request" className={`${inputCls} bg-gray-50 text-gray-500 cursor-not-allowed`} readOnly />
                   </div>
                 </div>
                 <div>
@@ -486,9 +483,6 @@ export default function CreatePurchaseRequest() {
                 <span className="text-xs sm:text-sm font-bold text-white">Total</span>
                 <span className="text-base sm:text-lg font-black text-blue-300">{total.toFixed(2)} PKR</span>
               </div>
-              <button onClick={() => handleSubmit("Pending")} disabled={savingSubmit} className="w-full py-2.5 sm:py-3 bg-blue-800 hover:bg-blue-400 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
-                {savingSubmit ? "Submitting..." : "Submit for Approval"}
-              </button>
               <p className="text-[9px] sm:text-[10px] text-blue-200 text-center leading-relaxed tracking-wide uppercase">Review items before submission. Once submitted enters approval workflow.</p>
               <div className="border-t border-white/20" />
               <div>

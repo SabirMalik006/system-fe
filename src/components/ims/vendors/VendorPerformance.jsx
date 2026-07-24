@@ -4,14 +4,14 @@ import { Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { vendorsAPI } from '../../../services/api';
 
-export default function VendorPerformance() {
+export default function VendorPerformance({ refreshKey }) {
   const [ratingData, setRatingData] = useState([]);
   const [deliveryData, setDeliveryData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [refreshKey]);
 
   const fetchStats = async () => {
     try {
@@ -46,7 +46,7 @@ export default function VendorPerformance() {
         <div className="flex flex-col items-center">
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
-              <Pie data={ratingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={110} innerRadius={0} labelLine={true} label={({ name, value, count }) => `${value}% (${count})`}>
+              <Pie data={ratingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={110} innerRadius={0} labelLine={true} label={({ name, value, payload }) => `${value}% (${payload.count} Vendors)`}>
                 {ratingData.map((entry, i) => (
                   <Cell key={i} fill={entry.color} stroke="white" strokeWidth={2} />
                 ))}

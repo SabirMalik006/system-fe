@@ -321,7 +321,7 @@ const VendorManagement = () => {
               </div>
             </div>
           </div>
-          <VendorPerformance />
+          <VendorPerformance refreshKey={pagination.total} />
         </div>
       </div>
 

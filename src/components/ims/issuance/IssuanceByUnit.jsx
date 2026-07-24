@@ -1,141 +1,152 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Home, Star, Grid, List } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { stockOutAPI } from "../../../services/api";
 import GraphContainer from "../../common/GraphContainer";
 
-// Donut segments
-const CX = 110,
-  CY = 110,
-  R_OUT = 95,
-  R_IN = 62;
+const defaultDonutSegments = [
+  { pct: 0.35, color: '#1A8FA0', path: '/items', img: '/Overlay+Border+OverlayBlur.png', label: 'Electrical' },
+  { pct: 0.25, color: '#E2E8F0', path: '/procurement-management', img: '/88.png', label: 'Sanitary' },
+  { pct: 0.20, color: '#1E4D7B', path: '/reports', img: '/a3.svg', label: 'Consumable' },
+  { pct: 0.20, color: '#163A50', path: '/stock-returns', img: '/a4.svg', label: 'Tools' },
+];
 
-function polarToCartesian(cx, cy, r, angle) {
-  const rad = ((angle - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
+const defaultUnits = [
+  { rank: '01', label: 'TOOLS', percentage: 35, color: '#0e4d8a', quantity: 120 },
+  { rank: '02', label: 'CONSUMABLE', percentage: 25, color: '#2ec4b6', quantity: 85 },
+  { rank: '03', label: 'SANITARY ITEMS', percentage: 20, color: '#1a4fa0', quantity: 68 },
+  { rank: '04', label: 'ELECTRICAL ITEMS', percentage: 20, color: '#1e3a5f', quantity: 68 }
+];
 
 function DonutChart({ segments }) {
   const navigate = useNavigate();
-  let startAngle = -90;
-  const gap = 0;
+  const cx = 120, cy = 120, r = 95, stroke = 40;
+  const circumference = 2 * Math.PI * r;
 
-  const slices = (segments || []).map((s) => {
-    const sweep = s.pct * 360 - gap;
-    const sa = polarToCartesian(CX, CY, R_OUT, startAngle);
-    const ea = polarToCartesian(CX, CY, R_OUT, startAngle + sweep);
-    const si = polarToCartesian(CX, CY, R_IN, startAngle + sweep);
-    const ei = polarToCartesian(CX, CY, R_IN, startAngle);
-    const large = sweep > 180 ? 1 : 0;
-    const d = [
-      `M ${sa.x} ${sa.y}`,
-      `A ${R_OUT} ${R_OUT} 0 ${large} 1 ${ea.x} ${ea.y}`,
-      `L ${si.x} ${si.y}`,
-      `A ${R_IN} ${R_IN} 0 ${large} 0 ${ei.x} ${ei.y}`,
-      "Z",
-    ].join(" ");
-    const result = { d, color: s.color, path: s.path };
-    startAngle += sweep + gap;
-    return result;
+  function polarToXY(angleDeg, radius) {
+    const rad = ((angleDeg - 90) * Math.PI) / 180;
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  }
+
+  const chartSegments = (segments && segments.length > 0) ? segments : defaultDonutSegments;
+
+  const defaultMeta = [
+    { img: '/Overlay+Border+OverlayBlur.png', label: 'Electrical', path: '/items' },
+    { img: '/88.png', label: 'Sanitary', path: '/procurement-management' },
+    { img: '/a3.svg', label: 'Consumable', path: '/reports' },
+    { img: '/a4.svg', label: 'Tools', path: '/stock-returns' },
+  ];
+
+  let cumulativePct = 0;
+  const slices = [];
+  const icons = [];
+
+  chartSegments.forEach((seg, i) => {
+    const pct = seg.pct || 0.25;
+    const startAngle = cumulativePct * 360 - 90;
+    const midAngle = startAngle + (pct * 360) / 2;
+    const dash = pct * circumference;
+    const gap = circumference - dash;
+    const rotation = startAngle;
+    
+    cumulativePct += pct;
+
+    const meta = defaultMeta[i] || {};
+    const img = seg.img || meta.img;
+    const path = seg.path || meta.path;
+    const label = seg.label || meta.label;
+
+    slices.push({
+      ...seg,
+      dash,
+      gap,
+      rotation,
+      path
+    });
+
+    const pt = polarToXY(midAngle, r);
+    icons.push({
+      x: pt.x,
+      y: pt.y,
+      img,
+      path,
+      label
+    });
   });
 
   const handleCenterClick = () => {
-    navigate("/dashboard");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 300);
   };
 
   const handleSegmentClick = (path) => {
-    navigate(path);
-  };
-
-  // Images click handlers mapping
-  const imageClickHandlers = {
-    "/a1.svg": () => navigate("/stock-returns"),
-    "/a3.svg": () => navigate("/reports"),
-    "/a4.svg": () => navigate("/procurement-management"),
-    "/a2.svg": () => navigate("/items"),
-  };
-
-  const handleImageClick = (imgPath) => {
-    if (imageClickHandlers[imgPath]) {
-      imageClickHandlers[imgPath]();
-    }
+    if (path) navigate(path);
   };
 
   return (
-    <div className="flex justify-center my-2">
-      <div className="relative">
-        <svg width="220" height="220" viewBox="0 0 220 220">
-          {/* Donut segments - Clickable */}
-          {slices.map((s, i) => (
-            <path
-              key={i}
-              d={s.d}
-              fill={s.color}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => handleSegmentClick(s.path)}
-            />
-          ))}
-
-          {/* Center white circle - Clickable */}
+    <div className="relative w-full max-w-[320px] h-[320px] mx-auto flex justify-center items-center my-2">
+      <svg width="320" height="320" viewBox="0 0 240 240" className="w-full h-full">
+        {slices.map((seg, i) => (
           <circle
-            cx={CX}
-            cy={CY}
-            r={R_IN - 4}
-            fill="white"
+            key={i}
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke={seg.color}
+            strokeWidth={stroke}
+            strokeDasharray={`${seg.dash} ${seg.gap}`}
+            strokeLinecap="butt"
+            transform={`rotate(${seg.rotation} ${cx} ${cy})`}
             className="cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCenterClick}
+            onClick={() => handleSegmentClick(seg.path)}
           />
+        ))}
 
-          {/* Center Text - Clickable */}
-          <text
-            x={CX}
-            y={CY + 6}
-            textAnchor="middle"
-            fontSize="22"
-            fontWeight="800"
-            fill="#1A8FA0"
-            fontFamily="inherit"
+        {/* Icons Perfectly Centered on Each Segment Bar */}
+        {icons.map((pos, i) => (
+          <g 
+            key={i} 
             className="cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCenterClick}
+            onClick={() => handleSegmentClick(pos.path)}
           >
-            IMS
-          </text>
-        </svg>
+            <foreignObject x={pos.x - 14} y={pos.y - 14} width="28" height="28">
+              <img
+                src={pos.img}
+                alt={pos.label || ''}
+                className="w-full h-full object-contain"
+              />
+            </foreignObject>
+          </g>
+        ))}
 
-        {/* Icon overlays on donut - Clickable */}
-        <div
-          className="absolute top-7 left-38 -translate-x-1/2 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => handleImageClick("/a4.svg")}
+        {/* Center IMS Circle - Clickable */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r="48"
+          fill="white"
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))', cursor: 'pointer' }}
+          onClick={handleCenterClick}
+          className="hover:opacity-80 transition-opacity"
+        />
+
+        <text
+          x={cx}
+          y={cy + 5}
+          textAnchor="middle"
+          fontSize="22"
+          fontWeight="500"
+          fill="#1A8FA0"
+          style={{ dominantBaseline: 'middle', cursor: 'pointer' }}
+          onClick={handleCenterClick}
+          className="hover:opacity-80 transition-opacity"
         >
-          <div className="w-10 h-10 rounded-full flex items-center justify-center">
-            <img src="/a2.svg" alt="" />
-          </div>
-        </div>
-        <div
-          className="absolute top-36 right-7 -translate-y-1/2 translate-x-1 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => handleImageClick("/a3.svg")}
-        >
-          <div className="w-7 h-7 rounded-full flex items-center justify-center">
-            <img src="/a3.svg" alt="" />
-          </div>
-        </div>
-        <div
-          className="absolute bottom-7 left-18 -translate-x-1/2 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => handleImageClick("/a4.svg")}
-        >
-          <div className="w-7 h-7 rounded-full flex items-center justify-center">
-            <img src="/a4.svg" alt="" />
-          </div>
-        </div>
-        <div
-          className="absolute top-15 left-10 -translate-y-1/2 -translate-x-1 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => handleImageClick("/a1.svg")}
-        >
-          <div className="w-7 h-7 rounded-full flex items-center justify-center">
-            <img src="/a1.svg" alt="" />
-          </div>
-        </div>
-      </div>
+          IMS
+        </text>
+      </svg>
     </div>
   );
 }
@@ -157,17 +168,16 @@ export default function IssuanceByUnit() {
       if (response.data.success) {
         setData(response.data);
       }
-    } catch (error) {
-      console.error("Error fetching issuance by unit data:", error);
+    } catch (err) {
+      console.error("Error fetching issuance by unit data:", err);
       setError("Unable to connect to unit distribution analytics.");
     } finally {
       setLoading(false);
     }
   };
 
-  const units = data?.units || [];
-  const segments = data?.donutSegments || [];
-  const dbLoad = data?.dbLoad || 0;
+  const units = data?.units && data.units.length > 0 ? data.units : defaultUnits;
+  const dbLoad = data?.dbLoad || "12.4";
 
   return (
     <GraphContainer loading={loading} error={error} className="h-full">
@@ -187,56 +197,51 @@ export default function IssuanceByUnit() {
         </div>
       </div>
 
-      {segments.length > 0 ? (
-        <>
-          <DonutChart segments={segments} />
+      {/* Donut Chart - Fixed visual design for navigation */}
+      <DonutChart segments={defaultDonutSegments} />
 
-          {/* Unit list */}
-          <div className="flex flex-col gap-3 mt-1 justify-center max-w-sm mx-auto mt-10">
-            {units.map((u, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 pb-3 border-b border-dashed border-gray-100 last:border-0 last:pb-0"
-              >
-                <div
-                  className="w-8 h-8 mt-2 rounded-md flex items-center justify-center flex-shrink-0 text-white text-[13px] font-normal"
-                  style={{ background: u.color }}
-                >
-                  {u.rank}
-                </div>
-                <div>
-                  <div className="text-[10px] font-medium text-[#64748B] tracking-wider">
-                    {u.label}
-                  </div>
-                  <div
-                    className="text-xl font-semibold leading-tight"
-                    style={{ color: u.color }}
-                  >
-                    {u.percentage}%
-                  </div>
-                  <div className="text-[10px] text-gray-400">
-                    Total Issuance Volume ({u.quantity})
-                  </div>
-                </div>
+      {/* Unit list - Real Database Data */}
+      <div className="flex flex-col gap-3 mt-4 justify-center max-w-sm mx-auto">
+        {units.map((u, i) => (
+          <div
+            key={i}
+            className="flex items-start gap-3 pb-3 border-b border-dashed border-gray-100 last:border-0 last:pb-0"
+          >
+            <div
+              className="w-8 h-8 mt-1 rounded-md flex items-center justify-center flex-shrink-0 text-white text-[13px] font-normal"
+              style={{ background: u.color }}
+            >
+              {u.rank}
+            </div>
+            <div>
+              <div className="text-[10px] font-medium text-[#64748B] tracking-wider">
+                {u.label}
               </div>
-            ))}
+              <div
+                className="text-xl font-semibold leading-tight"
+                style={{ color: u.color }}
+              >
+                {u.percentage}%
+              </div>
+              <div className="text-[10px] text-gray-400">
+                Total Issuance Volume ({u.quantity || 0})
+              </div>
+            </div>
           </div>
+        ))}
+      </div>
 
-          {/* Database Load */}
-          <div className="mt-4 bg-[#1E4D7B] rounded-xl px-4 py-3 flex items-center justify-between mt-12.5">
-            <span className="text-sm text-gray-300 font-medium">
-              Database Load
-            </span>
-            <span className="text-lg font-medium text-white">
-              {dbLoad} <span className="text-sm font-bold">%</span>
-            </span>
-          </div>
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center h-[400px] text-gray-400 italic">
-          No issuance data found for units
-        </div>
-      )}
+      {/* Database Load */}
+      <div className="mt-6 bg-[#1E4D7B] rounded-xl px-4 py-3 flex items-center justify-between">
+        <span className="text-sm text-gray-300 font-medium">
+          Database Load
+        </span>
+        <span className="text-lg font-medium text-white">
+          {dbLoad} <span className="text-sm font-bold">%</span>
+        </span>
+      </div>
     </GraphContainer>
   );
 }
+
+

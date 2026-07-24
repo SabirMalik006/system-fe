@@ -4,10 +4,10 @@ import toast from 'react-hot-toast';
 import { dashboardAPI, stockOutAPI } from '../../services/api';
 
 const donutSegments = [
-  { pct: 0.35, color: '#1A8FA0', offset: 0, path: '/items' },
-  { pct: 0.25, color: '#E2E8F0', offset: 0.35, path: '/procurement-management' },
-  { pct: 0.20, color: '#1E4D7B', offset: 0.60, path: '/reports' },
-  { pct: 0.20, color: '#163A50', offset: 0.80, path: '/stock-returns' },
+  { pct: 0.35, color: '#1A8FA0', path: '/items', img: '/Overlay+Border+OverlayBlur.png', label: 'Electrical' },
+  { pct: 0.25, color: '#E2E8F0', path: '/procurement-management', img: '/88.png', label: 'Sanitary' },
+  { pct: 0.20, color: '#1E4D7B', path: '/reports', img: '/a3.svg', label: 'Consumable' },
+  { pct: 0.20, color: '#163A50', path: '/stock-returns', img: '/a4.svg', label: 'Tools' },
 ];
 
 function DonutChart() {
@@ -21,12 +21,34 @@ function DonutChart() {
   }
 
   let cumulativePct = 0;
-  const segments = donutSegments.map((seg) => {
-    const dash = seg.pct * circumference;
+  const slices = [];
+  const icons = [];
+
+  donutSegments.forEach((seg) => {
+    const pct = seg.pct || 0.25;
+    const startAngle = cumulativePct * 360 - 90;
+    const midAngle = startAngle + (pct * 360) / 2;
+    const dash = pct * circumference;
     const gap = circumference - dash;
-    const rotation = cumulativePct * 360 - 90;
-    cumulativePct += seg.pct;
-    return { ...seg, dash, gap, rotation, path: seg.path };
+    const rotation = startAngle;
+    
+    cumulativePct += pct;
+
+    slices.push({
+      ...seg,
+      dash,
+      gap,
+      rotation,
+    });
+
+    const pt = polarToXY(midAngle, r);
+    icons.push({
+      x: pt.x,
+      y: pt.y,
+      img: seg.img,
+      path: seg.path,
+      label: seg.label
+    });
   });
 
   const handleCenterClick = () => {
@@ -37,27 +59,13 @@ function DonutChart() {
   };
 
   const handleSegmentClick = (path) => {
-    navigate(path);
-  };
-
-  const imageClickHandlers = {
-    '/a4.svg': () => navigate('/stock-returns'),
-    '/a3.svg': () => navigate('/reports'),
-    '/88.png': () => navigate('/procurement-management'),
-    '/Overlay+Border+OverlayBlur.png': () => navigate('/items'),
-  };
-
-  const handleImageClick = (imgPath) => {
-    if (imageClickHandlers[imgPath]) {
-      imageClickHandlers[imgPath]();
-    }
+    if (path) navigate(path);
   };
 
   return (
     <div className="relative w-full max-w-[360px] h-[360px] mx-auto flex justify-center items-center">
       <svg width="360" height="360" viewBox="0 0 240 240" className="w-full h-full">
-        
-        {segments.map((seg, i) => (
+        {slices.map((seg, i) => (
           <circle
             key={i}
             cx={cx}
@@ -74,30 +82,22 @@ function DonutChart() {
           />
         ))}
 
-        {/* Images - Clickable */}
-        {[
-          { angle: 255, img: '/a4.svg', label: 'Tools', path: '/stock-returns' },
-          { angle: 335, img: '/a3.svg', label: 'Consumable', path: '/reports' },
-          { angle: 60, img: '/88.png', label: 'Sanitary', path: '/procurement-management' },
-          { angle: 160, img: '/Overlay+Border+OverlayBlur.png', label: 'Electrical', path: '/items' },
-        ].map((pos, i) => {
-          const pt = polarToXY(pos.angle, r + 1);
-          return (
-            <g 
-              key={i} 
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => handleImageClick(pos.img)}
-            >
-              <foreignObject x={pt.x - 13} y={pt.y - 15} width="33" height="33">
-                <img
-                  src={pos.img}
-                  alt={pos.label}
-                  className="w-full h-full object-contain"
-                />
-              </foreignObject>
-            </g>
-          );
-        })}
+        {/* Icons Centered on Each Segment Bar */}
+        {icons.map((pos, i) => (
+          <g 
+            key={i} 
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => handleSegmentClick(pos.path)}
+          >
+            <foreignObject x={pos.x - 15} y={pos.y - 15} width="30" height="30">
+              <img
+                src={pos.img}
+                alt={pos.label || ''}
+                className="w-full h-full object-contain"
+              />
+            </foreignObject>
+          </g>
+        ))}
 
         {/* White Circle Behind IMS Text with Shadow - Clickable */}
         <circle

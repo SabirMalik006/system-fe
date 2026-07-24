@@ -70,7 +70,7 @@ export default function ConfirmModal({
         </div>
 
         <div className="px-5 py-3">
-          <p className="text-xs text-gray-600 leading-relaxed">{message}</p>
+          <div className="text-xs text-gray-600 leading-relaxed">{message}</div>
         </div>
 
         <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">

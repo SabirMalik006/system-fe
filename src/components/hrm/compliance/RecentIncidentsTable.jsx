@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { MoreVertical, ChevronLeft, ChevronRight, Eye, Pencil, Trash2 } from 'lucide-react';
 import { incidentAPI } from '../../../services/api';
+import ConfirmModal from '../../common/ConfirmModal';
+import toast from 'react-hot-toast';
 
 const severityStyles = {
   'Verbal Warning': 'text-gray-600',
@@ -27,6 +29,33 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
   const [incidents, setIncidents] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 });
   const [loading, setLoading] = useState(true);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuUpward, setMenuUpward] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await incidentAPI.delete(deleteTarget._id);
+      toast.success('Incident deleted');
+      setOpenMenuId(null);
+      setDeleteTarget(null);
+      fetchIncidents(pagination.page);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to delete incident');
+    }
+  };
 
   const fetchIncidents = useCallback(async (page = 1) => {
     setLoading(true);
@@ -52,8 +81,20 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
     fetchIncidents(1);
   }, [fetchIncidents, refreshKey]);
 
+  const openMenu = (e, id) => {
+    e.stopPropagation();
+    if (openMenuId === id) {
+      setOpenMenuId(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setMenuUpward(spaceBelow < 200);
+    setOpenMenuId(id);
+  };
+
   return (
-    <div className="bg-[#1a3a6e] rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-[#1a3a6e] rounded-xl shadow-sm">
       <div className="flex items-center justify-between px-5 py-3.5">
         <h2 className="text-sm font-bold text-white">Recent Incidents</h2>
         <span className="text-xs bg-blue-500/30 text-blue-200 font-semibold px-3 py-1 rounded-full">
@@ -98,12 +139,31 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
                     <div className="text-sm font-semibold text-gray-900 leading-tight truncate">{inc.employeeName}</div>
                     <div className="text-xs text-gray-400 truncate">{inc.employeeRole || '—'}</div>
                   </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onEdit && onEdit(inc._id); }}
-                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors ml-auto shrink-0"
-                  >
-                    <MoreVertical size={15} className="text-gray-400" />
-                  </button>
+                  <div className="relative ml-auto shrink-0">
+                    <button
+                      onClick={(e) => openMenu(e, inc._id)}
+                      className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <MoreVertical size={15} className="text-gray-400" />
+                    </button>
+                    {openMenuId === inc._id && (
+                      <div ref={menuRef} className={`absolute right-0 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px] ${menuUpward ? 'bottom-full mb-2' : 'top-full mt-1'}`}>
+                        <button onClick={() => { onEdit && onEdit(inc._id); setOpenMenuId(null); }}
+                          className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 flex items-center gap-2">
+                          <Eye size={14} /> View Details
+                        </button>
+                        <button onClick={() => { onEdit && onEdit(inc._id); setOpenMenuId(null); }}
+                          className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 flex items-center gap-2">
+                          <Pencil size={14} /> Edit
+                        </button>
+                        <hr className="my-1 border-gray-100" />
+                        <button onClick={() => { setOpenMenuId(null); setDeleteTarget(inc); }}
+                          className="w-full text-left px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2">
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="sm:hidden flex items-center gap-3 text-xs text-gray-500">
                   <span>{inc.date}</span>
@@ -148,13 +208,30 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
                   <span className={`text-sm font-medium ${sc.color}`}>{inc.status}</span>
                 </div>
 
-                <div className="hidden sm:block">
+                <div className="hidden sm:block relative">
                   <button
-                    onClick={(e) => { e.stopPropagation(); onEdit && onEdit(inc._id); }}
+                    onClick={(e) => openMenu(e, inc._id)}
                     className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <MoreVertical size={15} className="text-gray-400" />
                   </button>
+                  {openMenuId === inc._id && (
+                    <div ref={menuRef} className={`absolute right-0 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px] ${menuUpward ? 'bottom-full mb-2' : 'top-full mt-1'}`}>
+                      <button onClick={() => { onEdit && onEdit(inc._id); setOpenMenuId(null); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 flex items-center gap-2">
+                        <Eye size={14} /> View Details
+                      </button>
+                      <button onClick={() => { onEdit && onEdit(inc._id); setOpenMenuId(null); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 flex items-center gap-2">
+                        <Pencil size={14} /> Edit
+                      </button>
+                      <hr className="my-1 border-gray-100" />
+                      <button onClick={() => { setOpenMenuId(null); setDeleteTarget(inc); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2">
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -194,6 +271,17 @@ export default function RecentIncidentsTable({ filters, onEdit, refreshKey }) {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Incident"
+        message={`Are you sure you want to delete the incident record for "${deleteTarget?.employeeName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -8,21 +8,27 @@ import {
   ChevronRight,
   ArrowUpDown,
   Trash2,
-  Edit2,
   Loader2,
   AlertCircle,
   Printer,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { stockInAPI } from "../../../services/api";
 import { exportToCSV } from "../../../utils/exportUtils";
 import toast, { Toaster } from 'react-hot-toast';
 import ConfirmModal from '../../common/ConfirmModal';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const statusStyles = {
   POSTED: "bg-green-100 text-green-700",
   DRAFT: "bg-yellow-100 text-yellow-700",
   PENDING: "bg-blue-100 text-blue-700",
+  APPROVED: "bg-green-100 text-green-700",
+  REJECTED: "bg-red-100 text-red-700",
 };
+
+const approvalRoles = ['dwece', 'cmes', 'ages_ges', 'super_admin'];
 
 const headers = [
   { label: "ENTRY ID", key: "id" },
@@ -38,16 +44,22 @@ const headers = [
 ];
 
 export default function MasterSessionHistory() {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [rejectTarget, setRejectTarget] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [approving, setApproving] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef(null);
+
+  const canApprove = user && approvalRoles.includes(user.role);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -94,16 +106,46 @@ export default function MasterSessionHistory() {
     }
   };
 
+  const handleApprove = async (row) => {
+    setApproving(row._mongoId);
+    try {
+      const response = await stockInAPI.approveTransaction(row._mongoId);
+      if (response.data.success) {
+        toast.success(`Stock In ${row.id} approved! Stock updated.`);
+        fetchTransactions();
+      }
+    } catch (error) {
+      console.error("Failed to approve transaction:", error);
+      toast.error(error.response?.data?.message || 'Failed to approve');
+    } finally {
+      setApproving(null);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectTarget) return;
+    try {
+      const response = await stockInAPI.rejectTransaction(rejectTarget._mongoId, rejectReason);
+      if (response.data.success) {
+        toast.success(`Stock In ${rejectTarget.id} rejected`);
+        setRejectTarget(null);
+        setRejectReason('');
+        fetchTransactions();
+      }
+    } catch (error) {
+      console.error("Failed to reject transaction:", error);
+      toast.error(error.response?.data?.message || 'Failed to reject');
+    }
+  };
+
   const handleExport = async () => {
     if (transactions.length === 0) {
       toast("No data to export");
       return;
     }
 
-    // Prepare headers for CSV (excluding actions)
     const exportHeaders = headers.filter((h) => h.key !== "actions");
 
-    // Trigger CSV export
     exportToCSV(transactions, exportHeaders, "stock_in_history");
   };
 
@@ -202,7 +244,7 @@ Generated on: ${new Date().toLocaleString()}
             </button>
             {filterOpen && (
               <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1">
-                {["All Status", "POSTED", "DRAFT", "PENDING"].map((s) => (
+                {["All Status", "POSTED", "DRAFT", "PENDING", "APPROVED", "REJECTED"].map((s) => (
                   <button
                     key={s}
                     onClick={() => {
@@ -332,6 +374,29 @@ Generated on: ${new Date().toLocaleString()}
                       </td>
                       <td className="py-3.5 px-2">
                         <div className="flex items-center gap-2">
+                          {canApprove && row.status === 'PENDING' && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(row)}
+                                disabled={approving === row._mongoId}
+                                title="Approve Stock In"
+                                className="p-1 hover:bg-green-50 text-green-600 rounded transition-colors disabled:opacity-50"
+                              >
+                                {approving === row._mongoId ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <CheckCircle size={14} />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => setRejectTarget(row)}
+                                title="Reject Stock In"
+                                className="p-1 hover:bg-red-50 text-red-600 rounded transition-colors"
+                              >
+                                <XCircle size={14} />
+                              </button>
+                            </>
+                          )}
                           <button
                             onClick={() => handlePrintReceipt(row)}
                             title="Print Receipt"
@@ -398,6 +463,29 @@ Generated on: ${new Date().toLocaleString()}
         onConfirm={handleDelete}
         title="Delete Transaction"
         message={`Are you sure you want to delete transaction ${deleteTarget?.id}? This will also reverse the stock change.`}
+      />
+
+      <ConfirmModal
+        isOpen={!!rejectTarget}
+        onClose={() => { setRejectTarget(null); setRejectReason(''); }}
+        onConfirm={handleReject}
+        title="Reject Stock In"
+        message={
+          <div>
+            <p className="text-xs text-gray-600 mb-3">
+              Are you sure you want to reject transaction <strong>{rejectTarget?.id}</strong>?
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Reason for rejection (required)..."
+              className="w-full border border-gray-200 rounded-lg p-2 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-400 resize-none"
+              rows={3}
+            />
+          </div>
+        }
+        confirmText="Reject"
+        variant="danger"
       />
     </div>
   );
