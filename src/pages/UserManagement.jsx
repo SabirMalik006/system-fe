@@ -13,6 +13,15 @@ import {
 
 const ROLE_LIMITS = { cmes: 6, ages_ges: 14 };
 
+const CMES_UNITS = [
+  'CMES ISB/LHR',
+  'CMES COMPAK',
+  'CMES ORMARA',
+  'CMES COMLOG',
+  'CMES COMCOAST',
+  'CMES COMKAR'
+];
+
 const ROLES = [
   { value: 'cmes', label: 'CMES', color: '#7c3aed', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', icon: Crown },
   { value: 'ages_ges', label: "AGE'S/GE'S", color: '#2563eb', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Shield },
@@ -95,14 +104,14 @@ export default function UserManagement() {
 
   const openCreate = () => {
     setEditingUser(null);
-    setFormData({ name: '', email: '', password: '', role: 'employee', department: '', designation: '', phone: '' });
+    setFormData({ name: '', email: '', password: '', role: 'employee', department: '', designation: '', phone: '', assignedUnit: '' });
     setShowPassword(false);
     setShowModal(true);
   };
 
   const openEdit = (u) => {
     setEditingUser(u);
-    setFormData({ name: u.name || '', email: u.email || '', password: '', role: u.role || 'employee', department: u.department || '', designation: u.designation || '', phone: u.phone || '' });
+    setFormData({ name: u.name || '', email: u.email || '', password: '', role: u.role || 'employee', department: u.department || '', designation: u.designation || '', phone: u.phone || '', assignedUnit: u.assignedUnit || '' });
     setShowPassword(false);
     setShowModal(true);
   };
@@ -119,10 +128,13 @@ export default function UserManagement() {
     try {
       if (editingUser) {
         const data = { name: formData.name, email: formData.email, role: formData.role, department: formData.department, designation: formData.designation, phone: formData.phone };
+        if (formData.role === 'cmes') data.assignedUnit = formData.assignedUnit;
         await authAPI.updateUser(editingUser._id, data);
         toast.success('User updated successfully');
       } else {
-        await authAPI.register(formData);
+        const registerData = { ...formData };
+        if (formData.role !== 'cmes') delete registerData.assignedUnit;
+        await authAPI.register(registerData);
         toast.success('User created successfully');
       }
       closeModal();
@@ -580,6 +592,24 @@ export default function UserManagement() {
                   </div>
                 )}
               </div>
+
+              {/* CMES Unit Assignment (only for CMES role) */}
+              {formData.role === 'cmes' && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Assigned Unit</label>
+                  <select
+                    value={formData.assignedUnit}
+                    onChange={(e) => setFormData({ ...formData, assignedUnit: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-[#1A8FA0] focus:ring-2 focus:ring-[#1A8FA0]/20 outline-none transition-all"
+                    required
+                  >
+                    <option value="">Select a unit...</option>
+                    {CMES_UNITS.map(u => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Department & Designation */}
               <div className="grid grid-cols-2 gap-4">
