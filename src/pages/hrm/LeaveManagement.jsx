@@ -70,10 +70,6 @@ export default function LeaveManagement() {
       toast.error('Employee name cannot be only numbers');
       return;
     }
-    if (!form.employeeId.trim()) {
-      toast.error('Employee ID is required');
-      return;
-    }
     if (!form.startDate || form.startDate < todayStr) {
       toast.error('Start date cannot be in the past');
       return;
@@ -145,8 +141,9 @@ export default function LeaveManagement() {
                   )}
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID *</label>
-                  <input required value={form.employeeId} onChange={e => setForm({...form, employeeId: e.target.value})}
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID</label>
+                  <input value={form.employeeId} onChange={e => setForm({...form, employeeId: e.target.value})}
+                    placeholder="Optional"
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
               </div>

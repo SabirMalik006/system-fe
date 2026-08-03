@@ -128,14 +128,15 @@ export default function UserManagement() {
     try {
       if (editingUser) {
         const data = { name: formData.name, email: formData.email, role: formData.role, department: formData.department, designation: formData.designation, phone: formData.phone };
-        if (formData.role === 'cmes') data.assignedUnit = formData.assignedUnit;
+        if (['cmes', 'ages_ges', 'charge_head'].includes(formData.role)) data.assignedUnit = formData.assignedUnit;
         await authAPI.updateUser(editingUser._id, data);
         toast.success('User updated successfully');
       } else {
         const registerData = { ...formData };
-        if (formData.role !== 'cmes') delete registerData.assignedUnit;
-        await authAPI.register(registerData);
-        toast.success('User created successfully');
+        if (!['cmes', 'ages_ges', 'charge_head'].includes(formData.role)) delete registerData.assignedUnit;
+        const res = await authAPI.register(registerData);
+        const empId = res?.data?.employeeId;
+        toast.success(empId ? `User created successfully. Employee ID: ${empId}` : 'User created successfully');
       }
       closeModal();
       fetchUsers();
@@ -593,8 +594,8 @@ export default function UserManagement() {
                 )}
               </div>
 
-              {/* CMES Unit Assignment (only for CMES role) */}
-              {formData.role === 'cmes' && (
+              {/* Unit Assignment (for scoped roles) */}
+              {['cmes', 'ages_ges', 'charge_head'].includes(formData.role) && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Assigned Unit</label>
                   <select

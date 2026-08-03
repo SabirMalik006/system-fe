@@ -24,12 +24,12 @@ function DonutSegment({ cx, cy, innerR, outerR, start, end, color }) {
   );
 }
 
-function PersonIconSmall({ cx, cy, size = 24 }) {
+function PersonIconSmall({ cx, cy, size = 24, color = '#1a2b4a' }) {
   const s = size;
   return (
     <g transform={`translate(${cx}, ${cy})`}>
-      <circle cx={0} cy={-s * 0.3} r={s * 0.25} fill="white" />
-      <ellipse cx={0} cy={s * 0.25} rx={s * 0.42} ry={s * 0.33} fill="white" />
+      <circle cx={0} cy={-s * 0.3} r={s * 0.25} fill={color} />
+      <ellipse cx={0} cy={s * 0.25} rx={s * 0.42} ry={s * 0.33} fill={color} />
     </g>
   );
 }
@@ -51,12 +51,22 @@ export default function MesPersonnel({ data }) {
 
   const gridItems = personnelList.length > 6 ? personnelList.slice(1, 7) : personnelList.slice(0, 6);
 
-  const SEGMENTS = 6;
+  const SEGMENTS = Math.max(gridItems.length, 6);
   const ANGLE = 360 / SEGMENTS;
   const INNER_R = 72;
   const OUTER_R = 115;
-  const AVATAR_R = 138;
-  const AVATAR_SIZE = 20;
+  const ICON_R = (INNER_R + OUTER_R) / 2;
+  const AVATAR_SIZE = 19;
+
+  // ── Fixed balanced design — equal slices regardless of data ──
+  const segments = Array.from({ length: SEGMENTS }, (_, i) => {
+    const start = -90 + i * ANGLE;
+    return {
+      start,
+      end: start + ANGLE - 1.2,
+      mid: start + ANGLE / 2,
+    };
+  });
 
   return (
     <div className="bg-white rounded-[24px] shadow-sm p-8 w-full max-w-[420px]">
@@ -74,27 +84,23 @@ export default function MesPersonnel({ data }) {
       {/* ── Donut Chart ── */}
       <div className="flex justify-center">
         <svg width="330" height="370" viewBox="0 0 400 450" className="overflow-visible">
-          {Array.from({ length: SEGMENTS }, (_, i) => {
-            const start = -90 + i * ANGLE;
-            const end = start + ANGLE - 0.4;
-            return (
-              <DonutSegment
-                key={i}
-                cx={CX} cy={CY}
-                innerR={INNER_R} outerR={OUTER_R}
-                start={start} end={end}
-                color={SEGMENT_COLORS[i]}
-              />
-            );
-          })}
+          {segments.map((seg, i) => (
+            <DonutSegment
+              key={i}
+              cx={CX} cy={CY}
+              innerR={INNER_R} outerR={OUTER_R}
+              start={seg.start} end={seg.end}
+              color={SEGMENT_COLORS[i % SEGMENT_COLORS.length]}
+            />
+          ))}
 
-          {Array.from({ length: SEGMENTS }, (_, i) => {
-            const angle = -90 + i * ANGLE + ANGLE / 2;
-            const pos = polarToCartesian(CX, CY, AVATAR_R, angle);
+          {segments.map((seg, i) => {
+            const pos = polarToCartesian(CX, CY, ICON_R, seg.mid);
+            const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
             return (
-              <g key={`a${i}`}>
-                <circle cx={pos.x} cy={pos.y} r={AVATAR_SIZE} fill={SEGMENT_COLORS[i]} stroke="white" strokeWidth={3} />
-                <PersonIconSmall cx={pos.x} cy={pos.y} size={AVATAR_SIZE * 1.1} />
+              <g key={`a${i}`} style={{ filter: 'drop-shadow(0 2px 3px rgba(15, 35, 70, 0.25))' }}>
+                <circle cx={pos.x} cy={pos.y} r={AVATAR_SIZE} fill="white" stroke={color} strokeWidth={2.5} />
+                <PersonIconSmall cx={pos.x} cy={pos.y} size={AVATAR_SIZE * 1.05} color={color} />
               </g>
             );
           })}
@@ -134,20 +140,20 @@ export default function MesPersonnel({ data }) {
       </div>
 
       {/* ── Footer ── */}
-      <div className="flex items-center justify-between mt-16">
-        <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mt-12">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#4E86E0]" />
             <span className="text-[9px] font-bold text-[#1a2b4a] uppercase tracking-wide">ON DUTY</span>
-            <span className="text-[10px] font-bold text-[#1a2b4a] ml-1">{onDuty}</span>
+            <span className="text-[11px] font-extrabold text-[#1a2b4a] ml-1">{onDuty}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#7EB6EE]" />
             <span className="text-[9px] font-bold text-[#1a2b4a] uppercase tracking-wide">STANDBY STAFF</span>
-            <span className="text-[10px] font-bold text-[#1a2b4a] ml-1">{standbyStaff}</span>
+            <span className="text-[11px] font-extrabold text-[#1a2b4a] ml-1">{standbyStaff}</span>
           </div>
         </div>
-        <button className="bg-blue-100 hover:bg-blue-200 rounded-full px-6 py-3 text-[10px] font-bold text-[#1a2b4a] uppercase tracking-wider transition-colors whitespace-nowrap">
+        <button className="bg-blue-100 hover:bg-blue-200 rounded-full px-5 py-2.5 text-[10px] font-bold text-[#1a2b4a] uppercase tracking-wide transition-colors whitespace-nowrap">
           View Personnel Details
         </button>
       </div>

@@ -54,10 +54,6 @@ export default function AttendanceHeader({ kpiData, onDataChange }) {
       toast.error('Employee name is required');
       return;
     }
-    if (!markData.employeeId.trim()) {
-      toast.error('Employee ID is required');
-      return;
-    }
     setMarking(true);
     try {
       await attendanceAPI.create(markData);
@@ -119,8 +115,9 @@ export default function AttendanceHeader({ kpiData, onDataChange }) {
                   )}
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID *</label>
-                  <input required value={markData.employeeId} onChange={e => setMarkData({...markData, employeeId: e.target.value})}
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Employee ID</label>
+                  <input value={markData.employeeId} onChange={e => setMarkData({...markData, employeeId: e.target.value})}
+                    placeholder="Optional"
                     className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400" />
                 </div>
               </div>

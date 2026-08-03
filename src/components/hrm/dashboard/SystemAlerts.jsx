@@ -1,10 +1,30 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, BriefcaseMedical, GraduationCap, Check, Filter, Share2, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const tabs = ['Priority Alerts', 'Pending Approvals', 'Archive'];
 
 export default function SystemAlerts({ data }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Priority Alerts');
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [filterActive, setFilterActive] = useState(false);
+
+  const go = (path) => navigate(path);
+  const show = (value) => !filterActive || value > 0;
+
+  const handleMarkAllRead = () => {
+    setAcknowledged(true);
+    toast.success('All alerts marked as read');
+  };
+
+  const handleToggleFilter = () => {
+    setFilterActive(prev => {
+      toast(prev ? 'Showing all alerts' : 'Showing only active alerts');
+      return !prev;
+    });
+  };
 
   if (!data) {
     return (
@@ -32,6 +52,7 @@ export default function SystemAlerts({ data }) {
 
   const renderPriorityAlerts = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      {show(lateComers) && (
       <div className={cardCls}>
          <div>
            <div className="flex items-start justify-between mb-3 gap-2">
@@ -56,11 +77,13 @@ export default function SystemAlerts({ data }) {
            )}
          </div>
          <div className="mt-4 sm:mt-5 flex gap-2">
-           <button className="flex-1 bg-[#3b82f6] hover:bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review All</button>
-           <button className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
+           <button onClick={() => go('/attendance')} className="flex-1 bg-[#3b82f6] hover:bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review All</button>
+           <button onClick={() => go('/attendance')} className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
          </div>
       </div>
+      )}
 
+      {show(hazardsCount) && (
       <div className={cardCls}>
          <div>
            <div className="flex items-start justify-between mb-3 gap-2">
@@ -81,11 +104,13 @@ export default function SystemAlerts({ data }) {
            </div>
          </div>
          <div className="mt-4 sm:mt-5 flex gap-2">
-           <button className="flex-1 bg-[#8b1a10] hover:bg-red-900 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Send Reminders</button>
-           <button className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-500 shrink-0"><Share2 size={12} /></button>
+           <button onClick={() => go('/compliance')} className="flex-1 bg-[#8b1a10] hover:bg-red-900 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Send Reminders</button>
+           <button onClick={() => go('/compliance')} className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-500 shrink-0"><Share2 size={12} /></button>
          </div>
       </div>
+      )}
 
+      {show(trainingUpdates) && (
       <div className={cardCls}>
          <div>
            <div className="flex items-start justify-between mb-3 gap-2">
@@ -101,14 +126,16 @@ export default function SystemAlerts({ data }) {
            </div>
          </div>
          <div className="mt-3 sm:mt-4">
-           <button className="w-full bg-[#1e6fdb] hover:bg-blue-700 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review Sessions</button>
+           <button onClick={() => go('/training-management')} className="w-full bg-[#1e6fdb] hover:bg-blue-700 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review Sessions</button>
          </div>
       </div>
+      )}
     </div>
   );
 
   const renderPendingApprovals = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      {show(pendingApprovals) && (
       <div className={cardCls}>
         <div>
           <div className="flex items-start justify-between mb-3 gap-2">
@@ -122,10 +149,12 @@ export default function SystemAlerts({ data }) {
           <p className="text-[9px] sm:text-[10px] text-gray-500">Awaiting manager approval</p>
         </div>
         <div className="mt-4 sm:mt-5 flex gap-2">
-          <button className="flex-1 bg-[#f59e0b] hover:bg-amber-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review Now</button>
-          <button className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
+          <button onClick={() => go('/leave-management')} className="flex-1 bg-[#f59e0b] hover:bg-amber-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Review Now</button>
+          <button onClick={() => go('/leave-management')} className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
         </div>
       </div>
+      )}
+      {show(attendanceCorrections) && (
       <div className={cardCls}>
         <div>
           <div className="flex items-start justify-between mb-3 gap-2">
@@ -139,10 +168,12 @@ export default function SystemAlerts({ data }) {
           <p className="text-[9px] sm:text-[10px] text-gray-500">Clock-in/out adjustments pending</p>
         </div>
         <div className="mt-4 sm:mt-5 flex gap-2">
-          <button className="flex-1 bg-[#3b82f6] hover:bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Resolve</button>
-          <button className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
+          <button onClick={() => go('/attendance')} className="flex-1 bg-[#3b82f6] hover:bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Resolve</button>
+          <button onClick={() => go('/attendance')} className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
         </div>
       </div>
+      )}
+      {show(trainingEnrollments) && (
       <div className={cardCls}>
         <div>
           <div className="flex items-start justify-between mb-3 gap-2">
@@ -156,10 +187,11 @@ export default function SystemAlerts({ data }) {
           <p className="text-[9px] sm:text-[10px] text-gray-500">Upcoming training sessions</p>
         </div>
         <div className="mt-4 sm:mt-5 flex gap-2">
-          <button className="flex-1 bg-[#10b981] hover:bg-emerald-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Assign</button>
-          <button className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
+          <button onClick={() => go('/training-management')} className="flex-1 bg-[#10b981] hover:bg-emerald-600 text-white text-[10px] sm:text-[11px] font-bold py-2 sm:py-2.5 rounded-xl transition-colors">Assign</button>
+          <button onClick={() => go('/training-management')} className="px-2.5 sm:px-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-400 shrink-0"><ExternalLink size={12} /></button>
         </div>
       </div>
+      )}
     </div>
   );
 
@@ -185,17 +217,19 @@ export default function SystemAlerts({ data }) {
           <div className="min-w-0">
             <h2 className="text-[18px] font-bold text-[#1e293b]">System Alerts</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0"></span>
-              <span className="text-[11px] text-gray-500 font-medium truncate">You have {totalAlerts} active alerts requiring immediate attention.</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${acknowledged ? 'bg-green-500' : 'bg-red-600'} shrink-0`}></span>
+              <span className="text-[11px] text-gray-500 font-medium truncate">{acknowledged ? 'You\'re all caught up.' : `You have ${totalAlerts} active alerts requiring immediate attention.`}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
-              <Check size={14} className="text-gray-800" strokeWidth={3} />
-              Mark all as read
+            <button onClick={handleMarkAllRead} disabled={acknowledged}
+              className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${acknowledged ? 'bg-green-50 text-green-600 cursor-default' : 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50'}`}>
+              <Check size={14} strokeWidth={3} />
+              {acknowledged ? 'All read' : 'Mark all as read'}
             </button>
-            <button className="p-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 shrink-0">
-              <Filter size={16} className="text-gray-600" />
+            <button onClick={handleToggleFilter}
+              className={`p-1.5 rounded-lg transition-colors shrink-0 ${filterActive ? 'bg-[#8b1a10] text-white' : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-600'}`}>
+              <Filter size={16} />
             </button>
           </div>
         </div>
