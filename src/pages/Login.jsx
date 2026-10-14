@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LogIn, Eye, EyeOff, TrendingUp, Package, Users, Activity } from 'lucide-react';
+
+const SAVED_EMAIL_KEY = 'ims_saved_email';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const { login } = useAuth();
+
+  // Restore remembered email on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(SAVED_EMAIL_KEY);
+    if (saved) {
+      setFormData((prev) => ({ ...prev, email: saved }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -29,8 +41,15 @@ const Login = () => {
     setError('');
 
     try {
-      const result = await login(formData.email, formData.password);
-      
+      const result = await login(formData.email, formData.password, rememberMe);
+
+      // Persist or clear the remembered email
+      if (rememberMe) {
+        localStorage.setItem(SAVED_EMAIL_KEY, formData.email);
+      } else {
+        localStorage.removeItem(SAVED_EMAIL_KEY);
+      }
+
       if (result.success) {
         navigate('/');
       } else {
@@ -272,12 +291,14 @@ const Login = () => {
 
             <div className="flex justify-between items-center text-[9px] sm:text-[10px] px-1">
               <label className="flex items-center gap-2 text-gray-400 hover:text-[#1E4D7B] cursor-pointer transition-colors">
-                <input type="checkbox" className="w-3 h-3 rounded border-gray-300 text-[#1A8FA0] focus:ring-[#1A8FA0]" />
-                Remember
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-3 h-3 rounded border-gray-300 text-[#1A8FA0] focus:ring-[#1A8FA0]"
+                />
+                Remember me
               </label>
-              <a href="/forgot-password" className="text-[#1A8FA0] font-semibold hover:text-[#1E4D7B] transition-colors text-[8px] sm:text-[9px]">
-                Recover Password
-              </a>
             </div>
 
             <button
