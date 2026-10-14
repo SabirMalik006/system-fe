@@ -21,6 +21,22 @@ api.interceptors.request.use((config) => {
 // Response interceptor with token refresh
 let isRefreshing = false;
 let refreshQueue = [];
+let sessionEndHandled = false;
+
+// Session-management 401s (terminated / idle timeout / invalid session)
+// must NOT attempt a token refresh — the session itself is gone.
+const SESSION_CODES = ['SESSION_TIMEOUT', 'SESSION_TERMINATED', 'SESSION_INVALID'];
+
+const endSession = (message) => {
+  if (sessionEndHandled) return;
+  sessionEndHandled = true;
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('user');
+  toast.error(message || 'Session ended. Please log in again.');
+  setTimeout(() => {
+    window.location.href = '/login';
+  }, 600);
+};
 
 api.interceptors.response.use(
   (response) => response,
@@ -28,6 +44,15 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const method = (originalRequest?.method || '').toLowerCase();
     const isWriteRequest = ['post', 'put', 'patch', 'delete'].includes(method);
+    
+    // Session terminated / timed out — go straight to login
+    if (
+      error.response?.status === 401 &&
+      SESSION_CODES.includes(error.response?.data?.code)
+    ) {
+      endSession(error.response?.data?.message);
+      return Promise.reject(error);
+    }
     
     // If 401 error and not already retrying, and NOT a login request
     if (
@@ -70,9 +95,14 @@ api.interceptors.response.use(
         // Clear queue and redirect to login
         refreshQueue = [];
         console.error('Token refresh failed:', refreshError);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        const refreshCode = refreshError.response?.data?.code;
+        if (SESSION_CODES.includes(refreshCode)) {
+          endSession(refreshError.response?.data?.message);
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -95,7 +125,7 @@ api.interceptors.response.use(
 
 // ==================== AUTH API ====================
 export const authAPI = {
-  login: (email, password) => api.post('/auth/login', { email, password }),
+  login: (email, password, rememberMe = false) => api.post('/auth/login', { email, password, rememberMe }),
   register: (data) => api.post('/auth/register', data),
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
@@ -109,8 +139,12 @@ export const authAPI = {
   getRoleCounts: () => api.get('/auth/role-counts'),
   updateUser: (id, data) => api.put(`/auth/users/${id}`, data),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
-  changePassword: (currentPassword, newPassword) => 
-    api.put('/auth/change-password', { currentPassword, newPassword }),
+  changePassword: (currentPassword, newPassword, confirmPassword) => 
+    api.put('/auth/change-password', { currentPassword, newPassword, confirmPassword }),
+  // Session management
+  getSessions: () => api.get('/auth/sessions'),
+  terminateSession: (id) => api.delete(`/auth/sessions/${id}`),
+  logoutAllSessions: () => api.post('/auth/sessions/logout-all'),
 };
 
 // ==================== DASHBOARD API ====================

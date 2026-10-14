@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { authAPI } from '../services/api';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -32,8 +33,17 @@ export const AuthProvider = ({ children }) => {
       if (res.data.success && res.data.accessToken) {
         localStorage.setItem('accessToken', res.data.accessToken);
       }
-    } catch {
-      // ignore – will be handled on next request
+    } catch (err) {
+      // Session terminated / idle timeout — end the session with a message
+      const code = err.response?.data?.code;
+      const hadSession = localStorage.getItem('accessToken') || localStorage.getItem('user');
+      if (hadSession && ['SESSION_TIMEOUT', 'SESSION_TERMINATED', 'SESSION_INVALID'].includes(code)) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        toast.error(err.response?.data?.message || 'Session ended. Please log in again.');
+        window.location.href = '/login';
+      }
+      // else ignore – will be handled on next request
     } finally {
       refreshing.current = false;
     }
@@ -79,10 +89,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     setError(null);
     try {
-      const response = await authAPI.login(email, password);
+      const response = await authAPI.login(email, password, rememberMe);
       const { user, accessToken } = response.data;
       
       localStorage.setItem('accessToken', accessToken);

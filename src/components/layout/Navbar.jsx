@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package, LayoutDashboard, ShoppingCart, BarChart3, Building2, ShieldCheck, Users, AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
+import { Search, ChevronDown, Menu, X, LogOut, Home, Bell, Package, LayoutDashboard, ShoppingCart, BarChart3, Building2, ShieldCheck, Users, AlertTriangle, CheckCircle, Info, XCircle, Lock, Monitor } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { dashboardAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import ChangePasswordModal from '../common/ChangePasswordModal';
+import SessionsModal from '../common/SessionsModal';
 
 const Navbar = () => {
   const location = useLocation();
@@ -12,6 +14,8 @@ const Navbar = () => {
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [isMobileInventoryOpen, setIsMobileInventoryOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showSessions, setShowSessions] = useState(false);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifNewCount, setNotifNewCount] = useState(0);
@@ -141,6 +145,7 @@ const Navbar = () => {
   }, []);
 
   return (
+    <>
     <nav className="bg-gradient-to-r from-[#0B4E89] to-[#0F5D98] px-4 sm:px-5 flex items-center justify-between h-[52px] shadow-md">
       {/* Logo */}
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -332,6 +337,20 @@ const Navbar = () => {
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
             <button
+              onClick={() => { setIsUserMenuOpen(false); setShowChangePassword(true); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Lock size={16} />
+              <span>Change Password</span>
+            </button>
+            <button
+              onClick={() => { setIsUserMenuOpen(false); setShowSessions(true); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Monitor size={16} />
+              <span>Active Sessions</span>
+            </button>
+            <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
@@ -428,6 +447,20 @@ const Navbar = () => {
                 </div>
               </div>
               <button
+                onClick={() => { setIsMenuOpen(false); setShowChangePassword(true); }}
+                className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-sm text-blue-200 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Lock size={16} />
+                <span>Change Password</span>
+              </button>
+              <button
+                onClick={() => { setIsMenuOpen(false); setShowSessions(true); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-200 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Monitor size={16} />
+                <span>Active Sessions</span>
+              </button>
+              <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-sm text-red-300 hover:bg-white/10 rounded-lg transition-colors"
               >
@@ -450,6 +483,16 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+
+    <ChangePasswordModal
+      open={showChangePassword}
+      onClose={() => setShowChangePassword(false)}
+    />
+    <SessionsModal
+      open={showSessions}
+      onClose={() => setShowSessions(false)}
+    />
+    </>
   );
 };
 

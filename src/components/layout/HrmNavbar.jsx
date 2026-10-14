@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor, LayoutDashboard, Users, ClipboardCheck, CalendarDays, ArrowRightLeft, ShieldCheck, User, UserCog, AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
+import { ChevronDown, Bell, Search, Menu, X, LogOut, Home, Anchor, LayoutDashboard, Users, ClipboardCheck, CalendarDays, ArrowRightLeft, ShieldCheck, User, UserCog, AlertTriangle, CheckCircle, Info, XCircle, Lock, Monitor } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { dashboardAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import ChangePasswordModal from '../common/ChangePasswordModal';
+import SessionsModal from '../common/SessionsModal';
 
 const allNavLinks = [
   { label: 'Dashboard', path: '/hrm-dashboard', hasDropdown: false, icon: LayoutDashboard },
@@ -32,6 +34,8 @@ export default function HrmNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileDevelopmentOpen, setIsMobileDevelopmentOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showSessions, setShowSessions] = useState(false);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifNewCount, setNotifNewCount] = useState(0);
@@ -149,6 +153,7 @@ export default function HrmNavbar() {
   }, []);
 
   return (
+    <>
     <nav className="bg-gradient-to-r from-[#0B4E89] to-[#0F5D98] px-4 sm:px-5 flex items-center justify-between h-[52px] shadow-md">
       {/* Logo */}
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -348,6 +353,20 @@ export default function HrmNavbar() {
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
             <button
+              onClick={() => { setIsUserMenuOpen(false); setShowChangePassword(true); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Lock size={16} />
+              <span>Change Password</span>
+            </button>
+            <button
+              onClick={() => { setIsUserMenuOpen(false); setShowSessions(true); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Monitor size={16} />
+              <span>Active Sessions</span>
+            </button>
+            <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
@@ -444,6 +463,20 @@ export default function HrmNavbar() {
                 </div>
               </div>
               <button
+                onClick={() => { setIsMenuOpen(false); setShowChangePassword(true); }}
+                className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-sm text-blue-200 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Lock size={16} />
+                <span>Change Password</span>
+              </button>
+              <button
+                onClick={() => { setIsMenuOpen(false); setShowSessions(true); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-200 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Monitor size={16} />
+                <span>Active Sessions</span>
+              </button>
+              <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-sm text-red-300 hover:bg-white/10 rounded-lg transition-colors"
               >
@@ -466,5 +499,15 @@ export default function HrmNavbar() {
         </div>
       )}
     </nav>
+
+    <ChangePasswordModal
+      open={showChangePassword}
+      onClose={() => setShowChangePassword(false)}
+    />
+    <SessionsModal
+      open={showSessions}
+      onClose={() => setShowSessions(false)}
+    />
+    </>
   );
 }
